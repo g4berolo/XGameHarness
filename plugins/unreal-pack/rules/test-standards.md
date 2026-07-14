@@ -1,4 +1,5 @@
 ---
+managed-by: XGameHarness/unreal-pack
 paths:
   - "client/Source/clientTests/**"
   - "tests/**"

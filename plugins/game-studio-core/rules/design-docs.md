@@ -1,4 +1,5 @@
 ---
+managed-by: XGameHarness/game-studio-core
 paths:
   - "design/gdd/**"
 ---
