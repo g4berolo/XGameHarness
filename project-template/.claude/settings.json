@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "extraKnownMarketplaces": {
-    "gamestudio": {
+    "XGameHarness": {
       "source": {
         "source": "github",
         "repo": "g4berolo/XGameHarness"
@@ -9,8 +9,8 @@
     }
   },
   "enabledPlugins": {
-    "game-studio-core@gamestudio": true,
-    "unreal-pack@gamestudio": true
+    "game-studio-core@XGameHarness": true,
+    "unreal-pack@XGameHarness": true
   },
   "permissions": {
     "allow": [

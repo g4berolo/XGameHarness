@@ -1,6 +1,6 @@
 # XGameHarness — GameStudio 共享 Agent Harness
 
-多项目共享的 Claude Code 插件市场(plugin marketplace)。所有 GameStudio 项目从这里
+多项目共享的 Claude Code 插件市场(plugin marketplace，注册名同仓库名 XGameHarness)。所有 GameStudio 项目从这里
 获取统一的 skills / agents / hooks / 流程规则；本仓库每次 commit 推送后，各项目
 下个 session 自动收到更新（插件不写 `version` 字段 → commit 即版本）。
 
@@ -14,12 +14,12 @@
 ## 新项目接入 checklist
 
 1. 复制 `project-template/` 内容到新项目根（`.claude/settings.json` 已含 marketplace
-   引用；非 UE 项目删掉 `enabledPlugins` 里的 `unreal-pack@gamestudio` 行）
+   引用；非 UE 项目删掉 `enabledPlugins` 里的 `unreal-pack@XGameHarness` 行）
 2. 按项目改写 `CLAUDE.md`（模板内有占位注释）与 `.claude/team.json`
 3. 从插件复制 path-scoped rules 模板到项目 `.claude/rules/`，按项目目录改 frontmatter `paths:`：
    - 通用：`plugins/game-studio-core/docs/templates/rules/`（design-docs / prototype-code）
    - UE：`plugins/unreal-pack/templates/rules/`（gameplay-code / ai-code / ui-code / test-standards）
-4. 打开 Claude Code → 信任项目文件夹 → 按提示安装 `gamestudio` marketplace 插件
+4. 打开 Claude Code → 信任项目文件夹 → 按提示安装 `XGameHarness` marketplace 插件
 5. 跑 `/start` 验证（新项目缺 team/ plan/ 目录时 hooks 静默降级，属正常）
 
 ## 项目契约（hooks / skills 依赖的目录约定）
@@ -48,12 +48,12 @@ gh auth setup-git        # 让 re-clone fallback 能认证
 ```
 
 并在环境变量加 `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1`（后台拉取失败时
-保留现有克隆）。任何时候可手动 `/plugin marketplace update gamestudio` 强制同步。
+保留现有克隆）。任何时候可手动 `/plugin marketplace update XGameHarness` 强制同步。
 
 ## 修改 harness 的规范
 
 - 直接在 `main` 提交(commit)；推送(push)后所有项目下个 session 生效
-- 坏改动回滚：`git revert` 本仓库 + 各项目 `/plugin marketplace update gamestudio`
+- 坏改动回滚：`git revert` 本仓库 + 各项目 `/plugin marketplace update XGameHarness`
 - 改 hooks 后本地先验证：`claude plugin validate .` + 在任一项目开新 session 观察
   SessionStart 输出
 - **`.codex/hooks/` 镜像不自动同步**：RichLethe 等项目的 Codex CLI hook 副本独立

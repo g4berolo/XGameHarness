@@ -1,6 +1,6 @@
 # <ProjectName> — Game Development Project
 
-> harness（skills / agents / hooks / 流程规则）由 `gamestudio` 插件市场提供
+> harness（skills / agents / hooks / 流程规则）由 `XGameHarness` 插件市场提供
 > （`g4berolo/XGameHarness` — `game-studio-core` + `unreal-pack`），随该仓库
 > 每次 commit 自动更新。R2 中文输出规则由插件 UserPromptSubmit hook 逐条注入。
 > 通用流程文档（agent-process-rules / context-management / team-memo-protocol /
@@ -48,5 +48,5 @@ Every task follows: **Question -> Options -> Decision -> Draft -> Approval**
 ## Language
 
 **中文为主**。所有用户面向(user-facing)文本默认中文回复。完整 R2 词类细化规则由
-gamestudio 插件 hook 每条 prompt 自动注入；被用户指出违规时：立即承认 + 重写违规
+XGameHarness 插件 hook 每条 prompt 自动注入；被用户指出违规时：立即承认 + 重写违规
 段落 + 不辩解。
