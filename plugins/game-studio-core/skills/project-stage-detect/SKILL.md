@@ -87,7 +87,7 @@ only when SoT files don't exist.
 
 ### 4. Generate Stage Report
 
-Use template: `.claude/docs/templates/project-stage-report.md`
+Use template: `${CLAUDE_PLUGIN_ROOT}/docs/templates/project-stage-report.md` (bundled with this plugin)
 
 **Report structure**:
 ```markdown

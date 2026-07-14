@@ -38,7 +38,7 @@ Check:
   and check `team/session-state/{identity}/active.md`.
 - **Memo inbox?** Glob `team/memo/{identity}/open/*.md` (exclude `.gitkeep`) to detect
   unprocessed cross-developer pings. For each, read frontmatter `from` + first `# ...`
-  heading for dashboard preview. Protocol detail: `.claude/docs/team-memo-protocol.md`.
+  heading for dashboard preview. Protocol detail: `${CLAUDE_PLUGIN_ROOT}/docs/team-memo-protocol.md`.
 
 Store findings internally for Step 2.
 

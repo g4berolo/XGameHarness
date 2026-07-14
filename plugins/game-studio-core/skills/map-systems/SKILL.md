@@ -180,7 +180,7 @@ This is the order the team should write GDDs in.
 
 ### Step 5a: Draft the Document
 
-Using the template at `.claude/docs/templates/systems-index.md`, populate the
+Using the template at `${CLAUDE_PLUGIN_ROOT}/docs/templates/systems-index.md` (bundled with this plugin), populate the
 systems index with all data from Phases 2-4:
 - Fill the enumeration table
 - Fill the dependency map

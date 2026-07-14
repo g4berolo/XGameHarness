@@ -90,7 +90,7 @@
 1. session 启动时若 system reminder 含 `=== Path-Scoped Rules ===` 段，**完整读完**所有列出的 rule 文件
 2. Edit `.claude/rules/*.md` `paths:` 匹配的文件后，若 tool result 含 `additionalContext` 注入新 rule，**立即按新 rule 校验本次和后续 Edit**
 3. 如对 rule 有歧义或与其他指令冲突，明示问用户哪条优先，不要自行判断
-4. 当前 rules 索引见 `.claude/docs/rules-reference.md`；机制原理 + 加新 rule 流程见 `.claude/docs/rules-mechanism.md`
+4. 当前 rules 索引见项目 `.claude/docs/rules-reference.md`；机制原理 + 加新 rule 流程见本插件 `docs/rules-mechanism.md`
 
 ---
 

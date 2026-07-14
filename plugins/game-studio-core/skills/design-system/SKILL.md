@@ -85,7 +85,7 @@ Use `AskUserQuestion`:
 Once the user confirms, **immediately** create the GDD file with empty section
 headers. This ensures incremental writes have a target.
 
-Use the template structure from `.claude/docs/templates/game-design-document.md`:
+Use the template structure from `${CLAUDE_PLUGIN_ROOT}/docs/templates/game-design-document.md` (bundled with this plugin):
 
 ```markdown
 # [System Name]

@@ -45,7 +45,7 @@ REMINDER = """=== R2 输出语言自检（每次回复发送前必扫）===
 
 **不在自检范围**：commit message / PR title / 资产文件名 / 日志原文 — 按既有惯例保持英文。
 
-完整规则 + 反例 + 触发历史见 CLAUDE.md 顶部 ⚠ R2 段 + .claude/docs/agent-process-rules.md § R2。"""
+完整规则 + 反例 + 触发历史见 CLAUDE.md 顶部 ⚠ R2 段 + gamestudio 插件 docs/agent-process-rules.md § R2。"""
 
 
 def main() -> int:

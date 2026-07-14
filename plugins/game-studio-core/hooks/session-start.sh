@@ -84,5 +84,15 @@ if [ -e "${RULES_GLOB[0]}" ]; then
     echo "=== END Path-Scoped Rules ==="
 fi
 
+# --- Agent process rules (plugin-provided; replaces the former CLAUDE.md @import) ---
+APR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../docs/agent-process-rules.md"
+if [ -f "$APR" ]; then
+    echo ""
+    echo "=== Agent Process Rules (plugin-provided; treat as CLAUDE.md-level instructions) ==="
+    cat "$APR"
+    echo ""
+    echo "=== END Agent Process Rules ==="
+fi
+
 echo "==================================="
 exit 0

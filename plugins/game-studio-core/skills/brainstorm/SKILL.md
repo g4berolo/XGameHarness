@@ -189,7 +189,7 @@ Ground the concept in reality:
 ---
 
 4. **Generate the game concept document** using the template at
-   `.claude/docs/templates/game-concept.md`. Fill in ALL sections from the
+   `${CLAUDE_PLUGIN_ROOT}/docs/templates/game-concept.md` (bundled with this plugin). Fill in ALL sections from the
    brainstorm conversation, including the MDA analysis, player motivation
    profile, and flow state design sections.
 
