@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import pathlib
 import re
 import sys
@@ -26,7 +27,9 @@ if hasattr(sys.stdout, "buffer"):
 if hasattr(sys.stderr, "buffer"):
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
+# Plugin-hosted: the script lives in the plugin cache, so the project root must
+# come from the hook environment (CLAUDE_PROJECT_DIR), not from __file__.
+REPO_ROOT = pathlib.Path(os.environ.get("CLAUDE_PROJECT_DIR") or pathlib.Path.cwd()).resolve()
 RULES_DIR = REPO_ROOT / ".claude" / "rules"
 STATE_DIR = REPO_ROOT / ".claude" / "state" / "rules-injected"
 LOG_FILE = REPO_ROOT / ".claude" / "state" / "inject-rules.log"
