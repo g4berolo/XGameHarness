@@ -4,18 +4,15 @@
     "name": "GameStudio (zhouxinyu + fro)"
   },
   "description": "Shared Claude Code harness for GameStudio projects: production workflow skills, design agents, session/identity hooks, and an Unreal Engine specialist pack.",
-  "metadata": {
-    "pluginRoot": "./plugins"
-  },
   "plugins": [
     {
       "name": "game-studio-core",
-      "source": "./game-studio-core",
+      "source": "./plugins/game-studio-core",
       "description": "Engine-agnostic game production harness: /start dashboard, sprint/design/review skills, producer & designer agents, session-state / identity / language / path-scoped-rules hooks."
     },
     {
       "name": "unreal-pack",
-      "source": "./unreal-pack",
+      "source": "./plugins/unreal-pack",
       "description": "Unreal Engine specialist layer: unreal-specialist + ue-blueprint/gas/umg/replication agents, UE path-scoped rule templates. Enable only on UE projects."
     }
   ]
