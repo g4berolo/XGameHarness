@@ -4,15 +4,21 @@
 所有 GameStudio 项目从这里获取统一的 skills / agents / hooks / 流程规则；本仓库每次
 commit 推送后，各项目下个 session 自动收到更新（插件不写 `version` 字段 → commit 即版本）。
 
+> **⚡ 主推入口：`/how-to-do <想做的事>`** —— 任何时间任何情况帮你澄清目标、检索
+> 匹配 skill/agent、给出完整建议流程并立刻推进（无参数 = "我现在该干嘛"）。
+>
 > **📖 详细操作手册**：[`plugins/game-studio-core/docs/HANDBOOK.md`](plugins/game-studio-core/docs/HANDBOOK.md)
 > —— 任务导向速查（「我想写策划案」→ 用哪个 skill/agent），含 hooks 说明、rules 双层
-> 管理、加插件流程、故障排查。已接入项目内可直接 `/handbook <关键词>` 查询。
+> 管理、加插件流程、故障排查。已接入项目内 `/handbook <关键词>` 直查。
+>
+> agent 侧执行 **R5 Skill-first 路由**（superpowers 式强制流程）：接到任务先扫
+> skill 匹配，命中即调用；SessionStart hook 每 session 注入该规则。
 
 ## 插件
 
 | 插件 | 内容 | 适用 |
 |---|---|---|
-| `game-studio-core` | 21 个流程 skills（/start、/brainstorm、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook…）+ 9 个设计/制作 agents（producer、creative-director、*-designer…）+ 9 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
+| `game-studio-core` | 22 个流程 skills（/how-to-do、/start、/brainstorm、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook…）+ 9 个设计/制作 agents（producer、creative-director、*-designer…）+ 9 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
 
 ## 新项目接入

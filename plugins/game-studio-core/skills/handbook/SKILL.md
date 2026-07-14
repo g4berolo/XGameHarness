@@ -20,3 +20,5 @@ allowed-tools: Read, Grep, Glob
    可把该场景补进 HANDBOOK.md（harness 仓库 `plugins/game-studio-core/docs/`）。
 5. 无参数调用时：输出 § 1 的分组目录（立项规划 / 写策划案 / 写代码 / 美术 /
    运维），让用户挑。
+6. **转介**：用户目标模糊、跨多步、或需要帮忙完善想法时，本 skill 只查表不够 ——
+   建议并可直接转调 `/how-to-do`（主推导航入口）。

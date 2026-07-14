@@ -151,6 +151,39 @@ spawn economy-designer subagent: audit design/gdd/economy.md
 
 ---
 
+## R5 Skill-first 路由
+
+**Rule**: 主 agent 接到任何任务，动手前**必须**先对照可用 skills（速查表 =
+XGameHarness 插件 `docs/HANDBOOK.md` § 1 + system prompt 中的 skill 列表）检查
+是否有匹配 skill。这是**强制流程，不是可选建议**（参照 superpowers 的
+"mandatory workflows, not suggestions" 模式）。
+
+**判定顺序**：
+
+1. **有匹配 skill** → 直接用 Skill tool 调用，不要徒手复刻其流程（徒手复刻 =
+   丢失该 skill 固化的结构、模板与检查项）
+2. **目标模糊 / 用户不确定做什么 / 明显是多步工作流** → 调 `/how-to-do`
+   （主推入口 — 目标澄清 + 手册检索 + 完整建议流程），任何时间任何情况均可用
+3. **确认无匹配** → 自行处理，但在回应中留一句"本任务无匹配 skill，直接处理"
+   的判定痕迹（防静默跳过）
+
+**与 R4 的边界**：skill 是流程指令（主 agent 自己执行），命中即可直接调用；
+subagent 仍按 R4 显式触发协议——提示用户推荐 spawn 模板，不自动 spawn。
+
+**Why**: RichLethe P31 review 曾发现 7 个 subagent 零调用；skill 同样存在
+"装了但被遗忘"问题——主 agent 默认倾向徒手做而不查工具箱。触发点前移到
+任务开始时强制自检，成本一次扫表，收益是流程资产真正被复用。
+
+**How to apply**:
+
+1. 每个新任务（用户消息含行动请求时）第一步：心中对照 HANDBOOK § 1 分组
+   （立项规划 / 写策划案 / 写代码 / 美术 / 运维）扫一遍
+2. 命中但用户没点名 → 直接调用并告知"本任务走 /xxx skill"；用户明确拒绝后不再坚持
+3. 用户说"不知道下一步干嘛"/"帮我推进" → `/how-to-do` 无参数模式
+4. 判定为无匹配时，若事后发现其实有匹配 skill，视同 R5 违规——承认 + 改用 skill 重做
+
+---
+
 ## 修订历史
 
 | Date | Change | Reason |
@@ -160,3 +193,4 @@ spawn economy-designer subagent: audit design/gdd/economy.md
 | 2026-05-23 | 加 R4 subagent invocation pattern | P31 review 发现 7 subagent 零调用；fro 未知需显式触发，固化触发协议 + prompt 模板 |
 | 2026-05-24 | R2 词类细化（动词 / 状态词 / 专业名词三层）+ 反例对比 + RichLethe 触发说明 | P29 session 末用户反馈："OK 跑 commit？" 类混搭降低中文用户阅读流畅度，要求 vocab 层细化 |
 | 2026-06-03 | R4 名册 7→15（移植 producer / creative-director / technical-director / unreal-specialist + 4 ue-* specialist）+ 补 "subagent 不能 spawn subagent" 平台事实 | P38 用户从上游模板补项目管理 / 分析 / UE 专家 agent；移植中发现模板的 unreal-specialist Task-orchestration 在 Claude Code 跑不通，固化平台限制说明 |
+| 2026-07-14 | 加 R5 skill-first 路由 + /how-to-do 主推入口 | harness 抽取为 XGameHarness marketplace 后 skill 数达 22，"装了但被遗忘"风险同 R4 教训；参照 superpowers mandatory-workflow 模式前移触发点 |
