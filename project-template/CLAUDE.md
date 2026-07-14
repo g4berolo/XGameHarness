@@ -1,7 +1,7 @@
 # <ProjectName> — Game Development Project
 
 > harness（skills / agents / hooks / 流程规则）由 `gamestudio` 插件市场提供
-> （`g4berolo/claude-harness` — `game-studio-core` + `unreal-pack`），随该仓库
+> （`g4berolo/XGameHarness` — `game-studio-core` + `unreal-pack`），随该仓库
 > 每次 commit 自动更新。R2 中文输出规则由插件 UserPromptSubmit hook 逐条注入。
 > 通用流程文档（agent-process-rules / context-management / team-memo-protocol /
 > rules-mechanism）见插件 docs/ 目录，需要时按需 Read。

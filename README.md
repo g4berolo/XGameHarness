@@ -1,4 +1,4 @@
-# claude-harness — GameStudio 共享 Claude Code Harness
+# XGameHarness — GameStudio 共享 Agent Harness
 
 多项目共享的 Claude Code 插件市场(plugin marketplace)。所有 GameStudio 项目从这里
 获取统一的 skills / agents / hooks / 流程规则；本仓库每次 commit 推送后，各项目
