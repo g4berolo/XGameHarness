@@ -1,0 +1,4 @@
+{
+  "_comment": "可选的 per-project harness 配置。excludedAgents: suggest-subagent hook 不再提示这些 agent（例：单人游戏排除联网专家）。",
+  "excludedAgents": ["ue-replication-specialist"]
+}

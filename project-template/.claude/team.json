@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "identities": {
+    "zhouxinyu": {
+      "git_users": ["g4berolo"],
+      "git_emails": ["gaberzxy@163.com"],
+      "role": "admin",
+      "display_name": "超级大星"
+    },
+    "fro": {
+      "git_users": ["caicww1988"],
+      "git_emails": ["369367305@qq.com"],
+      "role": "developer",
+      "display_name": "Fro"
+    }
+  },
+  "roles": {
+    "admin": { "can_edit_team_config": true, "can_edit_all_sessions": true },
+    "developer": { "can_edit_team_config": false, "can_edit_all_sessions": false },
+    "artist": { "can_edit_team_config": false, "can_edit_all_sessions": false }
+  }
+}
