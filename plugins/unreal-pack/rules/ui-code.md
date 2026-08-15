@@ -6,7 +6,8 @@ paths:
 
 # UI Code Rules
 
-适用于 RichLethe UMG / Common UI C++ 代码（`client/Source/**/UI/**`）。
+适用于本项目 UMG / Common UI C++ 代码（默认 `client/Source/**/UI/**`，按项目结构
+调整 frontmatter 的 `paths:`）。
 
 > **当前 path 占位** — UI 主要在 BP（`W_*.uasset`），C++ 子目录尚未建立。当 UI C++ 代码 land 时本规则自动激活。
 

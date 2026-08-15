@@ -1,6 +1,6 @@
 # Path-Scoped Rules Mechanism
 
-本机制在编辑指定 path 的文件时自动向 agent 注入对应规则。基于 Claude Code hooks 实现，**非官方 API**（属 RichLethe 自定义 convention）。
+本机制在编辑指定 path 的文件时自动向 agent 注入对应规则。基于 Claude Code hooks 实现，**非官方 API**（属 XGameHarness 自定义 convention）。
 
 ---
 
@@ -10,8 +10,8 @@
 
 | 时机 | Hook | 行为 |
 |---|---|---|
-| **Session 启动** | `.claude/hooks/session-start.sh` 末尾段 | 全量加载 `.claude/rules/*.md` 完整内容到 SessionStart context，**首次编辑也有规则可遵守** |
-| **每次 Edit / Write / MultiEdit 后** | `.claude/hooks/inject-rules.py`（PostToolUse） | 解析 frontmatter `paths:` glob，命中目标文件则注入对应 rule 到 `additionalContext` |
+| **Session 启动** | `${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh` 末尾段（hook 随插件分发，项目侧无 .claude/hooks/） | 全量加载 `.claude/rules/*.md` 完整内容到 SessionStart context，**首次编辑也有规则可遵守** |
+| **每次 Edit / Write / MultiEdit 后** | `${CLAUDE_PLUGIN_ROOT}/hooks/inject-rules.py`（PostToolUse） | 解析 frontmatter `paths:` glob，命中目标文件则注入对应 rule 到 `additionalContext` |
 
 PostToolUse 是 Claude Code 官方仅支持 `additionalContext` 注入的 hook 事件（PreToolUse 不支持），所以注入是**事后的**。SessionStart 路径补充"首次编辑前空窗"。
 
@@ -52,6 +52,7 @@ paths:
 | 字段 | 必填 | 说明 |
 |---|---|---|
 | `paths` | 必填 | YAML 列表 of POSIX glob patterns（仓库相对路径） |
+| `managed-by` | 可选 | 形如 `XGameHarness/<pack>`。带此标记的文件由 `/sync-rules` 跟随插件更新覆盖；项目定制后删掉该行即固定为项目版 |
 
 ### Glob 语法
 
@@ -81,7 +82,7 @@ paths:
 
 ## 当前 active rules + 历史
 
-完整索引（含 active / 已删 / 不引入原因）见 [rules-reference.md](rules-reference.md)。
+完整索引是**项目侧可选文件** `.claude/docs/rules-reference.md`（项目自建则以其为准）；分发源清单见本插件 `rules/` 目录。
 
 ---
 
@@ -109,18 +110,18 @@ paths:
 
 | 局限 | 接受理由 / 缓解 |
 |---|---|
-| **PostToolUse 是事后注入** | SessionStart 全量加载兜底；RichLethe incremental 写 GDD 工作流，首次注入后后续 section 已合规 |
-| **Python 依赖** | RichLethe `tools/` 已有 Python 脚本；只这 1 个 hook 用 Python，其他 hook 保持 bash |
+| **PostToolUse 是事后注入** | SessionStart 全量加载兜底，保证首次编辑前规则已在上下文；incremental 写 GDD 的工作流下，首次注入后后续 section 已合规 |
+| **Python 依赖** | 只这 1 个 hook 用 Python，其他 hook 保持 bash；Python 缺失时该 hook 静默跳过，SessionStart 全量加载仍生效 |
 | **frontmatter 协议是自定义 convention** | 非 Claude Code 官方 API，未来若有更优官方机制可弃用本 hook |
-| **SessionStart 全量加载占 token** | 当前 1 个 active rule (~500 token) 可接受；若未来超 1500 token 考虑按 git status / session-state 启发式选择性加载 |
-| **重复加载（SessionStart + 首次 PostToolUse）** | 接受 — "兜底 + 强化"代价低 |
+| **SessionStart 全量加载占 token** | 规则总量小时可接受；超约 1500 token 应考虑按 git status / session-state 启发式选择性加载 |
+| **重复加载（SessionStart + 首次 PostToolUse）** | 已消除 — SessionStart 输出规则的同时预写 `rules-injected/{session_id}/` 标记，PostToolUse 据此跳过；只有 session 中途新增的 rule 才会二次注入 |
 | **Hook 失败不阻断 Edit** | 异常 silent exit 0；timeout 8s 兜底；查 `.claude/state/inject-rules.log` 排查 |
 
 ---
 
 ## 历史背景
 
-RichLethe 从上游模板 [`Claude-Code-Game-Studios`](https://github.com/) fork 来。上游 `.claude/rules/` 含 11 个文件 + frontmatter `paths:`，但**模板的 `rules-reference.md` 错误声称"automatically enforced when editing files in matching paths"**，实际 Claude Code 官方不支持该机制。本机制是 RichLethe 单边补全的真正实现（PostToolUse hook + SessionStart 兜底），不回流上游。
+本 harness 的祖源是上游模板 [`Claude-Code-Game-Studios`](https://github.com/Donchitos/Claude-Code-Game-Studios)。上游 `.claude/rules/` 含 11 个文件 + frontmatter `paths:`，但**模板的 `rules-reference.md` 错误声称 "automatically enforced when editing files in matching paths"**，实际 Claude Code 官方不支持该机制。本机制是 XGameHarness 补全的真正实现（PostToolUse hook + SessionStart 兜底），不回流上游。
 
 详见 `docs/architecture/`（未来若需 ADR 化）和本文档自身的修订历史。
 

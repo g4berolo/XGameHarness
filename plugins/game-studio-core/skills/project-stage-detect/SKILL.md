@@ -3,7 +3,7 @@ name: project-stage-detect
 description: "Automatically analyze project state, detect stage, identify gaps, and recommend next steps based on existing artifacts."
 argument-hint: "[optional: role filter like 'programmer' or 'designer']"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash, Write
 ---
 
 # Project Stage Detection
@@ -176,7 +176,7 @@ After generating the report, suggest relevant next steps:
 
 - **Concept exists but no systems index?** → `/map-systems` to decompose into systems
 - **Missing design docs?** → `/reverse-document design client/Source/client/[Module]`
-- **Missing architecture docs?** → `/architecture-decision` or `/reverse-document architecture`
+- **Missing architecture docs?** → `/reverse-document architecture`, or write an ADR from `${CLAUDE_PLUGIN_ROOT}/docs/templates/architecture-decision-record.md` (optionally via `game-studio-core:technical-director`)
 - **Prototypes need documentation?** → `/reverse-document concept prototypes/[name]`
 - **No sprint plan?** → `/sprint-plan`
 - **Approaching milestone?** → `/milestone-review`

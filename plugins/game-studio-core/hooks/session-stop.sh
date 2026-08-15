@@ -18,7 +18,14 @@ LOG_FILE="$SESSION_LOG_DIR/session-log-$(date +%Y-%m).md"
 
 # Log recent git activity from this session (check up to 8 hours for long sessions).
 # --author filter: without it, commits pulled in from teammates land in this log too.
-RECENT_COMMITS=$(git log --oneline --since="8 hours ago" --author="$(git config user.name)" 2>/dev/null)
+# An EMPTY --author= matches every author, which is the opposite of the intent --
+# so skip the commit section entirely when git has no user.name configured.
+GIT_AUTHOR_NAME=$(git config user.name 2>/dev/null)
+if [ -n "$GIT_AUTHOR_NAME" ]; then
+    RECENT_COMMITS=$(git log --oneline --since="8 hours ago" --author="$GIT_AUTHOR_NAME" 2>/dev/null)
+else
+    RECENT_COMMITS=""
+fi
 MODIFIED_FILES=$(git diff --name-only 2>/dev/null)
 
 # --- Record a lightweight state pointer on shutdown ---
@@ -32,11 +39,11 @@ if [ -f "$STATE_FILE" ]; then
     {
         echo "## Session State Pointer: $TIMESTAMP"
         echo "active.md @ ${STATE_LINES} lines, HEAD ${HEAD_HASH}"
-        echo "(full state: git show ${HEAD_HASH}:$STATE_FILE)"
+        echo "(full state: git show ${HEAD_HASH}:$(get_session_state_file_rel "$IDENTITY"))"
         echo "---"
         echo ""
     } >> "$LOG_FILE" 2>/dev/null
-    # active.md persists as living checkpoint (see .claude/docs/context-management.md)
+    # active.md persists as living checkpoint (see ${CLAUDE_PLUGIN_ROOT}/docs/context-management.md)
 fi
 
 if [ -n "$RECENT_COMMITS" ] || [ -n "$MODIFIED_FILES" ]; then

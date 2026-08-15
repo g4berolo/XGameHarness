@@ -6,7 +6,8 @@ paths:
 
 # AI Code Rules
 
-适用于 RichLethe NPC / Enemy AI 代码（`client/Source/**/AI/**`）。
+适用于本项目 NPC / Enemy AI 代码（默认 `client/Source/**/AI/**`，按项目结构调整
+frontmatter 的 `paths:`）。
 
 > **当前 path 占位** — `client/Source/client/AI/` 子目录尚未建立。首次 AI 代码 land 时本规则自动激活；若实际目录命名不同，按需 patch 本文件 `paths:`。
 

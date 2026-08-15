@@ -29,12 +29,15 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, mcp__tripo-
 ### 阶段 2: 角色上下文
 
 1. 解析参数中的角色名（如 `warrior`）
-2. 读取 `art/asset-registry.md` 检查该角色当前进度
+2. 读取 `art/asset-registry.md` 检查该角色当前进度。**该文件不存在时不报错**：
+   `art/` 整棵目录不在 harness 项目契约里（project-template 不建、project-init 不建），
+   属项目自定美术管线。跳过进度检查，在阶段 7 再问用户是否新建。
 3. 读取 `art/style-guide/` 下的风格规范（如有）
 4. 调用 `tripo_list_approved_illustrations` 列出上游已审核立绘
 5. 检查该角色是否有多个角度的立绘（front/side/back）
 6. 调用 `tripo_clean_outputs` (action=list) 检查是否有待处理的模型
-7. **如果有未审核模型，必须先处理**（同 illustrator 的强制清理流程）
+7. **如果有未审核模型，必须先处理** —— 未审核产物堆积会让后续批次无法判断哪个是最新
+   有效版本，所以先走完审核/归档再生成新模型
 8. 向用户展示收集到的上下文信息
 
 ### 阶段 3: 生成方式选择
@@ -47,7 +50,8 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, mcp__tripo-
 - 文生3D (text2model) — 从文字描述直接生成（无需立绘）
 
 如果选择 img2model 或 multiview2model：
-- 列出 `01_Illustration/approved/` 中与该角色相关的立绘文件
+- 列出 `art/01_Illustration/approved/` 中与该角色相关的立绘文件（目录不存在则说明
+  项目尚未建立美术管线，请用户直接给出立绘路径）
 - 让用户选择要使用的图片
 
 如果选择 text2model：
@@ -108,7 +112,8 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, mcp__tripo-
 
 ### 阶段 7: 资源注册
 
-1. 读取 `art/asset-registry.md`
+1. 读取 `art/asset-registry.md`。不存在就问用户「是否新建 `art/asset-registry.md`？」，
+   同意则先写表头：`| 角色 | Illustration | Model | Rigging | Animation | 备注 |`。
 2. 询问用户是否更新资源注册表
 3. 如同意，更新该角色的 Model 列：
    - 状态: `OK` / `WIP`

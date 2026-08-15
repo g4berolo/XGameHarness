@@ -3,7 +3,7 @@ name: design-system
 description: "Guided, section-by-section GDD authoring for a single game system. Gathers context from existing docs, walks through each required section collaboratively, cross-references dependencies, and writes incrementally to file."
 argument-hint: "<system-name> (e.g., 'combat-system', 'inventory', 'dialogue')"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, TaskCreate, TaskUpdate
+allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Skill
 ---
 
 When this skill is invoked:
@@ -246,7 +246,7 @@ This is usually the largest section. Break it into sub-sections:
 - What can the player NOT do? (Constraints are as important as capabilities)
 
 **Agent delegation**: For complex mechanics, use the Agent tool to delegate to
-`game-designer` for high-level design review, or `systems-designer` for detailed
+`game-studio-core:game-designer` for high-level design review, or `game-studio-core:systems-designer` for detailed
 mechanical modeling. Provide the full context gathered in Phase 2.
 
 **Cross-reference**: For each interaction listed, verify it matches what the
@@ -266,7 +266,7 @@ and edge cases noted.
 - What should the output ranges be at early/mid/late game?
 
 **Agent delegation**: For formula-heavy systems (combat, economy, progression),
-delegate to `systems-designer` via the Agent tool. Provide:
+delegate to `game-studio-core:systems-designer` via the Agent tool. Provide:
 - The Core Rules from Section C (already written to file)
 - Tuning goals from the user
 - Balance context from dependency GDDs
@@ -289,8 +289,10 @@ this system, reference it explicitly. Don't reinvent — connect.
 - What happens if the player tries to exploit this? (Identify degenerate strategies)
 
 **Agent delegation**: For systems with complex interactions, delegate to
-`systems-designer` to identify edge cases from the formula space. For narrative
-systems, consult `narrative-director` for story-breaking edge cases.
+`game-studio-core:systems-designer` to identify edge cases from the formula space.
+For narrative systems, consult `game-studio-core:narrative-director` for
+story-breaking edge cases. (The plugin prefix is mandatory — a bare name is
+rejected with `Agent type not found`.)
 
 **Cross-reference**: Check edge cases against dependency GDDs. If combat says
 "damage cannot go below 1" but this system can reduce damage to 0, that's a
@@ -324,7 +326,7 @@ system]". Flag any one-directional dependencies for correction.
 - For each knob, what breaks if it's set too high? Too low?
 - Which knobs interact with each other? (Changing A makes B irrelevant)
 
-**Agent delegation**: If formulas are complex, delegate to `systems-designer`
+**Agent delegation**: If formulas are complex, delegate to `game-studio-core:systems-designer`
 to derive tuning knobs from the formula variables.
 
 **Cross-reference**: If a dependency GDD lists tuning knobs that affect this system,
@@ -356,10 +358,13 @@ Use `AskUserQuestion`:
   requirements, UI requirements, or capture open questions?"
   - Options: "Yes, all three", "Just open questions", "Skip — I'll add these later"
 
-For **Visual/Audio**: Coordinate with `art-director` and `audio-director` if detail
-is needed. Often a brief note suffices at the GDD stage.
+For **Visual/Audio**: There is no art or audio agent in this harness (see the § 6
+routing table). Ask the user directly for any detail you need. A brief note usually
+suffices at the GDD stage.
 
-For **UI Requirements**: Coordinate with `ux-designer` for complex UI systems.
+For **UI Requirements**: There is no UX agent either — gather requirements from the
+user. On a UE project, `unreal-pack:ue-umg-specialist` can advise on UMG/CommonUI
+feasibility once the requirements exist.
 
 For **Open Questions**: Capture anything that came up during design that wasn't
 fully resolved. Each question should have an owner and target resolution date.
@@ -436,17 +441,23 @@ Use `AskUserQuestion`:
 This skill delegates to specialist agents for domain expertise. The main session
 orchestrates the overall flow; agents provide expert content.
 
+Agent identifiers require their plugin prefix — a bare name is rejected with
+`Agent type not found`. `unreal-pack:*` entries exist only on projects that
+enabled that plugin. Where a column reads "(no agent)", this harness has no
+specialist for that area: gather the input from the user instead of inventing
+an agent name.
+
 | System Category | Primary Agent | Supporting Agent(s) |
 |----------------|---------------|---------------------|
-| Combat, damage, health | `game-designer` | `systems-designer` (formulas), `ai-programmer` (enemy AI) |
-| Economy, loot, crafting | `economy-designer` | `systems-designer` (curves), `game-designer` (loops) |
-| Progression, XP, skills | `game-designer` | `systems-designer` (curves), `economy-designer` (sinks) |
-| Dialogue, quests, lore | `game-designer` | `narrative-director` (story), `writer` (content) |
-| UI systems (HUD, menus) | `game-designer` | `ux-designer` (flows), `ui-programmer` (feasibility) |
-| Audio systems | `game-designer` | `audio-director` (direction), `sound-designer` (specs) |
-| AI, pathfinding, behavior | `game-designer` | `ai-programmer` (implementation), `systems-designer` (scoring) |
-| Level/world systems | `game-designer` | `level-designer` (spatial), `world-builder` (lore) |
-| Camera, input, controls | `game-designer` | `ux-designer` (feel), `gameplay-programmer` (feasibility) |
+| Combat, damage, health | `game-studio-core:game-designer` | `game-studio-core:systems-designer` (formulas) |
+| Economy, loot, crafting | `game-studio-core:economy-designer` | `game-studio-core:systems-designer` (curves), `game-studio-core:game-designer` (loops) |
+| Progression, XP, skills | `game-studio-core:game-designer` | `game-studio-core:systems-designer` (curves), `game-studio-core:economy-designer` (sinks) |
+| Dialogue, quests, lore | `game-studio-core:narrative-director` | `game-studio-core:game-designer` (systems side) |
+| UI systems (HUD, menus) | `game-studio-core:game-designer` | `unreal-pack:ue-umg-specialist` (UE feasibility); UX flows — no agent |
+| Audio systems | `game-studio-core:game-designer` | audio direction — no agent, ask the user |
+| AI, pathfinding, behavior | `game-studio-core:game-designer` | `game-studio-core:systems-designer` (scoring); UE implementation — `unreal-pack:unreal-specialist` |
+| Level/world systems | `game-studio-core:level-designer` | `game-studio-core:narrative-director` (world lore) |
+| Camera, input, controls | `game-studio-core:game-designer` | `unreal-pack:unreal-specialist` (UE feasibility) |
 
 **When delegating via Agent tool**:
 - Provide: system name, game concept summary, dependency GDD excerpts, the specific

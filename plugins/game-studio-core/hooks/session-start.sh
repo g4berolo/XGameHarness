@@ -4,6 +4,17 @@
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resolve-identity.sh"
 
+# Consume the hook payload: session_id is needed to hand off rule-injection
+# bookkeeping to inject-rules.py (see the path-scoped rules block below).
+HOOK_INPUT=$(cat 2>/dev/null)
+if command -v jq >/dev/null 2>&1; then
+    SESSION_ID=$(printf '%s' "$HOOK_INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+else
+    SESSION_ID=$(printf '%s' "$HOOK_INPUT" |
+        grep -oE '"session_id"[[:space:]]*:[[:space:]]*"[^"]*"' |
+        sed 's/.*:[[:space:]]*"//;s/"$//')
+fi
+
 PROJECT_NAME="$(basename "${CLAUDE_PROJECT_DIR:-$PWD}")"
 echo "=== ${PROJECT_NAME} — Session Context ==="
 
@@ -69,16 +80,30 @@ if [ -d "$STATE_DIR" ]; then
 fi
 
 # --- Path-scoped rules (full content for first-edit coverage) ---
-# PostToolUse hook (inject-rules.py, plugin-provided) re-injects per matched edit
-# during the session; this block ensures rules are available BEFORE the first edit.
-RULES_GLOB=(.claude/rules/*.md)
+# PostToolUse fires AFTER an edit, so inject-rules.py alone cannot govern the
+# FIRST edit of a session — hence the full dump here.
+#
+# Because this dump already puts every rule in context, we pre-write the same
+# session markers inject-rules.py uses. Without that handoff the first matching
+# edit re-injects a rule body that is already in context, once per rule.
+PROJECT_ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
+RULES_GLOB=("$PROJECT_ROOT"/.claude/rules/*.md)
 if [ -e "${RULES_GLOB[0]}" ]; then
     echo ""
-    echo "=== Path-Scoped Rules (also auto-injected via PostToolUse on matching edits) ==="
+    echo "=== Path-Scoped Rules (injected once here; inject-rules.py re-injects only rules added later) ==="
+    MARKER_DIR=""
+    if [ -n "$SESSION_ID" ]; then
+        MARKER_DIR="$PROJECT_ROOT/.claude/state/rules-injected/$SESSION_ID"
+        mkdir -p "$MARKER_DIR" 2>/dev/null
+    fi
     for rule_file in "${RULES_GLOB[@]}"; do
         echo ""
         echo "--- $(basename "$rule_file") ---"
         cat "$rule_file"
+        if [ -n "$MARKER_DIR" ] && [ -d "$MARKER_DIR" ]; then
+            RULE_NAME=$(basename "$rule_file" .md)
+            : > "$MARKER_DIR/$RULE_NAME" 2>/dev/null
+        fi
     done
     echo ""
     echo "=== END Path-Scoped Rules ==="

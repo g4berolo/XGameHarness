@@ -30,8 +30,9 @@ glob 需按项目目录结构定制（例：RichLethe 把 test-standards 的 pat
 
 1. **定位 rules 源**（两处）：
    - core：`${CLAUDE_PLUGIN_ROOT}/rules/*.md`
-   - unreal-pack：Glob `~/.claude/plugins/cache/XGameHarness/unreal-pack/*/rules/*.md`
-     （缓存按 commit SHA 分版本目录；Glob 结果按修改时间排序，取最新版本目录那组。
+   - unreal-pack：Glob `${CLAUDE_PLUGIN_ROOT}/../../unreal-pack/*/rules/*.md`
+     （**不要写 `~/...`** —— Glob 不展开 `~`，写了永远零命中。
+     缓存按 commit SHA 分版本目录；Glob 结果按修改时间排序，取最新版本目录那组。
      非 UE 项目未装 unreal-pack 时此步为空，跳过即可）
 2. **逐文件按上表对比**项目 `.claude/rules/`。若用户传了 `--dry-run`，只报告不写入。
 3. **写入后自检**：新复制的 rule 的 `paths:` glob 是否在本项目命中任何现存目录

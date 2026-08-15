@@ -6,9 +6,10 @@ paths:
 
 # Gameplay Code Rules
 
-适用于 RichLethe 所有 C++ 游戏代码（`client/Source/**`）— UE5 + Blueprint 项目。
+适用于本项目所有 C++ 游戏代码（默认 `client/Source/**`，按项目结构调整
+frontmatter 的 `paths:`）— UE5 + Blueprint 项目。
 
-- 所有 gameplay 数值必须来自外部 config / data asset（DataTable / `UPrimaryDataAsset` / Excel→DataTable 双轨，见 ADR-0003），**禁止硬编码**
+- 所有 gameplay 数值必须来自外部 config / data asset（DataTable / `UPrimaryDataAsset`，或项目 ADR 约定的等价方案），**禁止硬编码**
 - 所有 time-dependent 计算使用 `DeltaSeconds`（`Tick(float DeltaSeconds)`）— frame-rate independent
 - C++ 代码 **不得直接引用 UMG / Widget** — 通过 Delegate / Multicast / GameplayMessage Subsystem 等事件机制做跨系统通信
 - 每个 gameplay 系统必须有清晰 Interface（`UInterface` 或 abstract base）— 便于测试与依赖反转

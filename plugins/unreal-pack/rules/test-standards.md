@@ -1,15 +1,18 @@
 ---
 managed-by: XGameHarness/unreal-pack
 paths:
-  - "client/Source/clientTests/**"
+  - "client/Source/*Tests/**"
   - "tests/**"
 ---
 
 # Test Standards
 
-适用于 RichLethe `client/Source/clientTests/**` 自动化测试代码（`UAutomationTest` 模块，UBT 只扫 `<项目>/Source` — 见 directory-structure.md）。
+适用于本项目自动化测试代码（`UAutomationTest` 模块）。
 
-> **2026-06-11 path 激活** — 原 `tests/**` 占位指向仓库根 legacy 目录，真实测试模块自 S3-T5 起落在 `client/Source/clientTests/`（`BattleSimulatorTest.cpp` / `EnemyRegistryTest.cpp` 等），规则从未触发过。现以 `clientTests` 为主 path；`tests/**` 保留兜底。
+> **path 说明** — UBT 只扫 `<项目>/Source`，所以 UE 测试模块必须落在 Source 树内，
+> 默认 `client/Source/<项目>Tests/**`；仓库根的 `tests/**` 作兜底保留。接入时按本项目
+> 实际测试目录改 frontmatter 的 `paths:`，改完记得删掉 `managed-by` 行以免被同步覆盖
+> （见 `/sync-rules`）。
 
 - 测试命名: `Test_[System]_[Scenario]_[ExpectedResult]` 模式
 - 每个测试明确 **Arrange / Act / Assert** 三段
@@ -27,7 +30,7 @@ paths:
 ```cpp
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FTest_HealthSystem_TakeDamage_ReducesHealth,
-    "RichLethe.Combat.Health.TakeDamage_ReducesHealth",
+    "<Project>.Combat.Health.TakeDamage_ReducesHealth",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::SmokeFilter)
 
 bool FTest_HealthSystem_TakeDamage_ReducesHealth::RunTest(const FString& Parameters)

@@ -18,8 +18,11 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 
 | 插件 | 内容 | 适用 |
 |---|---|---|
-| `game-studio-core` | 22 个流程 skills（/how-to-do、/start、/brainstorm、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook…）+ 9 个设计/制作 agents（producer、creative-director、*-designer…）+ 9 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
+| `game-studio-core` | 23 个流程 skills（/how-to-do、/start、/brainstorm、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook、/codex-bridge…）+ 9 个设计/制作 agents（producer、creative-director、*-designer、modeler）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
+
+> **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
+> `unreal-pack:ue-gas-specialist` 这种全名，裸名会直接报 `Agent type not found`。
 
 ## 新项目接入
 
@@ -48,8 +51,9 @@ team/memo/{recipient}/           # 跨开发者 memo（/start surface）
 docs/architecture/               # ADR
 .claude/team.json                # 身份注册（resolve-identity 读）
 .claude/rules/*.md               # path-scoped rules 项目实例（注入 hook 只读这里）
-.claude/harness-config.json      # 可选：{"excludedAgents": [...]} 抑制 suggest-subagent 提示
-.claude/state/                   # hook 运行时状态（加入项目 .gitignore）
+.claude/harness-config.json      # 可选：{"excludedAgents": ["unreal-pack:ue-replication-specialist"]}
+                                 #   抑制 suggest-subagent 提示；填带前缀的 agent 全名
+.claude/state/                   # hook 运行时状态（项目模板已带 .gitignore 忽略此目录）
 ```
 
 ## rules 双层管理

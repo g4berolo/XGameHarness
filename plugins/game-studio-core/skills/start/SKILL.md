@@ -23,8 +23,11 @@ Before showing anything, silently gather project context. Do NOT display
 raw detection results — they feed into the status summary in Step 2.
 
 Check:
-- **Engine configured?** Read `.claude/docs/technical-preferences.md`. If the
-  Engine field contains `[TO BE CONFIGURED]`, the engine is not set.
+- **Engine configured?** The single source of truth is the project root `CLAUDE.md`
+  Technology Stack block. The engine is NOT set if the `- **Engine**:` line is
+  missing, empty, or still holds the template placeholder `<engine + version>`.
+  `.claude/docs/technical-preferences.md` is only created by `/setup-engine`, so
+  treat its absence as "not configured" rather than an error — do not require it.
 - **Game concept exists?** Check for `design/gdd/game-concept.md`.
 - **Source code exists?** Glob for source files in `client/Source/` (UE5 project)
   for `*.cpp`/`*.h`. Count them.
@@ -158,13 +161,16 @@ asks you to run it.
 
 如果用户选 B (设计文档) / C (编码) / D (分析) 且任务匹配下列模式，必须在 hand-off 文本中显式列出推荐的 subagent prompt：
 
+agent 名必须带插件前缀（`game-studio-core:`），传裸名 Agent tool 会直接报
+`Agent type not found`：
+
 | 任务模式 | 推荐 subagent | prompt 模板示例 |
 |---|---|---|
-| 跑数值算例 / 公式 audit | systems-designer | `spawn systems-designer subagent: ...` |
-| 商人 sink / 掉落 / 经济曲线 | economy-designer | `spawn economy-designer subagent: ...` |
-| 核心循环 / 系统顶层框架 | game-designer | `spawn game-designer subagent: ...` |
-| 关卡 layout / encounter | level-designer | `spawn level-designer subagent: ...` |
-| 角色 / 对话 / 叙事架构 | narrative-director | `spawn narrative-director subagent: ...` |
+| 跑数值算例 / 公式 audit | `game-studio-core:systems-designer` | `spawn game-studio-core:systems-designer subagent: ...` |
+| 商人 sink / 掉落 / 经济曲线 | `game-studio-core:economy-designer` | `spawn game-studio-core:economy-designer subagent: ...` |
+| 核心循环 / 系统顶层框架 | `game-studio-core:game-designer` | `spawn game-studio-core:game-designer subagent: ...` |
+| 关卡 layout / encounter | `game-studio-core:level-designer` | `spawn game-studio-core:level-designer subagent: ...` |
+| 角色 / 对话 / 叙事架构 | `game-studio-core:narrative-director` | `spawn game-studio-core:narrative-director subagent: ...` |
 
 **关键**: subagent 不自动触发，用户必须显式命名 — 详见 [agent-process-rules.md R4](../../docs/agent-process-rules.md#r4-subagent-invocation-pattern)。如果用户没意识到这点，主 agent 会接管任务并自处理（默认行为），错失 subagent 优势。
 

@@ -1,0 +1,6 @@
+# XGameHarness hook 运行时状态 —— 不入库
+# inject-rules.py 的 session 去重标记、各 hook 的诊断日志
+.claude/state/
+
+# 本机私有覆盖配置（settings.json 入库，local 不入库）
+.claude/settings.local.json

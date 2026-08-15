@@ -179,7 +179,7 @@
 Based on gaps identified, consider running:
 
 - `/reverse-document [type] [path]` — [For which gap]
-- `/architecture-decision` — [For which gap]
+- ADR for [which gap] — no `/architecture-decision` skill exists; write an ADR from the `architecture-decision-record` template in the harness `docs/templates/` (or via `game-studio-core:technical-director`)
 - `/sprint-plan` — [If planning artifacts missing]
 - `/milestone-review` — [If approaching deadline]
 - `/gate-check` — [If considering stage advancement]

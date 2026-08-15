@@ -23,7 +23,11 @@ if [ "$TBD_ADR_COUNT" -gt 0 ]; then
   echo "GAP: $TBD_ADR_COUNT 处 \"TBD ADR\" 占位待回填"
   TBD_FILES=$(grep -rlE "$TBD_ADR_PATTERN" design/ 2>/dev/null | tr '\n' ' ')
   echo "  涉及文件: $TBD_FILES"
-  echo "  追踪清单: docs/architecture/README.md"
+  if [ -f "docs/architecture/README.md" ]; then
+    echo "  追踪清单: docs/architecture/README.md"
+  else
+    echo "  建议: 建立 docs/architecture/README.md 作为 ADR 索引"
+  fi
   echo "  Suggested: 写完对应 ADR 后按清单替换 TBD 占位"
 fi
 

@@ -41,7 +41,7 @@ skill**，而是组织成建议流程(pipeline)：
 建议流程：
 1. [前置] design/gdd/systems-index.md 里有这个系统吗？没有 → /map-systems 先登记
 2. [主体] /design-system —— 8 段结构逐节引导写作
-   数值公式细化可 spawn systems-designer subagent: <算例/曲线任务模板>
+   数值公式细化可 spawn game-studio-core:systems-designer subagent: <算例/曲线任务模板>
 3. [收尾] /design-review —— 交给程序实现前必过
 ```
 

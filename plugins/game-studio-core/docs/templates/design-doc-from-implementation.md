@@ -196,7 +196,7 @@
 
 **Related Skills**:
 - `/balance-check` — Validate formulas and progression
-- `/architecture-decision` — Document technical decisions
+- No `/architecture-decision` skill exists — write an ADR from the `architecture-decision-record` template in the harness `docs/templates/` (or via `game-studio-core:technical-director`)
 - `/code-review` — Ensure code matches clarified design
 
 ---

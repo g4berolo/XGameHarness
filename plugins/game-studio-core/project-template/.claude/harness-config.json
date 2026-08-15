@@ -1,4 +1,4 @@
 {
-  "_comment": "可选的 per-project harness 配置。excludedAgents: suggest-subagent hook 不再提示这些 agent（例：单人游戏排除联网专家）。",
-  "excludedAgents": ["ue-replication-specialist"]
+  "_comment": "可选的 per-project harness 配置。excludedAgents: suggest-subagent hook 不再提示这些 agent。填 agent 全名（含插件前缀），例：单人游戏项目排除联网专家 -> [\"unreal-pack:ue-replication-specialist\"]；非 UE 项目可整体排除 unreal-pack:* 系列。默认空数组 = 不排除任何 agent。",
+  "excludedAgents": []
 }

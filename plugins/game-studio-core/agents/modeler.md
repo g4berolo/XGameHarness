@@ -44,6 +44,10 @@ tools:
 
 ### 步骤 1: 环境检查
 
+0. **先确认 MCP server 已注册**：若 `mcp__tripo-ai__*` 工具根本不存在（工具未找到，
+   而非调用失败），说明项目没有注册 tripo-ai MCP server —— 本 harness 的
+   project-template 不含 `.mcp.json`。此时直接停下，引导用户按 HANDBOOK § 美术管线
+   在项目根 `.mcp.json` 添加该 server 并重启会话，**不要**继续后续步骤。
 1. 调用 `tripo_validate_config` 验证 API 连接
 2. 如果失败，引导用户配置 `tools/tripo/config.json`
 3. 如果成功，显示"API 连接正常"并显示余额信息

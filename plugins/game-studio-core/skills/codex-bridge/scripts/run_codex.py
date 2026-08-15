@@ -103,7 +103,14 @@ def main() -> int:
         if not Path(img).is_file():
             die(f"reference image not found: {img}")
 
-    out_file = Path(args.out) if args.out else Path(tempfile.gettempdir()) / f"codex_bridge_{int(time.time())}.txt"
+    if args.out:
+        out_file = Path(args.out)
+    else:
+        # mkstemp, not a time.time() name: two bridges launched in the same
+        # second would otherwise share one output file and clobber each other.
+        fd, tmp_name = tempfile.mkstemp(prefix="codex_bridge_", suffix=".txt")
+        os.close(fd)
+        out_file = Path(tmp_name)
 
     codex = find_codex()
     cmd = [codex, "exec"]

@@ -1,6 +1,6 @@
 # Agent Process Rules
 
-通用 agent 行为规则。CLAUDE.md @ 引入，适用所有 main agent / subagent / skill。
+通用 agent 行为规则。由 game-studio-core 的 SessionStart hook 每 session 全量注入，视同 CLAUDE.md 级指令（无需在项目 CLAUDE.md 里 @ 引入）。适用所有 main agent / subagent / skill。
 
 ---
 
@@ -83,63 +83,77 @@
 
 **Rule**: 编辑 `.claude/rules/*.md` frontmatter `paths:` 匹配的文件时，对应规则会通过 SessionStart hook + PostToolUse hook 自动注入 agent context。Agent 必须按注入的 rules 校验所有 Edit/Write 操作，不能假装没看到。
 
-**Why**: rules 是 path-scoped 强约束（如 `design/gdd/**` 必须 8 section / 双向依赖 / 可测试 AC）。SessionStart 全量加载 + PostToolUse 按 path 注入是 RichLethe 自定义 convention 而非 Claude Code 官方机制，agent 看到 system reminder 中 "Active Rule:" / "Path-Scoped Rules" 段时应视同 CLAUDE.md @ 引入的指令对待。
+**Why**: rules 是 path-scoped 强约束（如 `design/gdd/**` 必须 8 section / 双向依赖 / 可测试 AC）。SessionStart 全量加载 + PostToolUse 按 path 注入是 XGameHarness 自定义 convention 而非 Claude Code 官方机制，agent 看到 system reminder 中 "Active Rule:" / "Path-Scoped Rules" 段时应视同 CLAUDE.md @ 引入的指令对待。
 
 **How to apply**:
 
 1. session 启动时若 system reminder 含 `=== Path-Scoped Rules ===` 段，**完整读完**所有列出的 rule 文件
 2. Edit `.claude/rules/*.md` `paths:` 匹配的文件后，若 tool result 含 `additionalContext` 注入新 rule，**立即按新 rule 校验本次和后续 Edit**
 3. 如对 rule 有歧义或与其他指令冲突，明示问用户哪条优先，不要自行判断
-4. 当前 rules 索引见项目 `.claude/docs/rules-reference.md`；机制原理 + 加新 rule 流程见本插件 `docs/rules-mechanism.md`
+4. 项目若自建了 `.claude/docs/rules-reference.md` 索引则以其为准，否则直接列 `.claude/rules/*.md`；机制原理 + 加新 rule 流程见本插件 `docs/rules-mechanism.md`
 
 ---
 
 ## R4 Subagent invocation pattern
 
-**Rule**: 当前项目有 15 个 subagent 定义（`.claude/agents/`），但 Claude Code 平台默认**不自动 spawn subagent**。要实际启用，开发者必须在 prompt 中显式命名 agent type 或显式说 "use a subagent"。主 agent 不会基于任务内容自主推断。
+**Rule**: harness 提供 14 个 subagent（`game-studio-core` 9 个 + `unreal-pack` 5 个，随插件分发；不在项目 `.claude/agents/` 里）。Claude Code 平台默认**不自动 spawn subagent**：要实际启用，开发者必须在 prompt 中显式命名 agent type 或显式说 "use a subagent"。主 agent 不会基于任务内容自主推断。
+
+**关键平台事实 — agent 名必须带插件前缀**：插件提供的 subagent，其 agent type 是 `<插件名>:<agent名>`（如 `game-studio-core:producer`）。传裸名会被直接拒绝：
+
+```
+Agent type 'producer' not found. Available agents: ..., game-studio-core:producer, ...
+```
+
+这是硬失败不是降级——写 spawn 模板时务必带全前缀。
 
 **关键平台事实 — subagent 不能 spawn subagent**：Claude Code 在 subagent 上下文中静默过滤 `Task`/`Agent` 原语，即便 agent frontmatter 声明了 `Task` 工具也无效（见 [issue #61993](https://github.com/anthropics/claude-code/issues/61993) / [#19077](https://github.com/anthropics/claude-code/issues/19077)）。因此 `producer` / `creative-director` / `technical-director` / `unreal-specialist` 等"协调/编排型" agent 的 "Delegation Map" / "Sub-Specialist Routing" 段**不是真的 spawn**，而是产出一份"建议主 agent 该调用哪个 agent"的文本，由主 agent（orchestrator 这一层）再去 spawn。嵌套委派改用 Skill 串联或主对话依次 chain。
 
 **Why**: 平台层 Agent tool description 明文 "Do not spawn agents unless the user asks"；项目层 CLAUDE.md "User-driven collaboration" 协议同向加固。agent description 字段的 "Use this agent for X" 是给主 agent **选择哪个 agent** 的参考（当用户决定 spawn 时），不是触发条件。
 
-**Available subagents**（`.claude/agents/*.md`）:
+**Available subagents**（下表 Agent 列即 Agent tool 的 `subagent_type` 取值，可直接复制）:
+
+`game-studio-core`（所有项目）:
 
 | Agent | 何时显式调用 |
 |---|---|
-| `producer` | sprint 规划 / 里程碑追踪 / 风险管理 / 范围谈判 / 跨部门协调（最高层协调 agent；自带 skills: sprint-plan/scope-check/estimate/milestone-review） |
-| `creative-director` | 游戏愿景 / 基调 / pillar 冲突裁决 / 设计-美术-叙事跨域决策（自带 skills: brainstorm/design-review） |
-| `technical-director` | 引擎架构 / 技术选型 / 性能策略 / 技术风险（ADR 级决策） |
-| `game-designer` | 核心循环 / 系统拆解 / 战斗 / 经济顶层框架问题 |
-| `systems-designer` | 子系统数值公式 / 进阶曲线 / 交互矩阵详细推导 |
-| `economy-designer` | 商人 sink/faucet / 掉落表 / 经济曲线校准 |
-| `narrative-director` | 故事架构 / 角色背景 / 对话策略 |
-| `level-designer` | 关卡布局 / encounter pacing / 空间叙事 |
-| `unreal-specialist` | UE 全域权威 — BP vs C++ 决策 / Subsystem 用法 / 引擎最佳实践把关 |
-| `ue-blueprint-specialist` | Blueprint 架构 / BP↔C++ 边界 / 防 BP spaghetti |
-| `ue-gas-specialist` | Gameplay Ability System（GA / GE / AttributeSet / Tag） |
-| `ue-umg-specialist` | UMG / CommonUI — widget 层级 / 数据绑定 / 输入路由 |
-| `ue-replication-specialist` | 多人网络复制（单人项目 future/reference 用，应用前先 flag 与单人 pillar 冲突） |
-| `illustrator` | AI 立绘生产管线 |
-| `modeler` | AI 图生 3D 管线 |
+| `game-studio-core:producer` | sprint 规划 / 里程碑追踪 / 风险管理 / 范围谈判 / 跨部门协调（最高层协调 agent；自带 skills: sprint-plan/scope-check/estimate/milestone-review） |
+| `game-studio-core:creative-director` | 游戏愿景 / 基调 / pillar 冲突裁决 / 设计-美术-叙事跨域决策（自带 skills: brainstorm/design-review） |
+| `game-studio-core:technical-director` | 引擎架构 / 技术选型 / 性能策略 / 技术风险（ADR 级决策） |
+| `game-studio-core:game-designer` | 核心循环 / 系统拆解 / 战斗 / 经济顶层框架问题 |
+| `game-studio-core:systems-designer` | 子系统数值公式 / 进阶曲线 / 交互矩阵详细推导 |
+| `game-studio-core:economy-designer` | 商人 sink/faucet / 掉落表 / 经济曲线校准 |
+| `game-studio-core:narrative-director` | 故事架构 / 角色背景 / 对话策略 |
+| `game-studio-core:level-designer` | 关卡布局 / encounter pacing / 空间叙事 |
+| `game-studio-core:modeler` | AI 图生 3D 管线（Tripo3D；需项目配好 tripo-ai MCP server） |
+
+`unreal-pack`（仅 UE 项目，未启用该插件时下列 agent 不存在）:
+
+| Agent | 何时显式调用 |
+|---|---|
+| `unreal-pack:unreal-specialist` | UE 全域权威 — BP vs C++ 决策 / Subsystem 用法 / 引擎最佳实践把关 |
+| `unreal-pack:ue-blueprint-specialist` | Blueprint 架构 / BP↔C++ 边界 / 防 BP spaghetti |
+| `unreal-pack:ue-gas-specialist` | Gameplay Ability System（GA / GE / AttributeSet / Tag） |
+| `unreal-pack:ue-umg-specialist` | UMG / CommonUI — widget 层级 / 数据绑定 / 输入路由 |
+| `unreal-pack:ue-replication-specialist` | 多人网络复制（单人项目 future/reference 用，应用前先 flag 与单人 pillar 冲突） |
 
 > 移植自上游模板 `Claude-Code-Game-Studios`（2026-06-03，P38）。适配：路径
 > `production/`→`plan/`；删除 ue-* agent 的 `Task` 工具（嵌套 spawn 不支持）+ 改写
-> `unreal-specialist` 的 orchestration 段为"推荐主 agent 调用"；每个移植 agent 加
-> RichLethe roster note 标注未移植 agent（`lead-programmer` / `art-director` /
-> `analytics-engineer` 等）遇到时改向 user 汇报。
+> `unreal-specialist` 的 orchestration 段为"推荐主 agent 调用"。上游模板里存在但本
+> harness **未移植**的 agent（`lead-programmer` / `art-director` / `illustrator` /
+> `analytics-engineer` 等）：遇到引用时不要尝试 spawn，改向用户汇报缺口。
 
-**推荐 prompt 模板**（直接 copy-paste）:
+**推荐 prompt 模板**（直接 copy-paste；注意 agent 名带插件前缀）:
 
 ```
-spawn systems-designer subagent: 跑 design/gdd/combat-formulas.md
+spawn game-studio-core:systems-designer subagent: 跑 design/gdd/combat-formulas.md
 3 对位算例（warrior vs warrior / warrior vs mage / mage vs assassin）× Lv1/Lv5/Lv10
 = 9 算例，识别 dmg > 50% target HP 的失衡点，结果写入 GDD 末尾 ## Audit Log section。
 ```
 
 ```
-spawn economy-designer subagent: audit design/gdd/economy.md
-4 商人 sink，重现 P3 (2026-05-16) F1 audit 数据 758G + 6.79 item/floor，
-解释 diff（如有），结果写入 GDD 末尾 ## Audit Log section。
+spawn game-studio-core:economy-designer subagent: audit design/gdd/economy.md
+4 商人 sink/faucet 的产销平衡，逐项给出当前产出与消耗估算，
+标出净产出为正的项，结果写入 GDD 末尾 ## Audit Log section。
 ```
 
 **How to apply**:
@@ -147,7 +161,9 @@ spawn economy-designer subagent: audit design/gdd/economy.md
 1. 任务计划阶段，**主 agent 必须在选项呈现时提示 "此任务适合 subagent，推荐 prompt: ..."** — 不能假设用户知道触发机制
 2. 当用户在 sprint plan / task spec 看到 "agent 兜底" / "用 X agent" 字样时，那只是 **意图标注**，要实际启动需在 session 内显式命名
 3. 显式命名后主 agent **不再自处理**，转用 Agent tool 启动 subagent；subagent 完成后主 agent 汇总结果给用户审批
-4. session-log 应记录 subagent invocation 痕迹（如 "P31 spawn systems-designer @ combat-formulas audit"）
+4. session-log 应记录 subagent invocation 痕迹（如 "spawn game-studio-core:systems-designer @ combat-formulas audit"）
+5. 报 `Agent type not found` 时先查前缀：`game-studio-core:` 还是 `unreal-pack:`；
+   非 UE 项目未启用 `unreal-pack`，其 5 个 ue-* agent 本就不存在，不要绕过去硬试
 
 ---
 
@@ -194,3 +210,4 @@ subagent 仍按 R4 显式触发协议——提示用户推荐 spawn 模板，不
 | 2026-05-24 | R2 词类细化（动词 / 状态词 / 专业名词三层）+ 反例对比 + RichLethe 触发说明 | P29 session 末用户反馈："OK 跑 commit？" 类混搭降低中文用户阅读流畅度，要求 vocab 层细化 |
 | 2026-06-03 | R4 名册 7→15（移植 producer / creative-director / technical-director / unreal-specialist + 4 ue-* specialist）+ 补 "subagent 不能 spawn subagent" 平台事实 | P38 用户从上游模板补项目管理 / 分析 / UE 专家 agent；移植中发现模板的 unreal-specialist Task-orchestration 在 Claude Code 跑不通，固化平台限制说明 |
 | 2026-07-14 | 加 R5 skill-first 路由 + /how-to-do 主推入口 | harness 抽取为 XGameHarness marketplace 后 skill 数达 22，"装了但被遗忘"风险同 R4 教训；参照 superpowers mandatory-workflow 模式前移触发点 |
+| 2026-08-13 | R4 名册加插件前缀（`game-studio-core:` / `unreal-pack:`）+ 删除未移植的 `illustrator` + 15→14 + 澄清 agent 不在项目 `.claude/agents/` | harness 全量审查：实测裸名 `subagent_type` 直接报 `Agent type not found`，而全仓 0 处带前缀 —— R4 推荐的所有 spawn 模板均不可用；`illustrator` 已于 2026-07-04 随 LiblibAI 停用删除但名册未同步 |

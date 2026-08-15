@@ -10,7 +10,7 @@ When this skill is invoked:
 
 1. **Identify the balance domain** from the argument.
 
-2. **Read relevant data files** from `design/etc/` and `design/balance/`.
+2. **Read relevant data files** from `design/gdd/` and the project's data-table directory (commonly `design/balance/`). If neither holds the numbers, ask the user where the balance data lives — do not guess.
 
 3. **Read the design document** for the system being checked from `design/gdd/`.
 

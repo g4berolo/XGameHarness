@@ -94,7 +94,7 @@ git log -- team/memo/                # 全 memo 历史
 
 ## /start 行为
 
-详 `.claude/skills/start/SKILL.md`。
+详 `${CLAUDE_PLUGIN_ROOT}/skills/start/SKILL.md`（随插件分发，项目侧无 .claude/skills/）。
 
 简版：
 

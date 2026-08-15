@@ -3,12 +3,15 @@ name: sprint-plan
 description: "Generates a new sprint plan or updates an existing one based on the current milestone, completed work, and available capacity. Pulls context from production documents and design backlogs."
 argument-hint: "[new|update|status]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Write, Edit
-context: |
-  !ls plan/sprints/ 2>/dev/null
+allowed-tools: Read, Glob, Grep, Write, Edit, Agent
 ---
 
 When this skill is invoked:
+
+0. **List existing sprints** — Glob `plan/sprints/*` to see what is already
+   planned. (This replaces a frontmatter `context:` block that never executed —
+   `context:` is not a SKILL.md field.)
+
 
 1. **Read the current milestone** from `plan/milestones/`.
 
@@ -22,7 +25,11 @@ When this skill is invoked:
 
 For `new`:
 
-5. **Generate a sprint plan** following this format:
+5. **Generate a sprint plan** from the shipped template — Read
+   `${CLAUDE_PLUGIN_ROOT}/docs/templates/sprint-plan.md` and fill it in. It is more
+   complete than the outline below (Milestone Context, per-discipline capacity, task
+   Status column, `S[N]-001` id convention). The outline below is only a fallback for
+   when that template cannot be read:
 
 ```markdown
 # Sprint [N] -- [Start Date] to [End Date]
@@ -68,6 +75,19 @@ For `new`:
 - [ ] Code reviewed and merged
 ```
 
+6. **Write it to `plan/sprints/sprint-[N].md`** — ask first: "May I write this sprint
+   plan to `plan/sprints/sprint-[N].md`?" Do not leave the plan only in the reply.
+
+For `update`:
+
+5. **Edit the existing sprint in place** — never regenerate it, that would discard
+   completed status and carryover:
+   1. Read the newest file in `plan/sprints/`.
+   2. Show the current task table and ask which rows to add / remove / re-estimate.
+   3. Apply the changes with `Edit` (targeted row edits, not a rewrite).
+   4. Move every removed-but-unfinished task into the Carryover table with a reason.
+   5. Re-check the capacity total against the remaining days and flag any overflow.
+
 For `status`:
 
 5. **Generate a status report**:
@@ -104,5 +124,5 @@ For `status`:
 ### Agent Consultation
 
 For comprehensive sprint planning, consider consulting:
-- `producer` agent for capacity planning, risk assessment, and cross-department coordination
-- `game-designer` agent for feature prioritization and design readiness assessment
+- `game-studio-core:producer` agent for capacity planning, risk assessment, and cross-department coordination
+- `game-studio-core:game-designer` agent for feature prioritization and design readiness assessment

@@ -9,7 +9,7 @@ hookSpecificOutput.additionalContext if any rule matches.
 Session-level marker in .claude/state/rules-injected/{session_id}/{rule_name}
 prevents repeated injection within the same session.
 
-See .claude/docs/rules-mechanism.md for the full convention.
+See ${CLAUDE_PLUGIN_ROOT}/docs/rules-mechanism.md (plugin-provided) for the full convention.
 """
 from __future__ import annotations
 
@@ -18,7 +18,9 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import sys
+import time
 import traceback
 from datetime import datetime
 
@@ -36,12 +38,47 @@ LOG_FILE = REPO_ROOT / ".claude" / "state" / "inject-rules.log"
 
 ALLOWED_TOOLS = {"Edit", "Write", "MultiEdit"}
 
+# Nothing else ever removes these, and both grow once per session forever.
+MARKER_TTL_DAYS = 7
+LOG_MAX_BYTES = 1 * 1024 * 1024
+
 
 def log(msg: str) -> None:
     try:
         LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        # Single-generation rotation: enough to keep the file readable without
+        # growing an archive nobody prunes either.
+        if LOG_FILE.exists() and LOG_FILE.stat().st_size > LOG_MAX_BYTES:
+            backup = LOG_FILE.with_suffix(LOG_FILE.suffix + ".1")
+            try:
+                if backup.exists():
+                    backup.unlink()
+                LOG_FILE.rename(backup)
+            except OSError:
+                pass
         with LOG_FILE.open("a", encoding="utf-8") as f:
             f.write(f"[{datetime.now().isoformat(timespec='seconds')}] {msg}\n")
+    except Exception:
+        pass
+
+
+def prune_stale_markers() -> None:
+    """Drop per-session marker dirs older than MARKER_TTL_DAYS.
+
+    Each session leaves one directory of empty files behind; without this they
+    accumulate for the life of the project. Best-effort only -- a failure here
+    must never affect the injection path.
+    """
+    try:
+        if not STATE_DIR.is_dir():
+            return
+        cutoff = time.time() - MARKER_TTL_DAYS * 86400
+        for child in STATE_DIR.iterdir():
+            try:
+                if child.is_dir() and child.stat().st_mtime < cutoff:
+                    shutil.rmtree(child, ignore_errors=True)
+            except OSError:
+                continue
     except Exception:
         pass
 
@@ -149,6 +186,7 @@ def main() -> int:
 
     session_id = data.get("session_id", "default")
     session_marker_dir = STATE_DIR / session_id
+    prune_stale_markers()
 
     matched: list[tuple[str, str]] = []
     for rule_file in sorted(RULES_DIR.glob("*.md")):
@@ -165,7 +203,9 @@ def main() -> int:
         rule_name = rule_file.stem
         marker = session_marker_dir / rule_name
         if marker.exists():
-            log(f"skip (already injected): {rule_name} for {rel_path}")
+            # Not logged: since session-start.sh pre-writes a marker for every
+            # rule, this branch is taken on essentially every Edit for the rest
+            # of the session and was the log's dominant source of growth.
             continue
         try:
             marker.parent.mkdir(parents=True, exist_ok=True)

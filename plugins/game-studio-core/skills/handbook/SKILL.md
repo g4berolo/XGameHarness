@@ -14,7 +14,8 @@ allowed-tools: Read, Grep, Glob
      给出 skill 名或 spawn 模板 + 一句说明
    - 机制类问题（hooks 何时触发 / rules 怎么管 / 插件怎么加）→ § 2/4/5
    - 报错排障 → § 6
-3. 回答要**短**：直接给「用 `/xxx`」或「spawn xxx subagent: <任务模板>」+ 两三句
+3. 回答要**短**：直接给「用 `/xxx`」或「spawn <插件名>:<agent名> subagent: <任务模板>」
+   （agent 名必须带 `game-studio-core:` / `unreal-pack:` 前缀，裸名会报 not found）+ 两三句
    要点；用户要细节再展开或引导其读手册对应章节。
 4. 手册没覆盖的问题：如实说没有现成条目，按你对 harness 结构的了解回答，并提示
    可把该场景补进 HANDBOOK.md（harness 仓库 `plugins/game-studio-core/docs/`）。

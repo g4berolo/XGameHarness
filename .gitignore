@@ -1,0 +1,9 @@
+# Python 字节码 —— 校验 hook 脚本时（python -m py_compile）会生成
+__pycache__/
+*.py[cod]
+
+# 本机私有覆盖
+.claude/settings.local.json
+
+# hook 运行时写的状态（rules-injected marker / 各类 .log）
+.claude/state/

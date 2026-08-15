@@ -122,9 +122,9 @@ Based on type, use appropriate template:
 
 | Type | Template | Output Path |
 |------|----------|-------------|
-| `design` | `templates/design-doc-from-implementation.md` | `design/gdd/[system-name].md` |
-| `architecture` | `templates/architecture-doc-from-code.md` | `docs/architecture/[decision-name].md` |
-| `concept` | `templates/concept-doc-from-prototype.md` | `prototypes/[name]/CONCEPT.md` or `design/concepts/[name].md` |
+| `design` | `${CLAUDE_PLUGIN_ROOT}/docs/templates/design-doc-from-implementation.md` | `design/gdd/[system-name].md` |
+| `architecture` | `${CLAUDE_PLUGIN_ROOT}/docs/templates/architecture-doc-from-code.md` | `docs/architecture/[decision-name].md` |
+| `concept` | `${CLAUDE_PLUGIN_ROOT}/docs/templates/concept-doc-from-prototype.md` | `prototypes/[name]/CONCEPT.md` or `design/concepts/[name].md` |
 
 **Draft structure**:
 - Capture **what exists** (mechanics, patterns, implementation)

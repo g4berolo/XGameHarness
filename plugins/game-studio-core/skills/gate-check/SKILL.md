@@ -14,7 +14,7 @@ phase. It checks for required artifacts, quality standards, and blockers.
 **Distinct from `/project-stage-detect`**: That skill is diagnostic ("where are we?").
 This skill is prescriptive ("are we ready to advance?" with a formal verdict).
 
-## Stage Taxonomy (6 stages, linear)
+## Stage Taxonomy (7 stages / 6 gates, linear)
 
 ```
 Concept → Pre-Production → First Playable → Vertical Slice → Alpha → Beta → Release
@@ -200,7 +200,7 @@ For items that can't be automatically verified, **ask the user**:
 
 - "I can't automatically verify that the core loop plays well. Has it been playtested?"
 - "No playtest report found in `plan/playtests/`. Has informal testing been done?"
-- "Performance profiling data isn't available. Would you like to run `/perf-profile`?"
+- "性能剖析数据不可用。本 harness 无性能剖析 skill —— 可以提供引擎 profiler 输出，或 spawn `game-studio-core:technical-director` 评估性能预算，你倾向哪个？"
 
 **Never assume PASS for unverifiable items.** Mark them as MANUAL CHECK NEEDED.
 
@@ -269,15 +269,18 @@ Based on the verdict, suggest specific next steps:
 
 - **No game concept?** → `/brainstorm` to create one
 - **No systems index?** → `/map-systems` to decompose the concept into systems
-- **Missing design docs?** → `/reverse-document` or delegate to `game-designer`
-- **Missing ADRs?** → `/architecture-decision`
-- **Walking Skeleton incomplete?** → continue per `prototypes/walking-skeleton-S0-S4.md`
+- **Missing design docs?** → `/reverse-document`, or spawn `game-studio-core:game-designer`
+- **Missing ADRs?** → spawn `game-studio-core:technical-director`, writing to
+  `docs/architecture/` per the architecture-decision-record template
+- **Walking Skeleton incomplete?** → continue per the project's prototype plan
 - **No sprint plan?** → `/sprint-plan new`
-- **Tests failing?** → delegate to `lead-programmer` or `qa-tester`
+- **Tests failing?** → no QA agent in this harness; report the failures to the
+  user. On UE projects `unreal-pack:unreal-specialist` can advise on the test module
 - **No playtest data?** → `/playtest-report`
-- **Performance unknown?** → `/perf-profile`
-- **Not localized?** → `/localize`
-- **Ready for release?** → `/launch-checklist`
+- **Performance unknown?** → spawn `game-studio-core:technical-director` (perf budget),
+  or on UE `unreal-pack:unreal-specialist`
+- **Not localized?** → no localization skill in this harness; surface it as a gap
+- **Ready for release?** → 本 harness 无 launch-checklist skill；按 § Release 的 R-* 子阶段手工过清单，或 spawn `game-studio-core:producer` 生成发布清单
 
 ---
 

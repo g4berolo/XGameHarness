@@ -72,7 +72,8 @@ Once the engine is chosen:
 ## 4. Update CLAUDE.md Technology Stack
 
 Read `CLAUDE.md` and update the Technology Stack section. Replace the
-`[CHOOSE]` placeholders with the actual values:
+`<engine + version>` and `<languages>` placeholders (that is the wording the
+project template ships) with the actual values:
 
 **For Godot:**
 ```markdown
@@ -102,8 +103,12 @@ Read `CLAUDE.md` and update the Technology Stack section. Replace the
 
 ## 5. Populate Technical Preferences
 
-After updating CLAUDE.md, create or update `.claude/docs/technical-preferences.md` with
-engine-appropriate defaults. Read the existing template first, then fill in:
+This skill is the **first creator** of `.claude/docs/technical-preferences.md` —
+`/project-init` does not produce it, so on a fresh project it will not exist yet.
+
+Read `${CLAUDE_PLUGIN_ROOT}/docs/templates/technical-preferences.md`, then create or
+update `.claude/docs/technical-preferences.md` from it with engine-appropriate
+defaults:
 
 ### Engine & Language Section
 - Fill from the engine choice made in step 4
@@ -152,13 +157,13 @@ Wait for approval before writing the file.
 
 Check whether the engine version is likely beyond the LLM's training data.
 
-**Known approximate coverage** (update this as models change):
-- LLM knowledge cutoff: **May 2025**
-- Godot: training data likely covers up to ~4.3
-- Unity: training data likely covers up to ~2023.x / early 6000.x
-- Unreal: training data likely covers up to ~5.3 / early 5.4
+Use **your own knowledge cutoff for the session you are running in** —— do not
+hardcode a date here, it goes stale with every model release. State the cutoff
+you are working from explicitly so the user can sanity-check it, then estimate
+the newest release of the chosen engine you actually have reliable knowledge of.
+If unsure, treat the version as beyond the cutoff (fail toward more research).
 
-Compare the user's chosen version against these baselines:
+Compare the user's chosen version against that baseline:
 
 - **Within training data** → `LOW RISK` — reference docs optional but recommended
 - **Near the edge** → `MEDIUM RISK` — reference docs recommended
@@ -181,7 +186,7 @@ Create a minimal `docs/engine-reference/<engine>/VERSION.md`:
 |-------|-------|
 | **Engine Version** | [version] |
 | **Project Pinned** | [today's date] |
-| **LLM Knowledge Cutoff** | May 2025 |
+| **LLM Knowledge Cutoff** | [the authoring model's cutoff, stated at setup time] |
 | **Risk Level** | LOW — version is within LLM training data |
 
 ## Note
@@ -249,7 +254,9 @@ Godot to Unity), update it.
 
 For the chosen engine's specialist agents, verify they have a
 "Version Awareness" section. If not, add one following the pattern in
-the existing Godot specialist agents.
+`unreal-pack`'s `ue-*` specialist agents —— that is the only engine pack this
+harness ships today. For Godot/Unity there are no specialist agents yet; say so
+rather than pretending to update them.
 
 The section should instruct the agent to:
 1. Read `docs/engine-reference/<engine>/VERSION.md`
@@ -287,7 +294,7 @@ Knowledge Risk:  [LOW/MEDIUM/HIGH]
 Reference Docs:  [created/skipped]
 CLAUDE.md:       [updated]
 Tech Prefs:      [created/updated]
-Agent Config:    [verified]
+Agent Config:    [verified / n/a — no specialist pack for this engine]
 
 Next Steps:
 1. Review docs/engine-reference/<engine>/VERSION.md

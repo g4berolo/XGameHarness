@@ -3,11 +3,16 @@ name: scope-check
 description: "Analyze a feature or sprint for scope creep by comparing current scope against the original plan. Flags additions, quantifies bloat, and recommends cuts."
 argument-hint: "[feature-name or sprint-N]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep
-context: |
-  !git diff --stat HEAD~20 2>/dev/null
+allowed-tools: Read, Glob, Grep, Bash
 ---
+
 When this skill is invoked:
+
+0. **Gather recent change volume** — run `git diff --stat HEAD~20 2>/dev/null`
+   (fall back to `git diff --stat $(git rev-list --max-parents=0 HEAD)` when the
+   repo has fewer than 20 commits). This replaces a frontmatter `context:` block
+   that never executed — `context:` is not a SKILL.md field.
+
 
 1. **Read the original plan** — Find the relevant document:
    - If a feature name: read the design doc from `design/gdd/`

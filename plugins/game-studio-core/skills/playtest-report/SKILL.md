@@ -75,3 +75,12 @@ When invoked with `new`, generate this template:
 When invoked with `analyze`, read the raw notes, cross-reference with existing
 design documents, and fill in the template above with structured findings.
 Flag any playtest observations that conflict with design intent.
+
+## Output Path
+
+Both modes write to `plan/playtests/playtest-YYYY-MM-DD-<focus>.md` — that is the
+directory `/gate-check` scans for the First Playable gate, so a report left only in
+the conversation does not count as evidence there.
+
+Ask before writing: "May I write this playtest report to
+`plan/playtests/playtest-<date>-<focus>.md`?" Create `plan/playtests/` if missing.
