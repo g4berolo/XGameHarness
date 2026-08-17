@@ -1,0 +1,19 @@
+{
+  "_template": "这是模板，不是可用配置。/project-init 会逐项问询后在项目本地生成真实的 .claude/team.json —— 不要把本文件原样复制过去，也不要把任何真人的邮箱/用户名写进 harness 仓库。",
+  "_comment": "身份注册表。resolve-identity.sh 用 git config user.name / user.email 匹配到 identity key，决定 team/session-state/{identity}/ 与 team/session-logs/{identity}/ 的路径。identity key 用小写字母/下划线（会成为目录名）。",
+  "_privacy": "生成后的 team.json 含真实邮箱。项目仓库若是公开的，先确认全部成员同意公开各自的邮箱；不同意就把 git_emails 留空数组（靠 git_users 匹配即可）或把 .claude/team.json 加进 .gitignore（代价：每人各自维护一份）。",
+  "version": 1,
+  "identities": {
+    "<identity-key>": {
+      "git_users": ["<git config user.name>"],
+      "git_emails": ["<git config user.email>"],
+      "role": "admin",
+      "display_name": "<显示名>"
+    }
+  },
+  "roles": {
+    "admin": { "can_edit_team_config": true, "can_edit_all_sessions": true },
+    "developer": { "can_edit_team_config": false, "can_edit_all_sessions": false },
+    "artist": { "can_edit_team_config": false, "can_edit_all_sessions": false }
+  }
+}

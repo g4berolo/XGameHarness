@@ -49,7 +49,9 @@ team/session-state/{identity}/   # active.md 会话状态（session-start 恢复
 team/session-logs/{identity}/    # 月度轮转 session log（session-stop 写）
 team/memo/{recipient}/           # 跨开发者 memo（/start surface）
 docs/architecture/               # ADR
-.claude/team.json                # 身份注册（resolve-identity 读）
+.claude/team.json                # 身份注册（resolve-identity 读）。由 /project-init 问询生成；
+                                 #   harness 只提供 project-template/.claude/team.json.template
+                                 #   仓库公开时建议 git_emails 留空数组，只靠 git_users 匹配
 .claude/rules/*.md               # path-scoped rules 项目实例（注入 hook 只读这里）
 .claude/harness-config.json      # 可选：{"excludedAgents": ["unreal-pack:ue-replication-specialist"]}
                                  #   抑制 suggest-subagent 提示；填带前缀的 agent 全名

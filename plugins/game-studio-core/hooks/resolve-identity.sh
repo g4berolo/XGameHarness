@@ -12,6 +12,7 @@ TEAM_CONFIG="${CLAUDE_PROJECT_DIR:-.}/.claude/team.json"
 resolve_identity() {
     if [ ! -f "$TEAM_CONFIG" ]; then
         echo "WARNING: $TEAM_CONFIG not found. Using fallback identity 'unknown'." >&2
+        echo "WARNING: run /project-init to generate it (the harness ships only a template)." >&2
         echo "unknown"
         return 1
     fi

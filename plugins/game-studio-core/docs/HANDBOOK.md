@@ -96,14 +96,19 @@
 
 推荐直接跑 `/project-init`。手动等价步骤：
 
-1. 复制插件缓存里 `game-studio-core/project-template/` 的 5 个文件到项目根
-   （`.claude/settings.json` / `.claude/team.json` / `.claude/harness-config.json` /
+1. 复制插件缓存里 `game-studio-core/project-template/` 的 4 个文件到项目根
+   （`.claude/settings.json` / `.claude/harness-config.json` /
    `.gitignore`（已有则合并两行，不覆盖）/ `CLAUDE.md`）
-2. 非 UE 项目：settings.json 删 `"unreal-pack@XGameHarness"` 行
-3. CLAUDE.md 替换 `<ProjectName>` 占位、填技术栈
-4. `/sync-rules` 实例化 rules，按项目目录改 `paths:`（改后删 managed-by 行）
-5. 重启 session → 信任目录 → 按提示装 marketplace
-6. 每台新机器一次性：`gh auth setup-git` + env `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1`
+2. **手写 `.claude/team.json`**：模板是 `project-template/.claude/team.json.template`，
+   harness 里没有可直接用的 team.json。按 `git config user.name` / `user.email` 填出
+   第一条 identity（key 只能小写字母/数字/下划线，会成为 `team/*/<key>/` 目录名），
+   删掉 `_template` / `_privacy` 说明字段。**公开仓库**建议 `git_emails: []`，
+   只靠 `git_users` 匹配 —— 邮箱一旦进历史就删不掉
+3. 非 UE 项目：settings.json 删 `"unreal-pack@XGameHarness"` 行
+4. CLAUDE.md 替换 `<ProjectName>` 占位、填技术栈
+5. `/sync-rules` 实例化 rules，按项目目录改 `paths:`（改后删 managed-by 行）
+6. 重启 session → 信任目录 → 按提示装 marketplace
+7. 每台新机器一次性：`gh auth setup-git` + env `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1`
 
 **项目目录契约**（hooks/skills 依赖的约定，按需 lazy 创建，缺失静默降级）：
 `design/gdd/`（策划案）｜`plan/`（sprint/milestone/stage.md）｜
