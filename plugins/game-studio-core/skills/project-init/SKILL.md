@@ -100,6 +100,7 @@ harness 项目契约目录按需 lazy 创建即可，但若用户愿意现在建
 ```
 design/gdd/
 plan/
+plan/stage.md          ← 必建，拷模板（见下）
 team/session-state/{identity}/
 team/session-logs/{identity}/
 team/memo/{identity}/open/
@@ -110,10 +111,18 @@ docs/architecture/
 memo 必须是 `team/memo/{recipient}/{open,closed}/` 两层 —— 平铺一层 `team/memo/` 不符合
 CLAUDE.md 契约，`/start` 的 `team/memo/{identity}/open/*.md` 会扫不到任何东西。
 
+**`plan/stage.md` 不是可选项**，即使用户跳过其余目录也要建：拷
+`${CLAUDE_PLUGIN_ROOT}/docs/templates/stage.md` 到 `plan/stage.md`，frontmatter 的
+`current_stage` 保持 `Concept`，History 首行填今天日期。它是 `/gate-check`、
+`/project-stage-detect`、`/start`、`/how-to-do` 四个消费方的唯一真相源；缺了它它们
+只能退化到启发式猜测。提醒用户：模板只给了 sub-phase 的**种类**，「本项目含义」
+列需要他们自己填（可以晚点填，但跑第一道 gate 前要填完）。
+
 ### 6. 收尾清单（输出给用户）
 
 - [ ] `git init`（若尚未）+ 首次提交（须用户明确要求才执行）
 - [ ] 确认 `.gitignore` 含 `.claude/state/`、`.claude/settings.local.json`（模板已带）
+- [ ] 确认 `plan/stage.md` 已生成，`current_stage: Concept`
 - [ ] 确认 `.claude/team.json` 是合法 JSON 且无 `<...>` 残留（跑一次 `/start`
       看 Developer 是否解析成 identity key 而不是 `unknown`）
 - [ ] **仓库若公开**：确认 `team.json` 里的邮箱都经过本人同意。已经提交过再删是没用的

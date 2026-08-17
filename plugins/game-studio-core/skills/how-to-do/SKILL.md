@@ -55,7 +55,8 @@ skill**，而是组织成建议流程(pipeline)：
 1. 收集项目现状（存在才读，全部有守卫）：
    - `team/session-state/{identity}/active.md` 的"下一步"（注意 R1：这是 intent
      snapshot，引用前验证对应文件真实状态）
-   - `plan/stage.md` / `plan/sprints/` 最新 sprint 的未完成项
+   - `plan/stage.md`（frontmatter 的 `current_stage` + 矩阵里未完成的 Critical 行）
+     / `plan/sprints/` 最新 sprint 的未完成项
    - `team/memo/{identity}/open/` 未处理 memo
 2. 归纳 2-4 个候选方向（每个附：来源依据 + 对应 skill/agent + 预估量级），
    AskUserQuestion 让用户挑

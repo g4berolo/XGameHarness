@@ -111,7 +111,8 @@
 7. 每台新机器一次性：`gh auth setup-git` + env `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1`
 
 **项目目录契约**（hooks/skills 依赖的约定，按需 lazy 创建，缺失静默降级）：
-`design/gdd/`（策划案）｜`plan/`（sprint/milestone/stage.md）｜
+`design/gdd/`（策划案）｜`plan/`（sprint/milestone）｜`plan/stage.md`（**阶段 SoT**，
+frontmatter `current_stage` + sub-phase 矩阵；/project-init 必建）｜
 `team/session-state|session-logs|memo/{identity}/`｜`docs/architecture/`（ADR）｜
 `.claude/rules|team.json|harness-config.json`
 

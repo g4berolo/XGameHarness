@@ -34,8 +34,10 @@ Check:
 - **Prototypes exist?** Check for subdirectories in `prototypes/`.
 - **Design docs exist?** Count markdown files in `design/gdd/`.
 - **Systems index?** Check for `design/gdd/systems-index.md`.
-- **Stage SoT?** Read `plan/stage.txt` (single line current stage) and optionally
-  `plan/stage.md` (full sub-phase table).
+- **Stage SoT?** Read `plan/stage.md`: `current_stage` from the frontmatter for the
+  dashboard line, the matrix for open Critical rows. Missing file = the project has
+  not set up a stage SoT; report that and point at `/project-init` or `/gate-check`,
+  both of which can create it from the harness template.
 - **Planning artifacts?** Check for files in `plan/sprints/` or `plan/milestones/`.
 - **Session state?** Resolve identity from `git config user.name` via `.claude/team.json`
   and check `team/session-state/{identity}/active.md`.

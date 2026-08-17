@@ -55,7 +55,7 @@
 ### Planning Artifacts (`plan/`)
 - **Status**: [X%] complete
 - **Found**:
-  - Stage SoT: `plan/stage.md` [Exists | Missing]
+  - Stage SoT: `plan/stage.md` [Exists — current_stage: X | Missing — stage below is a heuristic guess]
   - Sprint plans: [N] in `plan/sprints/`
   - Milestones: [N] in `plan/milestones/`
   - Risk register: [N] in `plan/risk-register/`

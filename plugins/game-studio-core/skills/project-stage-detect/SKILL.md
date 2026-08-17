@@ -38,7 +38,9 @@ Analyze project structure and content:
 - Estimate lines of code (rough scale)
 
 **Planning Artifacts** (`plan/`):
-- Read `plan/stage.txt` (current stage) and `plan/stage.md` (sub-phase status)
+- Read `plan/stage.md` — `current_stage` from its frontmatter, sub-phase status
+  from its matrix. (There is no `plan/stage.txt`; it was merged into the
+  frontmatter so the two could not drift.)
 - Check for sprint plans in `plan/sprints/`
 - Look for milestone definitions in `plan/milestones/`
 - Find risk register in `plan/risk-register/`
@@ -58,17 +60,19 @@ Analyze project structure and content:
 
 ### 2. Classify Project Stage
 
-Stage SoT is `plan/stage.txt` (single line) + `plan/stage.md` (full sub-phase
-table). Always prefer reading SoT directly. Auto-detect heuristic is fallback
-only when SoT files don't exist.
+Stage SoT is `plan/stage.md`: `current_stage` in the frontmatter plus the
+sub-phase matrix. **Always prefer reading it directly.** The heuristic below is
+a fallback for projects that have no `plan/stage.md` yet — when you fall back,
+say so in the report and offer to create one from
+`${CLAUDE_PLUGIN_ROOT}/docs/templates/stage.md`.
 
 | Stage | Indicators (fallback heuristic) |
 |-------|----------------------------------|
 | **Concept** | No game concept doc, brainstorming phase |
-| **Pre-Production** | Concept exists; covers Systems Design + Engine Setup + Walking Skeleton + Prototype + Sprint Bootstrap (see `plan/stage.md` Pre-Production sub-phase matrix) |
-| **First Playable** | Core loop walkthrough complete (RunStart→RunEnd 跑通 + 占位 art) |
-| **Vertical Slice** | 1 楼层 feature-complete + ship-quality art for that slice |
-| **Alpha** | Feature & content complete, asset slots filled (允许占位) |
+| **Pre-Production** | Concept exists; engine pinned, first ADR, MVP GDDs, thinnest end-to-end path, first sprint plan |
+| **First Playable** | Core loop runs start to finish, placeholder art acceptable |
+| **Vertical Slice** | One slice of the game is feature-complete at ship-quality |
+| **Alpha** | Feature & content complete; every asset slot filled (placeholders allowed) |
 | **Beta** | Content lock + perf pass + bug fix + localization in progress |
 | **Release** | Explicit only (set by `/gate-check` Beta → Release gate) |
 

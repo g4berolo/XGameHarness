@@ -23,7 +23,8 @@
 <!-- 写项目自己的 directory-structure 后引入: @.claude/docs/directory-structure.md -->
 
 harness 项目契约（hooks / skills 依赖的目录约定）：`design/gdd/`（GDD）、
-`plan/`（sprint / milestone / stage.md）、`team/session-state/{identity}/`、
+`plan/`（sprint / milestone）、`plan/stage.md`（阶段 SoT：frontmatter
+`current_stage` + sub-phase 矩阵）、`team/session-state/{identity}/`、
 `team/session-logs/{identity}/`、`team/memo/{recipient}/{open,closed}/`、
 `docs/architecture/`（ADR）。目录按需 lazy 创建，缺失时 hooks 静默降级。
 

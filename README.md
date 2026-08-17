@@ -44,7 +44,10 @@ hooks 以项目根为 CWD 读以下约定路径，全部有存在性守卫（缺
 
 ```
 design/gdd/                      # GDD（design-docs rule / detect-gaps / pre-compact 读）
-plan/                            # sprint / milestone / stage.md（producer 系 skills 读）
+plan/                            # sprint / milestone
+plan/stage.md                    # 阶段 SoT：frontmatter `current_stage` + sub-phase 矩阵。
+                                 #   gate-check / project-stage-detect / start / how-to-do 均读它；
+                                 #   由 /project-init 拷模板生成（无独立的 stage.txt）
 team/session-state/{identity}/   # active.md 会话状态（session-start 恢复）
 team/session-logs/{identity}/    # 月度轮转 session log（session-stop 写）
 team/memo/{recipient}/           # 跨开发者 memo（/start surface）
