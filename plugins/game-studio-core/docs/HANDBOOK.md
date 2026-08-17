@@ -56,8 +56,8 @@
 
 | 我想… | 用这个 | 说明 |
 |---|---|---|
-| 立绘生图 | `/codex-bridge` | 封装本地 Codex CLI 调 gpt-image-2，走 ChatGPT 订阅额度、无需 API key。LiblibAI 已停用（2026-07-04），原 illustrator agent 已删除 |
-| 图生 3D 模型 | `/generate-model` 或 spawn `game-studio-core:modeler` | Tripo3D 管线；需项目 `.mcp.json` 配 tripo-ai + `tools/tripo/config.json` API key |
+| 定美术风格 / 色板 / 各类美术标准 | 拿 `${CLAUDE_PLUGIN_ROOT}/docs/templates/art-bible.md` 手写，或 spawn `game-studio-core:creative-director` 定基调 | 风格定调是项目通用的，模板保留 |
+| 生图 / 图生 3D / 资产管线 | **本 harness 暂无** | 原 `/codex-bridge`、`/generate-model`、`modeler` agent 已于 2026-08-17 移除：它们绑死了一套具体的资产产出目录（`art/01_Illustration/` 等），而不同项目的产出路径差异太大。待重构后回归；在那之前美术生产走项目自己的工具 |
 
 ### 测试 / 运营
 

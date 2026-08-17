@@ -16,7 +16,7 @@ and performant whole.
 > it (`Agent type 'technical-director' not found`). Currently available subagents —
 > `game-studio-core:` + `producer`, `creative-director`, `technical-director`,
 > `game-designer`, `systems-designer`, `economy-designer`, `narrative-director`,
-> `level-designer`, `modeler`; and, only when the unreal-pack plugin is enabled,
+> `level-designer`; and, only when the unreal-pack plugin is enabled,
 > `unreal-pack:` + `unreal-specialist`, `ue-blueprint-specialist`,
 > `ue-gas-specialist`, `ue-umg-specialist`, `ue-replication-specialist`.
 > This roster has NO dedicated programmer agents (`lead-programmer`,

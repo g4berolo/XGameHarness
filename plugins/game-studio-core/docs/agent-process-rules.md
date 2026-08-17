@@ -96,7 +96,7 @@
 
 ## R4 Subagent invocation pattern
 
-**Rule**: harness 提供 14 个 subagent（`game-studio-core` 9 个 + `unreal-pack` 5 个，随插件分发；不在项目 `.claude/agents/` 里）。Claude Code 平台默认**不自动 spawn subagent**：要实际启用，开发者必须在 prompt 中显式命名 agent type 或显式说 "use a subagent"。主 agent 不会基于任务内容自主推断。
+**Rule**: harness 提供 13 个 subagent（`game-studio-core` 8 个 + `unreal-pack` 5 个，随插件分发；不在项目 `.claude/agents/` 里）。Claude Code 平台默认**不自动 spawn subagent**：要实际启用，开发者必须在 prompt 中显式命名 agent type 或显式说 "use a subagent"。主 agent 不会基于任务内容自主推断。
 
 **关键平台事实 — agent 名必须带插件前缀**：插件提供的 subagent，其 agent type 是 `<插件名>:<agent名>`（如 `game-studio-core:producer`）。传裸名会被直接拒绝：
 
@@ -124,7 +124,6 @@ Agent type 'producer' not found. Available agents: ..., game-studio-core:produce
 | `game-studio-core:economy-designer` | 商人 sink/faucet / 掉落表 / 经济曲线校准 |
 | `game-studio-core:narrative-director` | 故事架构 / 角色背景 / 对话策略 |
 | `game-studio-core:level-designer` | 关卡布局 / encounter pacing / 空间叙事 |
-| `game-studio-core:modeler` | AI 图生 3D 管线（Tripo3D；需项目配好 tripo-ai MCP server） |
 
 `unreal-pack`（仅 UE 项目，未启用该插件时下列 agent 不存在）:
 

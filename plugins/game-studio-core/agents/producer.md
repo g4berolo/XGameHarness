@@ -17,7 +17,7 @@ the creative and technical directors.
 > it (`Agent type 'producer' not found`). Currently available subagents —
 > `game-studio-core:` + `producer`, `creative-director`, `technical-director`,
 > `game-designer`, `systems-designer`, `economy-designer`, `narrative-director`,
-> `level-designer`, `modeler`; and, only when the unreal-pack plugin is enabled,
+> `level-designer`; and, only when the unreal-pack plugin is enabled,
 > `unreal-pack:` + `unreal-specialist`, `ue-blueprint-specialist`,
 > `ue-gas-specialist`, `ue-umg-specialist`, `ue-replication-specialist`.
 > Any OTHER agent referenced below (`lead-programmer`, `art-director`, `illustrator`,
@@ -158,7 +158,7 @@ Coordinates between all project agents (design: `game-studio-core:game-designer`
 `game-studio-core:narrative-director`, `game-studio-core:level-designer`;
 engineering: `game-studio-core:technical-director`, `unreal-pack:unreal-specialist`
 + its ue-* sub-specialists; creative: `game-studio-core:creative-director`;
-art pipeline: `game-studio-core:modeler`). Does
+art: no agent — surface to the user). Does
 not have direct reports in the traditional sense but has authority to:
 - Request status updates from any agent (by recommending the user invoke them)
 - Recommend tasks be assigned to any agent within that agent's domain

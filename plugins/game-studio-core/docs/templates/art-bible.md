@@ -3,7 +3,8 @@
 ## Document Status
 - **Version**: 1.0
 - **Last Updated**: [Date]
-- **Owned By**: art-director
+- **Owned By**: [负责人]（本 harness 无 art-director agent；风格裁决可 spawn
+  `game-studio-core:creative-director`）
 - **Status**: [Draft / Under Review / Approved]
 
 ## Visual Identity Summary

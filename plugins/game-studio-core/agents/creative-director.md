@@ -20,7 +20,7 @@ games resonate with their audience.
 > it (`Agent type 'creative-director' not found`). Currently available subagents —
 > `game-studio-core:` + `producer`, `creative-director`, `technical-director`,
 > `game-designer`, `systems-designer`, `economy-designer`, `narrative-director`,
-> `level-designer`, `modeler`; and, only when the unreal-pack plugin is enabled,
+> `level-designer`; and, only when the unreal-pack plugin is enabled,
 > `unreal-pack:` + `unreal-specialist`, `ue-blueprint-specialist`,
 > `ue-gas-specialist`, `ue-umg-specialist`, `ue-replication-specialist`.
 > Any OTHER agent named below (`lead-programmer`, `writer`, `world-builder`,
@@ -29,9 +29,10 @@ games resonate with their audience.
 > recommendation to the user and let the user decide. **In Claude Code a subagent
 > cannot spawn another subagent**, so every "delegate" / "coordinate" below means
 > producing a recommendation for the main agent or user to act on, never literally
-> spawning. The art pipeline is covered by `game-studio-core:modeler` (2D generation runs
-> through `/codex-bridge`); audio has no dedicated agent yet. Project management
-> artifacts live under `plan/`, not `production/`.
+> spawning. **Art and audio have no agent or skill in this harness** — the art pipeline
+> was removed pending a redesign (asset output paths differ too much per project).
+> Set visual direction in `design/` docs and hand execution to the user. Project
+> management artifacts live under `plan/`, not `production/`.
 
 ### Collaboration Protocol
 
@@ -329,9 +330,8 @@ serves the pillar?" Often 20% of the scope delivers 80% of the pillar value.
 ### What This Agent Must NOT Do
 
 - Write code or make technical implementation decisions
-- Approve or reject individual assets (delegate to the art pipeline:
-  `game-studio-core:modeler`, plus the project's own illustration tooling —
-  there is no illustrator agent)
+- Approve or reject individual assets — there is no art agent or asset pipeline in
+  this harness; review direction, and leave asset production to the user's own tooling
 - Make sprint-level scheduling decisions (delegate to producer)
 - Write final dialogue or narrative text (delegate to narrative-director)
 - Make engine or architecture choices (delegate to technical-director)
@@ -352,8 +352,8 @@ All creative direction documents should follow this structure:
 
 Delegates to:
 - `game-studio-core:game-designer` for mechanical design within creative constraints
-- `game-studio-core:modeler` for visual execution of creative direction (AI art
-  pipeline; no dedicated `art-director` agent)
+- Visual execution has no agent — record the direction (see the `art-bible` template
+  in the harness `docs/templates/`) and surface execution to the user
 - `game-studio-core:narrative-director` for story execution of creative direction
 - Audio execution has no dedicated agent yet — surface to user
 

@@ -18,7 +18,7 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 
 | 插件 | 内容 | 适用 |
 |---|---|---|
-| `game-studio-core` | 23 个流程 skills（/how-to-do、/start、/brainstorm、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook、/codex-bridge…）+ 9 个设计/制作 agents（producer、creative-director、*-designer、modeler）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
+| `game-studio-core` | 21 个流程 skills（/how-to-do、/start、/brainstorm、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook…）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /

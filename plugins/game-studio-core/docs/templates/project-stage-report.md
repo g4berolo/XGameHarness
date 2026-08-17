@@ -81,11 +81,8 @@
 
 ### Art Pipeline
 - **Status**: [X%] complete
-- **Pipeline Stages Found** (in `art/`):
-  - 01_Illustration: [N] approved
-  - 02_Modeling: [N] approved
-  - 03_Rigging: [N] approved
-  - 04_Animation: [N] approved
+- **Art assets**: [项目自定美术目录的产出情况；harness 不再假定任何资产目录结构，
+  按本项目实际路径填，没有就写 n/a]
 - **UE Imported**: [N] assets in `client/Content/`
 - **Key Gaps**:
   - [ ] [Missing pipeline stage / asset class]
@@ -207,7 +204,6 @@ plan/
 
 tests/           [N] test files
 prototypes/      [N] directories
-art/             [N] pipeline artifacts
 ```
 
 ---

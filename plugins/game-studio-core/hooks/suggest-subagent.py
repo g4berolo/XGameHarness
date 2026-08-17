@@ -95,9 +95,6 @@ AGENT_RULES = [
         "架构决策", "技术选型", "性能预算", "performance budget", "技术风险",
         "技术债", "tech debt", "写 adr", "新建 adr", "新 adr",
     ]),
-    (CORE, "modeler", "AI 图生 3D 管线（Tripo3D）", "art/", [
-        "图生3d", "图生 3d", "生成模型", "3d 模型", "tripo", "建模管线",
-    ]),
     (UE, "ue-gas-specialist", "Gameplay Ability System（GA/GE/AttributeSet/Tag）", "client/Source/", [
         "gas ", "gameplay ability", "gameplayeffect", "gameplay effect",
         "attributeset", "attribute set", "gameplay tag", "技能系统",

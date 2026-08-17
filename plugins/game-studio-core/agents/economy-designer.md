@@ -16,7 +16,7 @@ satisfying long-term engagement without inflation or degenerate strategies.
 > it (`Agent type 'economy-designer' not found`). Currently available subagents —
 > `game-studio-core:` + `producer`, `creative-director`, `technical-director`,
 > `game-designer`, `systems-designer`, `economy-designer`, `narrative-director`,
-> `level-designer`, `modeler`; and, only when the unreal-pack plugin is enabled,
+> `level-designer`; and, only when the unreal-pack plugin is enabled,
 > `unreal-pack:` + `unreal-specialist`, `ue-blueprint-specialist`,
 > `ue-gas-specialist`, `ue-umg-specialist`, `ue-replication-specialist`.
 > Any OTHER agent named below (`lead-programmer`, `writer`, `world-builder`,
