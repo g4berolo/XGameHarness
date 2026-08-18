@@ -11,6 +11,16 @@
 
 ## 1. 我想做什么 → 用什么
 
+> **关于下表里的 subagent 用什么模型**：13 个 agent 全部是 `model: inherit`
+> —— **跟随你主 session 当前的模型**（`/model` 选的那个），harness 不替你锁定。
+>
+> **建议在 Opus 或 Fable 下调用 subagent。** 这些 agent 做的是设计决策、公式推导、
+> 架构判断，输出会被写进 GDD / ADR 并被后续所有工作依赖，错了的代价远高于省下的
+> 那点开销。主 session 挂在 Haiku 上图快时，别顺手 spawn subagent。
+>
+> 单次想换模型：调用方在 Agent 调用里传 `model` 参数即可覆盖，优先级高于 agent
+> 文件里的 `inherit`，不用改文件。
+
 ### 立项 / 规划
 
 | 我想… | 用这个 | 说明 |

@@ -23,6 +23,11 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
 > `unreal-pack:ue-gas-specialist` 这种全名，裸名会直接报 `Agent type not found`。
+>
+> **模型**：13 个 agent 全部 `model: inherit`，跟随主 session 当前模型，harness
+> 不锁定 —— 硬编码模型对没有该模型权限的开发者是直接故障，而项目侧无法覆盖
+> 插件 agent 的配置（同名文件只会新建一个裸名 agent）。**建议在 Opus 或 Fable
+> 下调用 subagent**；单次覆盖可在 Agent 调用时传 `model` 参数。
 
 ## 新项目接入
 
