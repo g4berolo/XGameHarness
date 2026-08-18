@@ -9,7 +9,15 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, Skill
 # /project-init — 新项目接入 XGameHarness
 
 在**新项目根目录**运行。完成后重启 session，harness（skills / agents / hooks）
-即随 XGameHarness marketplace 自动加载并持续更新。
+随 XGameHarness marketplace 加载。
+
+> **别把「订阅了 marketplace」当成「永远是最新」。** 插件缓存按 commit SHA 钉版本，
+> 实测存在订阅配置完全正确、插件却停在一个月前 commit 的情况。harness 有更新时在
+> 项目里跑 `/harness-upgrade`，它会显式核对插件版本、按项目契约查缺、并同步 rules。
+
+本 skill 建哪些文件，以 `${CLAUDE_PLUGIN_ROOT}/docs/project-contract.md` 的必需项
+清单为准 —— 那份清单同时被 `/harness-upgrade` 消费，**新增项目侧必需文件时先改
+那里**，否则老项目没有补上的路径。
 
 ## 执行步骤
 
@@ -78,7 +86,7 @@ git config user.email
 | 模板文件 | 目标 | 处理 |
 |---|---|---|
 | `.claude/settings.json` | 同路径 | 原样复制；非 UE 项目删掉 `"unreal-pack@XGameHarness"` 行 |
-| `.claude/harness-config.json` | 同路径 | 默认 `excludedAgents: []`；单人游戏可填 `["unreal-pack:ue-replication-specialist"]`，非 UE 项目无需填（hook 已按 enabledPlugins 自动跳过 unreal-pack agents）|
+| `.claude/harness-config.json` | 同路径 | 默认 `excludedAgents: []`；单人游戏可填 `["unreal-pack:ue-replication-specialist"]`，非 UE 项目无需填（hook 已按 enabledPlugins 自动跳过 unreal-pack agents）。**`syncedHarnessCommit` 必须替换成真实短 SHA**（取 `~/.claude/plugins/installed_plugins.json` 里本插件的 `gitCommitSha` 前 7 位），别留 `<harness short SHA>` 占位；同时删掉 `_syncedHarnessCommit` 说明字段 |
 | `.gitignore` | 项目根 | 已有则合并两行（`.claude/state/`、`.claude/settings.local.json`），不覆盖。第 2.4 步若选了方案 3，再补一行 `.claude/team.json` |
 | `CLAUDE.md` | 项目根 | 替换 `<ProjectName>` 占位；按项目类型填 Technology Stack 骨架 |
 
@@ -132,6 +140,8 @@ CLAUDE.md 契约，`/start` 的 `team/memo/{identity}/open/*.md` 会扫不到任
       `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1`（私有仓库自动更新）
 - [ ] UE 项目：跑 `/setup-engine` 钉引擎版本并生成 engine-reference 文档
 - [ ] 跑 `/start` 验证 dashboard；查 `/handbook` 了解全部能力
+- [ ] 记住：**harness 有更新时回来跑 `/harness-upgrade`**（插件本体不保证自动更新，
+      且 harness 后续新增的项目侧必需文件不会自己出现）
 
 ## 注意
 

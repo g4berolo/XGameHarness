@@ -1,4 +1,6 @@
 {
   "_comment": "可选的 per-project harness 配置。excludedAgents: suggest-subagent hook 不再提示这些 agent。填 agent 全名（含插件前缀），例：单人游戏项目排除联网专家 -> [\"unreal-pack:ue-replication-specialist\"]；非 UE 项目可整体排除 unreal-pack:* 系列。默认空数组 = 不排除任何 agent。",
-  "excludedAgents": []
+  "excludedAgents": [],
+  "_syncedHarnessCommit": "项目侧文件（非插件本体、非 rules）上次核对到的 harness commit 短 SHA，由 /project-init 写入、/harness-upgrade 更新。缺失 = 早于本机制接入，/harness-upgrade 会走全量核对。见插件 docs/project-contract.md。",
+  "syncedHarnessCommit": "<harness short SHA>"
 }

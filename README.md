@@ -18,7 +18,7 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 
 | 插件 | 内容 | 适用 |
 |---|---|---|
-| `game-studio-core` | 22 个流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/sync-rules、/handbook…）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
+| `game-studio-core` | 23 个流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
@@ -42,6 +42,19 @@ gh auth setup-git
 ```
 
 手动兜底：`/plugin marketplace update XGameHarness`。
+
+## 已接入项目的升级
+
+**harness 更新后，项目不会自己跟上。** 在项目里跑 **`/harness-upgrade`**，它按三档核对：
+
+| 档 | 内容 | 更新方式 |
+|---|---|---|
+| A 插件本体 | skills / agents / hooks / docs / templates | `claude plugin marketplace update XGameHarness` → `claude plugin update <plugin>@XGameHarness` → **重启**。缓存按 commit SHA 钉版本，**不保证自动更新** |
+| B rules 实例 | `.claude/rules/*.md` | `/sync-rules` |
+| C 项目文件 | `plan/stage.md`、`CLAUDE.md`、`.claude/settings.json` … | `/harness-upgrade`，清单见 `game-studio-core/docs/project-contract.md` |
+
+改 harness 时新增了任何项目侧必需文件，**同步在 `project-contract.md` 加一行** ——
+否则老项目没有任何机制知道它的存在。
 
 ## 项目契约（hooks / skills 依赖的目录约定）
 

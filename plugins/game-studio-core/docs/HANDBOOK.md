@@ -112,7 +112,8 @@
 |---|---|---|
 | **不确定做什么 / 想让 agent 组织流程** | `/how-to-do [目标]` | 主推入口：澄清目标 → 检索本手册 → 完整建议流程 → 推进第一步；无参数 = "我现在该干嘛" |
 | **新项目接入这套 harness** | `/project-init` | 问询生成 `.claude/team.json`（harness 只带模板，不带可用文件）+ 复制其余模板 + 建 `plan/stage.md` + 同步 rules + 收尾清单（见 § 3） |
-| 把 pack 的 rules 同步进项目 | `/sync-rules` | managed-by 标记文件跟随插件更新；定制过的不覆盖（见 § 4） |
+| **已接入的项目追上 harness 新版本** | `/harness-upgrade` | 三档一起查：① 插件本体是否过期（**不保证自动更新**，给出更新命令）② 按 `docs/project-contract.md` 查缺项目侧必需文件（如后来新增的 `plan/stage.md`）③ 转调 `/sync-rules` 同步规则。完成后写回 `syncedHarnessCommit` 水位 |
+| 把 pack 的 rules 同步进项目 | `/sync-rules` | managed-by 标记文件跟随插件更新；定制过的不覆盖（见 § 4）。**只动 `.claude/rules/`**，其他项目文件归 `/harness-upgrade` 管 |
 | **看项目现在什么状态 / 今天干啥** | `/start` | 项目状态 dashboard：阶段 / 未提交改动 / 待办 memo surface（memo 只有跑它才会出）+ 按任务分流 |
 | 查这本手册 | `/handbook <关键词>` | agent 检索本文件作答 |
 | 改 harness 本身 | 直接改 `D:\work\GameStudio\XGameHarness` | commit + push 后所有项目下个 session 生效；先 `claude plugin validate .` |
@@ -157,7 +158,20 @@ frontmatter `current_stage` + sub-phase 矩阵；/project-init 必建）｜
 `team/session-state|session-logs|memo/{identity}/`｜`docs/architecture/`（ADR）｜
 `.claude/rules|team.json|harness-config.json`
 
-## 4. rules 双层管理
+## 4. 分发三档 + rules 双层管理
+
+harness 的内容按「怎么到达项目」分三档，**三档各有各的更新方式，不要混为一谈**：
+
+| 档 | 内容 | 更新方式 |
+|---|---|---|
+| **A 插件本体** | skills / agents / hooks / docs / templates | `claude plugin marketplace update XGameHarness` + `claude plugin update <plugin>@XGameHarness` + **重启**。缓存按 commit SHA 钉版本，**不保证自动更新**（实测出现过订阅正确但停在一个月前 commit） |
+| **B rules 实例** | `.claude/rules/*.md` | `/sync-rules` |
+| **C 项目文件** | `plan/stage.md`、`CLAUDE.md`、`.claude/settings.json` 等 | `/harness-upgrade`，清单见 `docs/project-contract.md` |
+
+**改 harness 时若新增了项目侧必需文件，必须同步在 `docs/project-contract.md` 加一行**
+—— 否则已接入的老项目永远不会知道它的存在。
+
+### rules 双层（B 档细节）
 
 - **分发源**：`game-studio-core/rules/`（design-docs / prototype-code）+
   `unreal-pack/rules/`（gameplay-code / ai-code / ui-code / test-standards）
