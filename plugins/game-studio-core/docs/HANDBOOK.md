@@ -22,7 +22,7 @@
 | 估工作量 | `/estimate` | 复杂度 + 依赖 + 历史速度 → 带置信度的估算 |
 | 查范围蔓延(scope creep) | `/scope-check` | 现行范围 vs 原计划 diff，量化膨胀并给砍单建议 |
 | 里程碑复盘 / go-no-go | `/milestone-review` | 完成度 + 质量 + 风险 → go/no-go 建议 |
-| 阶段门禁检查 | `/gate-check` | PASS / CONCERNS / FAIL 判定 + 缺失工件清单 |
+| 阶段门禁检查 | `/gate-check` | PASS / CONCERNS / FAIL 判定 + 缺失工件清单。判据 = 通用工件底线 + `plan/stage.md` 里当前阶段所有 Critical 行 Done；没有 `plan/stage.md` 会先问你要不要从模板生成 |
 
 ### 写策划案（GDD）
 
@@ -65,12 +65,42 @@
 |---|---|---|
 | 收集 / 分析试玩反馈 | `/playtest-report` | 生成模板或把散乱笔记结构化 |
 
+### 文档模板（21 份，`${CLAUDE_PLUGIN_ROOT}/docs/templates/`）
+
+**没有对应 skill 的文档，先来这里找模板，不要凭空编结构。** 多数 skill 内部已经
+自动引用了对应模板；下表是给「手写一份文档」场景用的。
+
+| 我要写… | 模板 | 被谁用 |
+|---|---|---|
+| 架构决策记录（ADR） | `architecture-decision-record.md` | 手写；或 spawn `game-studio-core:technical-director` |
+| 从已有代码反推架构文档 | `architecture-doc-from-code.md` | `/reverse-document architecture` |
+| 从已有实现反推系统设计文档 | `design-doc-from-implementation.md` | `/reverse-document design` |
+| 从原型反推概念文档 | `concept-doc-from-prototype.md` | `/reverse-document concept` |
+| 游戏概念 | `game-concept.md` | `/brainstorm` |
+| 设计支柱 | `game-pillars.md` | `/brainstorm` |
+| 系统清单 / 依赖图 | `systems-index.md` | `/map-systems` |
+| 单个系统的策划案 | `game-design-document.md` | `/design-system` |
+| 经济模型（sink/faucet、掉落、曲线） | `economy-model.md` | 手写；或 spawn `game-studio-core:economy-designer` |
+| 关卡文档 | `level-design-document.md` | 手写；或 spawn `game-studio-core:level-designer` |
+| 阵营设定 | `faction-design.md` | 手写；或 spawn `game-studio-core:narrative-director` |
+| 角色设定卡 | `narrative-character-sheet.md` | 同上 |
+| 美术风格圣经 | `art-bible.md` | 手写；风格裁决 spawn `game-studio-core:creative-director` |
+| 音频圣经 | `sound-bible.md` | 手写（无音频 agent） |
+| **阶段 SoT** | `stage.md` | `/project-init` 必建 → `plan/stage.md`；`/gate-check` 读写 |
+| 里程碑定义 | `milestone-definition.md` | 手写；或 spawn `game-studio-core:producer` |
+| sprint 计划 | `sprint-plan.md` | `/sprint-plan new` |
+| 风险登记条目 | `risk-register-entry.md` | 手写；或 spawn `game-studio-core:producer` |
+| 项目阶段诊断报告 | `project-stage-report.md` | `/project-stage-detect` |
+| 技术偏好（引擎/命名/性能预算/测试） | `technical-preferences.md` | `/setup-engine` 首建 → `.claude/docs/technical-preferences.md` |
+| 立项 pitch | `pitch-document.md` | 手写 |
+| 设计类 agent 的协作协议 | `collaborative-protocols/design-agent-protocol.md` | agent 内部引用 |
+
 ### Harness 自身运维
 
 | 我想… | 用这个 | 说明 |
 |---|---|---|
 | **不确定做什么 / 想让 agent 组织流程** | `/how-to-do [目标]` | 主推入口：澄清目标 → 检索本手册 → 完整建议流程 → 推进第一步；无参数 = "我现在该干嘛" |
-| **新项目接入这套 harness** | `/project-init` | 复制模板 + 填项目名 + 同步 rules + 收尾清单（见 § 3） |
+| **新项目接入这套 harness** | `/project-init` | 问询生成 `.claude/team.json`（harness 只带模板，不带可用文件）+ 复制其余模板 + 建 `plan/stage.md` + 同步 rules + 收尾清单（见 § 3） |
 | 把 pack 的 rules 同步进项目 | `/sync-rules` | managed-by 标记文件跟随插件更新；定制过的不覆盖（见 § 4） |
 | **看项目现在什么状态 / 今天干啥** | `/start` | 项目状态 dashboard：阶段 / 未提交改动 / 待办 memo surface（memo 只有跑它才会出）+ 按任务分流 |
 | 查这本手册 | `/handbook <关键词>` | agent 检索本文件作答 |
@@ -123,8 +153,10 @@ frontmatter `current_stage` + sub-phase 矩阵；/project-init 必建）｜
 - **项目实例**：`.claude/rules/*.md` —— 注入 hook 只读这里
 - 带 `managed-by: XGameHarness/<pack>` frontmatter = 跟随插件更新（/sync-rules 覆盖）
 - 项目要定制（最常见：改 `paths:` 适配项目目录）→ 改完**删掉 managed-by 行**即固定
-- 项目专属事实文档（directory-structure / technical-preferences / coding-standards）
-  **不进 harness** —— 它们是各项目的 SoT，模板见 project-template/CLAUDE.md 占位注释
+- 项目专属事实文档的**内容**（directory-structure / technical-preferences /
+  coding-standards）**不进 harness** —— 它们是各项目的 SoT。但**空骨架模板可以**进：
+  `docs/templates/technical-preferences.md` 就是一份（`/setup-engine` 首建时拿它填）。
+  区别在于「模板在 harness，实例在项目」，跟 rules 双层是同一个模型
 
 ## 5. 在 marketplace 里加新插件
 
@@ -132,6 +164,11 @@ frontmatter `current_stage` + sub-phase 矩阵；/project-init 必建）｜
    kebab-case；**不写 version** = commit 即版本）
 2. 按需加 `skills/<skill>/SKILL.md`、`agents/*.md`、`hooks/hooks.json`（脚本引用自身用
    `${CLAUDE_PLUGIN_ROOT}`，读项目文件用 `CLAUDE_PROJECT_DIR`（勿用 `__file__` 推项目根——脚本跑在插件缓存里；裸相对路径仅在确认 CWD=项目根时可用））
+2b. **Python hook 必须走 wrapper**：hooks.json 里写
+   `bash "${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh" "${CLAUDE_PLUGIN_ROOT}/hooks/<script>.py"`，
+   **不要**直接写 `python xxx.py` —— 大多数 Linux/macOS 只有 `python3`，裸 `python`
+   会让 hook 静默失效（不报错、什么都不发生）。wrapper 依次探测 `python3/python/py`
+   并实跑一次 `-c ""` 验证（Windows 商店别名能被 `command -v` 找到但跑不起来）
 3. `marketplace.json` 的 `plugins` 数组加 `{"name", "source": "./plugins/<name>", "description"}`
 4. `claude plugin validate .` → commit → push
 5. 各项目启用：settings.json `enabledPlugins` 加 `"<name>@XGameHarness": true`（团队统一）
@@ -146,5 +183,8 @@ frontmatter `current_stage` + sub-phase 矩阵；/project-init 必建）｜
 | skill/agent 找不到 | 重启 session；确认 settings.json `enabledPlugins` 键为 `xxx@XGameHarness` |
 | rules 没注入 | rules 在项目 `.claude/rules/` 吗（不是插件里）？`paths:` glob 与被编辑文件匹配吗？看 `.claude/state/inject-rules.log` |
 | hook 报错 / 无输出 | 项目缺契约目录属正常静默降级；真报错看对应 hook 脚本 + `.claude/state/` 日志 |
+| Python hook（rules 注入 / R2 语言 / subagent 提示）完全不工作 | 本机有可用解释器吗：`python3 -c ""` / `python -c ""` 都试。三个 python hook 都经 `run-python.sh` 探测 `python3→python→py`，全找不到就静默放行（设计如此，不阻断） |
+| `git commit` 被 hook 阻断 | 只有一种情况会阻断：暂存的 `.json` 解析失败。报错行会指出是哪个文件、哪一行。UTF-8 BOM 不再误伤；若提示「JSON validation did not run」说明解释器起不来，此时**未做校验**而不是校验通过 |
+| 阶段类 skill 说不出项目在哪个阶段 | 项目有 `plan/stage.md` 吗？没有就跑 `/project-init` 或让 `/gate-check` 从模板生成。它是 gate-check / project-stage-detect / start / how-to-do 的唯一真相源 |
 | harness 改坏了所有项目 | `git revert` XGameHarness 对应 commit + push + 各机 `/plugin marketplace update XGameHarness` |
-| `.codex/hooks/` 行为不一致 | Codex 镜像不自动同步，从 harness `hooks/` 手动搬 |
+| `.codex/hooks/` 行为不一致 | 指的是项目里**同时用 Codex CLI 当第二个 agent 运行时**的场景：Codex 无插件机制，它那份 hook 副本不会跟随 XGameHarness 更新，改了 harness hooks 要手动搬。与已移除的 `/codex-bridge` skill 无关 |
