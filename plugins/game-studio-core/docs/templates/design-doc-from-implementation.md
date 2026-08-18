@@ -2,6 +2,7 @@
 
 ---
 **Status**: Reverse-Documented
+**Rigor**: Full — reverse-documenting a whole existing system is never a Lite change
 **Source**: `[path to implementation code]`
 **Date**: [YYYY-MM-DD]
 **Verified By**: [User name or "pending review"]

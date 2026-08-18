@@ -15,7 +15,29 @@ When this skill is invoked:
 3. **Read related design documents** referenced or implied by the target doc
    (check `design/gdd/` for related systems).
 
-4. **Evaluate against the Design Document Standard checklist**:
+4. **Read the document's rigor level, then check completeness against that rigor level.**
+
+   Look for a `Rigor: Lite` / `Rigor: Full` field in the header. A document with no
+   rigor field predates the grading rule — grade it yourself using the triggers in
+   `${CLAUDE_PLUGIN_ROOT}/docs/templates/game-design-document.md`, and note in the
+   review which rigor level you assumed.
+
+   A document marked `Status: Reverse-Documented` follows its own template
+   (`design-doc-from-implementation.md`) — review it against that structure, not
+   against either checklist below.
+
+   **Do not review a Lite document against the 8-section checklist.** Lite is a
+   deliberate choice, not an incomplete Full — reporting "3/8 sections" on a Lite
+   doc is a false finding.
+
+   **Lite checklist**:
+   - [ ] 意图 — why this change exists
+   - [ ] 改动 — only what changes (新增 / 修改 / 移除), not a restatement of the system
+   - [ ] 非目标 — explicitly out of scope, and not empty
+   - [ ] 验收 — 3-5 testable conditions
+   - [ ] Still short (roughly under 50 lines)
+
+   **Full checklist**:
    - [ ] Has Overview section (one-paragraph summary)
    - [ ] Has Player Fantasy section (intended feeling)
    - [ ] Has Detailed Rules section (unambiguous mechanics)
@@ -24,6 +46,30 @@ When this skill is invoked:
    - [ ] Has Dependencies section (other systems listed)
    - [ ] Has Tuning Knobs section (configurable values identified)
    - [ ] Has Acceptance Criteria section (testable success conditions)
+   - [ ] Header names the escalation trigger that justified Full
+
+   **Rigor misfit is itself a finding**: a Lite doc that touches three systems'
+   interfaces or the economy should have been Full — say so. A Full doc written for
+   a two-line tweak is over-ceremony — say that too.
+
+4b. **Check for implementation detail that does not belong in a GDD.**
+
+   Test: **实现可以变、而玩家可感知的行为不变的，就不属于 GDD。**
+
+   Flag and name a better home for each hit:
+
+   | Found in the doc | Belongs in |
+   |---|---|
+   | Concrete class / function names (`ARoomBase`, `CalcDamage()`) | code; the architectural choice → ADR |
+   | Blueprint node wiring, component trees | code |
+   | Library / framework / plugin selection | ADR |
+   | Number tables (per-item values) | data files — the GDD keeps formula shape and safe ranges |
+   | Step-by-step implementation plans | sprint plan / task tracker |
+
+   This is the main driver of document rot: implementation detail goes stale as soon
+   as the code moves, and nothing marks which half of the doc still holds. Report
+   these under Recommendations, not as blockers, unless the doc is mostly
+   implementation notes — in that case it is not a GDD and the verdict should say so.
 
 5. **Check for internal consistency**:
    - Do the formulas produce values that match the described behavior?
@@ -45,8 +91,15 @@ When this skill is invoked:
 ```
 ## Design Review: [Document Title]
 
-### Completeness: [X/8 sections present]
+### Rigor: [Lite / Full] ([declared in header] / [assumed — no rigor field])
+[If the rigor level looks wrong for the change, say so and why]
+
+### Completeness: [X/5 Lite items] or [X/8 Full sections present]
 [List missing sections]
+
+### Out-of-Scope Content
+[Implementation detail that belongs elsewhere, with the destination for each.
+"None" is a valid and common answer.]
 
 ### Consistency Issues
 [List any internal or cross-system contradictions]

@@ -28,8 +28,9 @@
 
 | 我想… | 用这个 | 说明 |
 |---|---|---|
-| **写一个系统的策划案** | `/design-system` | 逐 section 引导写 8 段结构 GDD（Overview / Player Fantasy / Detailed Rules / Formulas / Edge Cases / Dependencies / Tuning Knobs / Acceptance Criteria），增量落盘 `design/gdd/` |
-| 评审策划案 | `/design-review` | 完整性 / 一致性 / 可实现性检查，交给程序前必跑 |
+| **想改某个系统但还没想清楚怎么改** | `/explore-design` | **不产出任何文件**的探索：读现有 GDD + 上下游 + 代码 → 摆 2-4 条路线和取舍 → 收束成一个决定再转 `/design-system`。结论只活在对话里，聊完必须收 |
+| **写一个系统的策划案** | `/design-system` | 先定档再写，档位记在文档头的 `Rigor` 字段（**不是** systems-index 里那个表优先级的 `Tier`）：**Lite**（默认，意图/改动/非目标/验收，30 行内）或 **Full**（8 段完整结构，仅高风险改动）。升级判据 = 动 2 个以上系统接口 / 改核心循环 / 涉经济 / 影响存档 / 涉联机 / 全新系统。增量落盘 `design/gdd/` |
+| 评审策划案 | `/design-review` | 按档位查完整性（Lite 查 4 项、Full 查 8 段，**不拿 8 段量 Lite**）+ 一致性 + 可实现性 + 实现细节是否混入，交给程序前必跑 |
 | 顶层玩法框架拿不准 | spawn `game-studio-core:game-designer` | 核心循环 / 系统拆解层面的设计问题 |
 | 数值公式 / 算例 / 曲线细化 | spawn `game-studio-core:systems-designer` | 公式推导、对位算例、交互矩阵 |
 | 经济 / 掉落 / 商人设计 | spawn `game-studio-core:economy-designer` | sink-faucet 分析、掉落表、经济曲线 |
@@ -79,7 +80,7 @@
 | 游戏概念 | `game-concept.md` | `/brainstorm` |
 | 设计支柱 | `game-pillars.md` | `/brainstorm` |
 | 系统清单 / 依赖图 | `systems-index.md` | `/map-systems` |
-| 单个系统的策划案 | `game-design-document.md` | `/design-system` |
+| 单个系统的策划案 | `game-design-document.md` | `/design-system`。**一份文件含两档模板**（Lite / Full）+ 定级判据 + 「什么不该写进 GDD」判据 |
 | 经济模型（sink/faucet、掉落、曲线） | `economy-model.md` | 手写；或 spawn `game-studio-core:economy-designer` |
 | 关卡文档 | `level-design-document.md` | 手写；或 spawn `game-studio-core:level-designer` |
 | 阵营设定 | `faction-design.md` | 手写；或 spawn `game-studio-core:narrative-director` |

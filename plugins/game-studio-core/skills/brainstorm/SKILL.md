@@ -201,7 +201,7 @@ Ground the concept in reality:
    - "Use `/design-review design/gdd/game-concept.md` to validate completeness"
    - "Validate pillars and refine the game concept"
    - "Decompose the concept into individual systems with `/map-systems` — maps dependencies, assigns priorities, and creates the systems index"
-   - "Author per-system GDDs with `/design-system` — guided, section-by-section GDD writing"
+   - "Author per-system GDDs with `/design-system` — grades the change Lite or Full, then guides section-by-section writing"
    - "Prototype the core loop with `/prototype [core-mechanic]`"
    - "Playtest the prototype with `/playtest-report` to validate the hypothesis"
    - "If validated, plan the first sprint with `/sprint-plan new`"

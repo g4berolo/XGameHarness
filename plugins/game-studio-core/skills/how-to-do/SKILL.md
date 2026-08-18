@@ -40,9 +40,11 @@ skill**，而是组织成建议流程(pipeline)：
 ```
 建议流程：
 1. [前置] design/gdd/systems-index.md 里有这个系统吗？没有 → /map-systems 先登记
-2. [主体] /design-system —— 8 段结构逐节引导写作
+2. [可跳过] 还不确定要设计成什么样 → /explore-design 先摆选项（不产出文件）；
+   已经想清楚就直接跳到第 3 步
+3. [主体] /design-system —— 先定 Lite / Full 档位，再逐节引导写作
    数值公式细化可 spawn game-studio-core:systems-designer subagent: <算例/曲线任务模板>
-3. [收尾] /design-review —— 交给程序实现前必过
+4. [收尾] /design-review —— 交给程序实现前必过
 ```
 
 ### 3. 立即推进

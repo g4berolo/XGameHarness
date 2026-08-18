@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: "Guided, section-by-section GDD authoring for a single game system. Gathers context from existing docs, walks through each required section collaboratively, cross-references dependencies, and writes incrementally to file."
+description: "Guided GDD authoring for a single game system. Grades the change first (Lite by default, Full only for high-risk changes), then walks through the required sections collaboratively, cross-references dependencies, and writes incrementally to file."
 argument-hint: "<system-name> (e.g., 'combat-system', 'inventory', 'dialogue')"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Skill
@@ -78,6 +78,51 @@ Use `AskUserQuestion`:
 - "Ready to start designing [system-name]?"
   - Options: "Yes, let's go", "Show me more context first", "Design a dependency first"
 
+### 2e: Grade the Change (Lite / Full)
+
+**Do this before creating any file.** Not every change deserves the same ceremony.
+Forcing all 8 sections onto a drop-rate tweak is what makes people skip the process
+entirely, and a skipped process records nothing at all.
+
+**Default is Lite.** Escalate to Full only if the change hits **any** of these:
+
+| # | Escalation trigger |
+|---|---|
+| 1 | Touches the interface of **more than 2 existing systems** |
+| 2 | Changes the **core loop** itself (the 30-second or 5-minute loop structure) |
+| 3 | Involves the **economy**, or anything monetization-related |
+| 4 | Affects **save compatibility** (save format, migration) |
+| 5 | Involves **network replication** or server authority |
+| 6 | Is a **brand-new system** (not yet listed in `systems-index.md`) |
+
+Evaluate the triggers **from the context you just gathered**, not by asking the user
+to self-assess — the dependency reads in 2b already tell you how many interfaces are
+in play, and the systems index tells you whether the system is new.
+
+Present the verdict with its reason, then let the user override:
+
+> **建议档位：Lite** — 没有命中升级判据（改动只涉及 [system] 自身，
+> 依赖接口不变，不涉及经济/存档/联机）。
+> Lite = 意图 / 改动 / 非目标 / 验收，目标 30 行以内。
+
+or
+
+> **建议档位：Full** — 命中判据 #3（涉及经济系统）和 #1（会改动 [A]、[B]、[C]
+> 三个系统的接口）。Full = 完整 8 段。
+
+Use `AskUserQuestion`:
+- "按 [Lite/Full] 写？"
+  - Options: "就按建议的来", "升到 Full（我觉得比看起来重）", "降到 Lite（我知道风险）"
+
+If the user downgrades a Full to Lite, **record which trigger was waived** in the
+document's frontmatter (`> **降级说明**: 命中判据 #N，用户判断 [理由] 后按 Lite 写`).
+Don't silently drop it — the next person reading the doc needs to know a known
+risk was accepted.
+
+Hold the chosen rigor level for the rest of this skill. **Lite can be upgraded mid-flight**
+if the design turns out bigger than expected (merge what's written into the matching
+Full sections); a Full should not be downgraded once written.
+
 ---
 
 ## 3. Create File Skeleton
@@ -85,15 +130,48 @@ Use `AskUserQuestion`:
 Once the user confirms, **immediately** create the GDD file with empty section
 headers. This ensures incremental writes have a target.
 
-Use the template structure from `${CLAUDE_PLUGIN_ROOT}/docs/templates/game-design-document.md` (bundled with this plugin):
+The template at `${CLAUDE_PLUGIN_ROOT}/docs/templates/game-design-document.md`
+(bundled with this plugin) carries **both rigor levels** plus the shared "what does not
+belong in a GDD" test. Read it and use the skeleton matching the rigor level chosen in 2e.
+
+### Lite skeleton
 
 ```markdown
 # [System Name]
 
 > **Status**: In Design
+> **Rigor**: Lite
+> **Author**: [user + agents]
+> **Last Updated**: [today's date]
+
+## 意图
+
+[To be designed]
+
+## 改动
+
+[To be designed]
+
+## 非目标
+
+[To be designed]
+
+## 验收
+
+[To be designed]
+```
+
+### Full skeleton
+
+```markdown
+# [System Name]
+
+> **Status**: In Design
+> **Rigor**: Full
 > **Author**: [user + agents]
 > **Last Updated**: [today's date]
 > **Implements Pillar**: [from context]
+> **升 Full 的理由**: [which escalation trigger fired, from 2e]
 
 ## Overview
 
@@ -160,6 +238,47 @@ After writing, update `team/session-state/{identity}/active.md` with:
 ---
 
 ## 4. Section-by-Section Design
+
+### Applies to both rigor levels: what does NOT go in a GDD
+
+> **实现可以变、而玩家可感知的行为不变的，就不属于 GDD。**
+
+Before writing any section, filter the content against this test. A GDD is a
+**behavior contract**, not an implementation plan. Keep out:
+
+- Concrete class/function names (`ARoomBase`, `CalcDamage()`) → code; the
+  architectural choice goes in an ADR
+- Blueprint node wiring, component trees → code
+- Library / framework / plugin选型 → ADR (`architecture-decision-record.md`)
+- **The number tables themselves** (each weapon's damage) → data files. The GDD
+  carries the formula shape and safe ranges; `/balance-check` reads the data,
+  not this document
+- Step-by-step implementation plans → sprint plan / task tracker
+
+This is the single biggest source of GDD rot: implementation detail goes stale the
+moment the code changes, and nothing tells the reader which half of the document
+still holds. If the user supplies such detail during design, capture it — then say
+where it actually belongs and route it there instead of writing it into the GDD.
+
+### Lite path
+
+For a Lite doc, walk the four sections below in one pass. Same cycle as Full
+(question → options → decision → draft → approval → write), just far fewer rounds —
+a Lite doc should usually finish in a single sitting.
+
+| Section | Goal | Watch for |
+|---|---|---|
+| 意图 | Why this change, 2-3 sentences | If the reason is "playtest showed X", link that report |
+| 改动 | Only what changes: 新增 / 修改 / 移除 | Do **not** restate the whole system. If you find yourself rewriting it, that is a signal to escalate to Full |
+| 非目标 | What this explicitly does not do | The most-skipped and most valuable section — it is the scope-creep brake. Do not let the user skip it |
+| 验收 | 3-5 testable conditions | Untestable ("手感更好") does not go here — that belongs to `/playtest-report` |
+
+If during the Lite pass any escalation trigger from 2e turns out to apply after all,
+stop and offer the upgrade rather than quietly writing a 200-line "Lite" doc.
+
+Then skip to **§ 5. Post-Design Validation**.
+
+### Full path
 
 Walk through each section in order. For **each section**, follow this cycle:
 
@@ -378,18 +497,32 @@ After all sections are written:
 ### 5a: Self-Check
 
 Read back the complete GDD from file (not from conversation memory — the file is
-the source of truth). Verify:
-- All 8 required sections have real content (not placeholders)
+the source of truth).
+
+**Both rigor levels**:
+- No `[To be designed]` placeholders remain
+- The `Rigor` field in the header matches what was actually written
+- Acceptance criteria are testable
+- No implementation detail leaked in (class names, node wiring, number tables) —
+  see the filter at the top of § 4
+
+**Lite only**:
+- 非目标 is filled in, not empty or "无"
+- The whole document is still short. If it grew past ~50 lines, tell the user it
+  outgrew Lite and offer to restructure it as Full
+
+**Full only**:
+- All 8 required sections have real content
 - Formulas reference defined variables
 - Edge cases have resolutions
 - Dependencies are listed with interfaces
-- Acceptance criteria are testable
+- The `升 Full 的理由` field names the trigger that fired
 
 ### 5b: Offer Design Review
 
 Present a completion summary:
 
-> **GDD Complete: [System Name]**
+> **GDD Complete: [System Name]** ([Lite] / [Full])
 > - Sections written: [list]
 > - Provisional assumptions: [list any assumptions about undesigned dependencies]
 > - Cross-system conflicts found: [list or "none"]
@@ -421,7 +554,7 @@ Update `team/session-state/{identity}/active.md` with:
 - Task: [system-name] GDD
 - Status: Complete (or In Review if design-review was run)
 - File: design/gdd/[system-name].md
-- Sections: All 8 written
+- Rigor: [Lite / Full]; Sections: [all Lite sections / all 8 Full sections] written
 - Next: [suggest next system from design order]
 
 ### 5e: Suggest Next Steps
@@ -473,11 +606,13 @@ an agent name.
 
 If the session is interrupted (compaction, crash, new session):
 
-1. Read `team/session-state/{identity}/active.md` — it records the current system and
-   which sections are complete
-2. Read `design/gdd/[system-name].md` — sections with real content are done;
-   sections with `[To be designed]` still need work
-3. Resume from the next incomplete section — no need to re-discuss completed ones
+1. Read `team/session-state/{identity}/active.md` — it records the current system,
+   the chosen rigor level, and which sections are complete
+2. Read `design/gdd/[system-name].md` — the `Rigor` field in the header is
+   authoritative (session state can be stale, see R1); sections with real content
+   are done, sections with `[To be designed]` still need work
+3. Resume from the next incomplete section — no need to re-discuss completed ones,
+   and do **not** re-run the 2e grading on a file that already declares a rigor level
 
 This is why incremental writing matters: every approved section survives any
 disruption.
@@ -490,7 +625,7 @@ This skill follows the collaborative design principle at every step:
 
 1. **Question -> Options -> Decision -> Draft -> Approval** for every section
 2. **AskUserQuestion** at every decision point (Explain -> Capture pattern):
-   - Phase 2: "Ready to start, or need more context?"
+   - Phase 2: "Ready to start, or need more context?" and "Lite or Full?" (2e)
    - Phase 3: "May I create the skeleton?"
    - Phase 4 (each section): Design questions, approach options, draft approval
    - Phase 5: "Run design review? Update systems index? What's next?"

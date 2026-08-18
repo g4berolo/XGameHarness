@@ -7,3 +7,8 @@ __pycache__/
 
 # hook 运行时写的状态（rules-injected marker / 各类 .log）
 .claude/state/
+
+# 在本仓库里跑 session 时 hook 写的 session-state / session-log / memo。
+# 游戏项目里这些是要入库的团队历史（project-template/.gitignore 故意不忽略），
+# 但 harness 仓库自身不是游戏项目 —— 这里只是开发 harness 时的副产物。
+team/
