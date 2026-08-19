@@ -2,6 +2,6 @@
   "name": "game-studio-core",
   "description": "Engine-agnostic game production harness: workflow skills, design/production agents, session-state & identity hooks. Version intentionally omitted — every marketplace commit is a new version (auto-update follows latest).",
   "author": {
-    "name": "GameStudio"
+    "name": "G4ber"
   }
 }

@@ -2,6 +2,6 @@
   "name": "unreal-pack",
   "description": "Unreal Engine specialist agents and UE rule templates. Enable alongside game-studio-core on UE projects only. Version intentionally omitted — every marketplace commit is a new version.",
   "author": {
-    "name": "GameStudio"
+    "name": "G4ber"
   }
 }

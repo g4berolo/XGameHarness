@@ -1,7 +1,7 @@
 {
   "name": "XGameHarness",
   "owner": {
-    "name": "GameStudio (zhouxinyu + fro)"
+    "name": "G4ber"
   },
   "description": "Shared Claude Code harness for GameStudio projects: production workflow skills, design agents, session/identity hooks, and an Unreal Engine specialist pack.",
   "plugins": [
