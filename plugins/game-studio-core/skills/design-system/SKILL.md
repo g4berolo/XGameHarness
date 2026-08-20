@@ -18,6 +18,18 @@ A system name argument is **required**. If missing, fail with:
 Normalize the system name to kebab-case for the filename (e.g., "combat system"
 becomes `combat-system`).
 
+**If the argument is not ASCII** (a Chinese system name, say), kebab-case does not
+apply. Derive the filename in this order, and state which one you used:
+
+1. An English filename already recorded for that system in `systems-index.md`
+   (the Design Doc column, or an English name in the row)
+2. The convention the project's existing GDD filenames follow — Glob
+   `design/gdd/*.md` and match it
+3. If neither settles it, ask the user for the filename before creating anything
+
+Never transliterate silently: a filename nobody can predict is worse than one
+question. The document *title* stays in the user's language regardless.
+
 ---
 
 ## 2. Gather Context (Read Phase)
@@ -74,9 +86,20 @@ If any upstream dependencies are undesigned, warn:
 > its interface. Consider designing it first, or we can define the expected
 > contract and flag it as provisional."
 
-Use `AskUserQuestion`:
-- "Ready to start designing [system-name]?"
-  - Options: "Yes, let's go", "Show me more context first", "Design a dependency first"
+End the summary with a **read list** — every file you actually opened in 2a-2c:
+
+> 已读：`game-concept.md`、`systems-index.md`、`game-pillars.md`(1-80 行)、
+> `<上游>.md`、`<下游>.md`
+
+This exists because the 2a required reads have no other checkpoint. § 5a checks the
+*output*, never whether the *input* was read, so a skipped required read can travel
+all the way to delivery unnoticed. Printing the list makes the gap visible to the
+user at the moment the summary appears. If a 2a required file is not on your list,
+go read it before continuing.
+
+**Do not ask "ready to start?" here.** Everything the user needs to decide is
+gathered into one question in 2f, after grading — asking twice with no new
+information in between is pure noise.
 
 ### 2e: Grade the Change (Lite / Full)
 
@@ -93,7 +116,7 @@ entirely, and a skipped process records nothing at all.
 | 3 | Involves the **economy**, or anything monetization-related |
 | 4 | Affects **save compatibility** (save format, migration) |
 | 5 | Involves **network replication** or server authority |
-| 6 | Is a **brand-new system** (not yet listed in `systems-index.md`) |
+| 6 | Is a **brand-new system** — one that has never been designed before. Being listed in `systems-index.md` does **not** disqualify it: `/map-systems` registers every system at once, so "listed" means enumerated, not designed |
 
 Evaluate the triggers **from the context you just gathered**, not by asking the user
 to self-assess — the dependency reads in 2b already tell you how many interfaces are
@@ -110,18 +133,76 @@ or
 > **建议档位：Full** — 命中判据 #3（涉及经济系统）和 #1（会改动 [A]、[B]、[C]
 > 三个系统的接口）。Full = 完整 8 段。
 
-Use `AskUserQuestion`:
-- "按 [Lite/Full] 写？"
-  - Options: "就按建议的来", "升到 Full（我觉得比看起来重）", "降到 Lite（我知道风险）"
+Hold the verdict — it goes into the single question in 2f, together with the design
+premise. Do not ask about the rigor level on its own.
 
 If the user downgrades a Full to Lite, **record which trigger was waived** in the
 document's frontmatter (`> **降级说明**: 命中判据 #N，用户判断 [理由] 后按 Lite 写`).
 Don't silently drop it — the next person reading the doc needs to know a known
 risk was accepted.
 
+**A brand-new system downgraded to Lite needs a structural swap, not just a note.**
+Lite's 改动 section is a delta — 新增 / 修改 / 移除 — and for a system that does not
+exist yet, 修改 and 移除 are empty by construction, leaving 新增 to carry the entire
+design. That is trigger #6's whole purpose: keep new systems out of a section shape
+that cannot hold them. When the user waives it anyway, rename the section:
+
+| Lite section | For a brand-new system |
+|---|---|
+| `## 改动`（新增 / 修改 / 移除） | `## 构成` — what the system is made of, no delta sub-headings |
+
+Everything else about Lite is unchanged. Do not let each document invent its own
+workaround — that is how the first eight GDDs on this project ended up with a
+`改动` section containing only a `新增` child and no rule behind it.
+
 Hold the chosen rigor level for the rest of this skill. **Lite can be upgraded mid-flight**
 if the design turns out bigger than expected (merge what's written into the matching
 Full sections); a Full should not be downgraded once written.
+
+### 2f: Confirm the Design Premise — the last cheap moment
+
+**This is the single most valuable question in this skill. Do not skip it, and do
+not merge it into the writing phase.**
+
+A one-line system description in `systems-index.md` is **not** an approved design
+premise. The user approved a twelve-row table; they did not approve what those
+words expand into. "Explicit representation of promises, observable defection"
+reads as a neutral system name in an index — and expands into ritual, collateral
+and enforceable contracts once someone writes it out. That is a major gameplay
+claim the user never agreed to, and by the time it is visible it is several hundred
+lines deep.
+
+Every step in that chain can be individually correct and the outcome still wrong.
+Confirming here costs one question. Not confirming costs the document.
+
+**Write the premise in plain language:**
+
+- 3-6 sentences, in the user's own words
+- **Zero coined terms.** If you need a word the user has not used, you are
+  describing the design, not the premise — cut it
+- Say what the system *is* and what it *is not*
+- Name the one assumption most likely to be wrong
+
+Then ask **one** `AskUserQuestion` carrying premise and rigor together:
+
+> **#9 打算做成这样**（写之前先对一下，避免写完才发现方向不对）：
+>
+> 玩家之间可以结盟，但游戏**不提供**任何强制手段 —— 没有仪式、没有押金、
+> 没有系统托管的契约。约束力只来自"谁看见了" ……
+>
+> **不做**：自动执行的协议、系统判定的违约惩罚。
+>
+> **最可能错的假设**：结盟需要一个显式的表示动作。
+>
+> 档位建议 **Full**（命中判据 #1 —— 触及 4 个系统接口）。
+
+- Options: `就这么写` / `前提要改（我说哪里）` / `前提对，但档位改成 X`
+
+If the premise is rejected, **rewrite it and ask again**. Do not start the skeleton
+on a premise the user has not accepted — that is the entire point of this step.
+
+Record the confirmed premise; it goes into the skeleton in § 3 and into any
+delegation brief in § 6.
 
 ---
 
@@ -134,6 +215,38 @@ The template at `${CLAUDE_PLUGIN_ROOT}/docs/templates/game-design-document.md`
 (bundled with this plugin) carries **both rigor levels** plus the shared "what does not
 belong in a GDD" test. Read it and use the skeleton matching the rigor level chosen in 2e.
 
+### Both rigor levels: seed the skeleton with the constraints
+
+**Write the upstream constraints into the file, not just into your own context.**
+Put two blocks at the top of the skeleton before anything else:
+
+```markdown
+## 设计前提
+
+[2f 里用户确认过的那段原话，一字不改]
+
+## 已定决策摘要
+
+[从 Phase 2 提取，逐条注明出处文件。这一节是**写作前的锁**，不是背景介绍：]
+- <上游文件> 已锁死 <约束>，本篇不得重划
+- <支柱 N> 推论：<对本系统意味着什么>
+- <某条边界> 属规范 / 属数据实例示意 —— 标清楚，下游会当硬依赖用
+```
+
+Why this and not just a good delegation brief: **a brief dies the moment the task
+ends; the file outlives everyone.** Whoever edits this system in three weeks — a
+different agent, a different session, you after a compaction — reads the file, not
+your brief. Without these blocks they re-derive the upstream constraints from
+scratch, or worse, silently contradict them.
+
+This was the highest-rated mechanic in the `/idea-to-gdd` field trial: the
+subagent that had it reported that its direction was pinned before it wrote a
+line, which removed a whole round of trial and error and made conflict with
+upstream nearly impossible. The run that lacked it produced a good document that
+carries none of its own constraints forward.
+
+Keep both blocks in the finished document. They are not scaffolding.
+
 ### Lite skeleton
 
 ```markdown
@@ -144,11 +257,28 @@ belong in a GDD" test. Read it and use the skeleton matching the rigor level cho
 > **Author**: [user + agents]
 > **Last Updated**: [today's date]
 
+## 设计前提
+
+[2f 确认过的原话]
+
+## 已定决策摘要
+
+[Phase 2 提取的上游约束，逐条注明出处]
+
+## 本篇用到的新词
+
+[本文档引入的、用户此前没用过的词。没有就写"无"——不要留空]
+
+| 词 | 含义 | 为什么需要它 |
+|---|---|---|
+
 ## 意图
 
 [To be designed]
 
 ## 改动
+<!-- 全新系统降级到 Lite 时，本节改名为「构成」，只写系统由什么组成，
+     不用 新增/修改/移除 三个子标题 —— 见 § 2e -->
 
 [To be designed]
 
@@ -172,6 +302,21 @@ belong in a GDD" test. Read it and use the skeleton matching the rigor level cho
 > **Last Updated**: [today's date]
 > **Implements Pillar**: [from context]
 > **升 Full 的理由**: [which escalation trigger fired, from 2e]
+
+## 设计前提
+
+[2f 确认过的原话]
+
+## 已定决策摘要
+
+[Phase 2 提取的上游约束，逐条注明出处]
+
+## 本篇用到的新词
+
+[本文档引入的、用户此前没用过的词。没有就写"无"——不要留空]
+
+| 词 | 含义 | 为什么需要它 |
+|---|---|---|
 
 ## Overview
 
@@ -259,6 +404,53 @@ This is the single biggest source of GDD rot: implementation detail goes stale t
 moment the code changes, and nothing tells the reader which half of the document
 still holds. If the user supplies such detail during design, capture it — then say
 where it actually belongs and route it there instead of writing it into the GDD.
+
+### Applies to both rigor levels: a word the user has not met cannot appear in a question
+
+Design writing coins vocabulary — that is normal and often necessary. What is not
+acceptable is **coining a word silently and then asking the user to make a decision
+in it.** Observed failure: a delivered document introduced nine new terms plus a
+symbol set and three internal numbering schemes, internally consistent and perfectly
+serviceable between designers; every open decision was then phrased in those terms;
+the user's answer was "I don't understand any of this" — about the core mechanic of
+their own game.
+
+Note where this comes from. When an agent could interrupt to ask, each coinage
+surfaced one at a time, in context. Agents now take a defensible default and keep
+writing, which is the right trade — a deadlock delivers nothing — but it makes the
+coining **silent**, and the whole vocabulary arrives at once, at the end, several
+hundred lines in. The document being well-formed hides it: an Open Questions section
+makes the handoff *look* complete. Format compliance is not comprehension.
+
+Two rules:
+
+1. **Log every new term** in the `## 本篇用到的新词` table as you coin it — word,
+   meaning, why an existing word would not do. Empty is not allowed; write 无 if
+   there genuinely are none. Introducing a term is an event, not a private move.
+2. **Translate before asking.** Any decision put to the user is restated in words
+   the user has already used, even if that costs a sentence of setup. If a decision
+   cannot be stated without a coined term, introduce the term first, in one line,
+   then ask.
+
+This applies with double force to anything a subagent returns: it wrote for
+designers, and the user never read the file.
+
+### Applies to both rigor levels: outsourcing a section (or the whole document)
+
+The cycle below assumes you write. When a `specialist` agent writes instead
+(§ 6 Author mode), the seven steps do not run per section — a subagent delivers
+once and cannot stop for approval. Compress to:
+
+```
+主 agent 备简报（含 2f 前提 + 已定决策摘要 + 禁止触碰的文件）
+  → agent 一次交付
+  → 主 agent 校验（§ 5a 自检 + 简报边界是否被越过）
+  → 把 agent 的决策清单翻译成用户词汇，一次性求裁定
+```
+
+**The approval gate moves; it does not disappear.** One approval covering the whole
+delivery replaces one approval per section. What you must not do is let the outsourced
+path quietly skip approval altogether because the per-section loop had nowhere to fit.
 
 ### Lite path
 
@@ -505,6 +697,12 @@ the source of truth).
 - Acceptance criteria are testable
 - No implementation detail leaked in (class names, node wiring, number tables) —
   see the filter at the top of § 4
+- `## 设计前提` still matches what the user confirmed in 2f. **If the document
+  drifted off its premise, say so — do not quietly reconcile the premise to the
+  document.** The premise is the approved thing; the document is not
+- `## 已定决策摘要` cites its sources, and nothing in the body contradicts them
+- `## 本篇用到的新词` covers every term the document coined. Scan the body for
+  words the user never used and check each one is in the table
 
 **Lite only**:
 - 非目标 is filled in, not empty or "无"
@@ -517,15 +715,44 @@ the source of truth).
 - Edge cases have resolutions
 - Dependencies are listed with interfaces
 - The `升 Full 的理由` field names the trigger that fired
+- **Length is a smell, not a limit.** Lite has an explicit brake and Full has none,
+  so Full is where a document can grow without anything noticing. Past roughly 400
+  lines, ask once: is this one system, or two that should be split? Dense is fine —
+  do not trim a document that earns its length. What you are checking for is a
+  second system that grew inside the first.
 
 ### 5b: Offer Design Review
 
-Present a completion summary:
+Before the summary, run a **decision-consistency check**. Every decision the user
+made during this session — including the reasons they gave in conversation — gets
+checked against the documents already locked down.
+
+Why this is not covered elsewhere: `/design-review` reads documents, and a reason
+given out loud is not in any document. A user who has locked several architectural
+boundaries over the past weeks is not carrying all of them in working memory, and
+nothing reminds them. Observed case: a user chose an option because it "saves
+tokens", when a boundary they themselves froze two days earlier — all AI decisions
+in the simulation layer, no LLM involved — meant that option had no token cost
+either way. The choice was defensible; the reason was not. It was caught only
+because that document happened to be an upstream dependency this time.
+
+For each user decision this session:
+- Does the **decision** contradict a locked document?
+- Does the **stated reason** contradict one?
+
+Report either as: *"你选了 X，理由是 Y。但 `<文件>` 已定 Z —— 按 Z，Y 不成立。
+选择本身可能仍然对，但如果你是冲着 Y 去的，它不会给你那个收益。"* Then let the
+user decide. Do not silently correct them, and do not silently let it pass.
+
+Then present a completion summary:
 
 > **GDD Complete: [System Name]** ([Lite] / [Full])
 > - Sections written: [list]
+> - **New terms introduced**: [from 本篇用到的新词, or "none"] ← say these out loud;
+>   the user has not read the document
 > - Provisional assumptions: [list any assumptions about undesigned dependencies]
 > - Cross-system conflicts found: [list or "none"]
+> - Decision-consistency check: [conflicts found, or "none"]
 
 Use `AskUserQuestion`:
 - "Run `/design-review` now to validate the GDD?"
@@ -592,13 +819,38 @@ an agent name.
 | Level/world systems | `game-studio-core:level-designer` | `game-studio-core:narrative-director` (world lore) |
 | Camera, input, controls | `game-studio-core:game-designer` | `unreal-pack:unreal-specialist` (UE feasibility) |
 
-**When delegating via Agent tool**:
-- Provide: system name, game concept summary, dependency GDD excerpts, the specific
-  section being worked on, and what question needs expert input
-- The agent returns analysis/proposals to the main session
-- The main session presents the agent's output to the user via `AskUserQuestion`
-- The user decides; the main session writes to file
-- Agents do NOT write to files directly — the main session owns all file writes
+**When delegating via Agent tool — pick a mode and say which in the brief.**
+
+A subagent cannot ask the user anything: `AskUserQuestion` is stripped from
+subagents, and no agent's message counts as user consent. Its agent definition
+therefore tells it to take defensible defaults, deliver, and list every
+overridable decision in its report. **A brief that demands approval before writing
+deadlocks it.** Choose one of these instead:
+
+| Mode | Use when | Who writes |
+|---|---|---|
+| **Consult** | You want expert input on a question or a single section, and you will fold it in yourself | Agent writes **nothing**. Main session writes. |
+| **Author** | The task *is* to produce or fill a named file | **The agent writes that file.** Main session writes nothing into it. |
+
+Both modes, always provide: system name, rigor level and why, the design premise
+confirmed in 2f, the game concept summary, dependency GDD excerpts, and the
+constraints the agent must not violate.
+
+**Author mode additionally requires:**
+- Name the exact file, and name what the agent must **not** touch (typically
+  `systems-index.md`, `team/session-state/`, and the file header)
+- State explicitly that writing that file is in scope and needs no approval
+- Require the report to end with an overridable-decision list
+
+**Silence in a brief is ambiguous — be explicit.** Observed behaviour: an agent
+treated dependencies that were *named but not supplied* as "go read them yourself",
+and a file that was *never mentioned at all* as "deliberately excluded" — and read
+the first while skipping the second. If a file matters, name it. If it is
+deliberately out of scope, say so.
+
+**On receiving the agent's report** (both modes): before relaying any decision to
+the user, apply the vocabulary rule in § 4 — restate each item in words the user
+has already used. The agent writes for designers; the user did not read the file.
 
 ---
 

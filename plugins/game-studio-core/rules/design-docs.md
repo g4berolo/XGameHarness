@@ -21,13 +21,30 @@ against the section lists below.
 - **Lite is the default.** Escalate to Full only when the change hits one of these:
   touches more than 2 existing systems' interfaces; changes the core loop; involves
   the economy or monetization; affects save compatibility; involves network
-  replication; or introduces a brand-new system
+  replication; or is a brand-new system that has never been designed before
+  (being enumerated in `systems-index.md` does not make it designed)
 - A Full document MUST state which trigger justified the escalation
 - Grading exists so small changes still get written down. Do NOT apply the Full
   checklist to a Lite document — that is not a finding, it is the point
 
 ## Every document, both rigor levels
 
+- MUST open with three sections, before any tier-specific content:
+  - `## 设计前提` — the plain-language premise the user confirmed before writing
+    started, unedited. A one-line system description in `systems-index.md` is NOT
+    an approved premise; approving an index approves the enumeration, not what
+    those words expand into
+  - `## 已定决策摘要` — upstream constraints with their source files, and for each,
+    whether it is normative or an illustrative data example (downstream treats
+    examples as hard dependencies unless told otherwise). A delegation brief dies
+    with the task; the file is what the next reader has
+  - `## 本篇用到的新词` — every term this document coins that the user has not used
+    before, with meaning and why an existing word would not do. Write 无 if there
+    are none; never leave it empty
+- **A term the user has not met MUST NOT appear in a question put to them.**
+  Restate decisions in vocabulary the user has already used, or introduce the term
+  first. A well-formed Open Questions section makes a handoff look complete;
+  format compliance is not comprehension
 - A design document is a **behavior contract, not an implementation plan**.
   Test: if the implementation can change without changing player-observable
   behavior, it does not belong here
@@ -48,6 +65,10 @@ against the section lists below.
 - 非目标 MUST NOT be empty — it is the scope-creep brake
 - 改动 describes the delta, not the whole system. Restating the entire system is the
   signal that this should have been Full
+- **A brand-new system downgraded to Lite renames 改动 to 构成** and drops the
+  新增/修改/移除 sub-headings — for a system that does not exist yet, two of the
+  three are empty by construction. Trigger #6 exists to prevent this shape; when it
+  is waived, swap the structure rather than letting each document improvise
 - Keep it short. Past roughly 50 lines, restructure as Full
 
 ## Full documents

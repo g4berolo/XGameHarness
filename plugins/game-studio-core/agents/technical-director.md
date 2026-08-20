@@ -133,6 +133,17 @@ orchestrator can turn it straight into a question:
 - Anything you decided that the user might reasonably overturn belongs in this
   list, even where you were confident.
 - Keep it to decisions that actually matter. Twenty entries is the same as none.
+
+- If you coined any term the brief did not already use, list them separately:
+
+```
+## 本篇新造的词
+- <词> — <一句话含义>；用现成的词说不清，因为 <理由>
+```
+
+  The orchestrator must introduce these to the user before asking them to decide
+  anything phrased in them. A decision list written in vocabulary nobody has met is
+  not a handoff, however well-formed it looks.
 ### Key Responsibilities
 
 1. **Architecture Ownership**: Define and maintain the high-level system

@@ -30,12 +30,32 @@ When this skill is invoked:
    deliberate choice, not an incomplete Full — reporting "3/8 sections" on a Lite
    doc is a false finding.
 
+   **Both rigor levels — the three opening sections**:
+   - [ ] `## 设计前提` present, and the document still matches it. **A document that
+         drifted off its premise is a finding, and the premise is the approved
+         thing** — never resolve the mismatch in the document's favour
+   - [ ] `## 已定决策摘要` present, cites source files, and nothing in the body
+         contradicts it. Check that normative constraints and illustrative data
+         examples are labelled as such
+   - [ ] `## 本篇用到的新词` present (无 is a valid value) and complete — scan the
+         body for terms the user has not used and verify each appears in the table.
+         **Any coined term used in an Open Question but missing from the table is a
+         finding**: it means the user is being asked to decide in words nobody
+         introduced to them
+
    **Lite checklist**:
    - [ ] 意图 — why this change exists
-   - [ ] 改动 — only what changes (新增 / 修改 / 移除), not a restatement of the system
+   - [ ] 改动 — only what changes (新增 / 修改 / 移除), not a restatement of the system.
+         **For a brand-new system downgraded to Lite this section is named 构成**
+         with no delta sub-headings; that is correct, not a defect
    - [ ] 非目标 — explicitly out of scope, and not empty
    - [ ] 验收 — 3-5 testable conditions
-   - [ ] Still short (roughly under 50 lines)
+   - [ ] The four body sections above stay under ~50 lines. **The three opening
+         sections and any appendix do not count toward it** — that ambiguity
+         previously turned appendices into a relief valve, with a core design
+         decision ending up filed as an "assumption" because the body had no room.
+         If core design is sitting in an appendix or an assumptions list, report it:
+         the tier is wrong, not the writing
 
    **Full checklist**:
    - [ ] Has Overview section (one-paragraph summary)
@@ -96,6 +116,11 @@ When this skill is invoked:
 
 ### Completeness: [X/5 Lite items] or [X/8 Full sections present]
 [List missing sections]
+
+### Premise / Constraints / Vocabulary
+- 设计前提: [present and matched / drifted — how / missing]
+- 已定决策摘要: [sourced / unsourced / contradicted by body / missing]
+- 新词表: [complete / missing N terms — list them / absent]
 
 ### Out-of-Scope Content
 [Implementation detail that belongs elsewhere, with the destination for each.
