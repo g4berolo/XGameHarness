@@ -194,6 +194,18 @@ harness 的内容按「怎么到达项目」分三档，**三档各有各的更�
    **不要**直接写 `python xxx.py` —— 大多数 Linux/macOS 只有 `python3`，裸 `python`
    会让 hook 静默失效（不报错、什么都不发生）。wrapper 依次探测 `python3/python/py`
    并实跑一次 `-c ""` 验证（Windows 商店别名能被 `command -v` 找到但跑不起来）
+2c. **写 agent 时记住它只能作为 subagent 运行**：一个任务简报进、一条最终消息出，
+   中途没有人在看。由此有两条硬约束：
+   - **`tools:` 绝对不要写 `AskUserQuestion`** —— 平台会从 subagent 剥离它，声明
+     无效，反而会让正文理直气壮地依赖一个拿不到的工具。上游
+     `Claude-Code-Game-Studios` 的 49 个 agent **无一声明**；XGameHarness 曾在抽取时
+     "顺手补全"了 8 个，导致 agent 卡在等一个永远不会来的回答（2026-08-19 修复）。
+     需要用户裁定时，把决策写进最终报告让主 agent 转呈。
+   - **不要写 `Task`** —— subagent 不能再 spawn subagent。上游给 15 个专家配了
+     `Task`，抽取时全部去掉是对的。要转介就在报告里写"建议主 agent 调用 X"。
+   - 同理，agent 正文里凡是"向用户提问""等待批准后再写"的措辞都要改成
+     "取一个可辩护的默认值 + 在报告里列为可推翻的决策"，否则严格执行就是死锁：
+     它问不了、而任何 agent 消息都不构成用户同意。
 3. `marketplace.json` 的 `plugins` 数组加 `{"name", "source": "./plugins/<name>", "description"}`
 4. `claude plugin validate .` → commit → push
 5. 各项目启用：settings.json `enabledPlugins` 加 `"<name>@XGameHarness": true`（团队统一）
