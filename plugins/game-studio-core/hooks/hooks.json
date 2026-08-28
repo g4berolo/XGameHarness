@@ -7,12 +7,12 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
-            "timeout": 10
+            "timeout": 20
           },
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/detect-gaps.sh\"",
-            "timeout": 10
+            "timeout": 20
           }
         ]
       }
@@ -36,7 +36,7 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/inject-rules.py\"",
-            "timeout": 8
+            "timeout": 20
           }
         ]
       }
@@ -48,12 +48,12 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/inject-language-reminder.py\"",
-            "timeout": 5
+            "timeout": 20
           },
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/suggest-subagent.py\"",
-            "timeout": 5
+            "timeout": 20
           }
         ]
       }
@@ -65,7 +65,7 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-compact.sh\"",
-            "timeout": 10
+            "timeout": 30
           }
         ]
       }
@@ -77,7 +77,7 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-stop.sh\"",
-            "timeout": 10
+            "timeout": 20
           }
         ]
       }
