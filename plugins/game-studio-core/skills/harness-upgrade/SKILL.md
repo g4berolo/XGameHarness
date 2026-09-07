@@ -32,14 +32,44 @@ Glob `.claude/settings.json`。不存在 → 这不是升级场景：
 
 ## 1. 先查 A 档：插件本体是否过期
 
-**这一步必须在最前面。** 插件缓存按 commit SHA 钉版本，如果它落后了，你后面读到的
-`project-contract.md`、各 skill、各模板**全是旧的** —— 拿旧清单去核对项目，结论必然
-是错的。
+**这一步必须在最前面。** 你手上的这份插件是按某个 commit 钉住的，如果它落后了，
+你后面读到的 `project-contract.md`、各 skill、各模板**全是旧的** ——
+拿旧清单去核对项目，结论必然是错的。
 
 **不要假设插件会自动更新。** 实测过一个案例：项目侧订阅配置完全正确，插件仍停在
 一个月前的 commit。无论自动更新机制是否存在，都要显式核对。
 
-读本机安装记录：
+### 1.0 先看跑在哪儿 —— 两种壳，升级办法不一样
+
+```bash
+echo "XGH_STUDIO=${XGH_STUDIO:-}"
+```
+
+**有值 = 跑在 XGameHarness Studio（那个客户端）里。** 这不是个细节：
+两种壳**加载插件的路子完全不同**，照着另一种给指令，给出的是一条死路 ——
+客户端里没有终端，`claude plugin …` 那几条他敲不进去。
+
+| | 终端里的 Claude Code | XGameHarness Studio |
+|---|---|---|
+| 插件从哪儿加载 | CLI 的插件缓存（`installed_plugins.json` 钉着 SHA） | **直接读 marketplace 那个克隆的工作树**（`plugins: [{type:"local", path}]`） |
+| 「已安装的版本」是什么 | `gitCommitSha` | 那个克隆**当前 checkout 的提交** |
+| 怎么更新 | `claude plugin …` 三条命令 | 界面上 **设置 → 更新** 那个按钮 |
+| 「重启」是什么 | 退出再开 Claude Code | **开一个新对话就够了**，不用关客户端 |
+
+Studio 里 `claude plugin update …` 那两条是**空转** —— 它们更新的是 CLI
+插件缓存，而 Studio 根本不读那份。
+
+### 1.1 比对版本
+
+读 marketplace 那个克隆现在在哪个提交、远端在哪个提交：
+
+```bash
+git -C ~/.claude/plugins/marketplaces/XGameHarness rev-parse --short HEAD
+git -C ~/.claude/plugins/marketplaces/XGameHarness fetch --quiet
+git -C ~/.claude/plugins/marketplaces/XGameHarness log --oneline -1 origin/main
+```
+
+**终端里还要另看一眼 CLI 缓存**（Studio 里不用看，它不读这份）：
 
 ```bash
 cat ~/.claude/plugins/installed_plugins.json
@@ -48,17 +78,27 @@ cat ~/.claude/plugins/installed_plugins.json
 取 `game-studio-core@XGameHarness`（以及启用了的 `unreal-pack@XGameHarness`）的
 `gitCommitSha` 与 `lastUpdated`。
 
-再取 marketplace 本地克隆的最新提交：
-
-```bash
-git -C ~/.claude/plugins/marketplaces/XGameHarness fetch --quiet
-git -C ~/.claude/plugins/marketplaces/XGameHarness log --oneline -1 origin/main
-```
-
 `fetch` 失败（离线 / 私有仓库无凭据）就跳过比对，如实告诉用户「无法确认插件是否
 最新」，**不要**沉默地当作已是最新。
 
-**若已安装的 SHA ≠ 远端最新**，输出并**停在这里**：
+### 1.2 落后了就停在这里
+
+**若当前提交 ≠ 远端最新**，输出并**停在这里**。
+
+**跑在 Studio 里**（`XGH_STUDIO` 有值）：
+
+> 插件落后了：现在是 `<sha>`，远端最新 `<sha>`。
+>
+> 请先更新再继续 —— 现在往下走，我读到的模板和清单都是旧版本：
+>
+> 1. 左下角 **设置 → 更新**，按那个「更新到最新」
+> 2. 更新完 **开一个新对话**（侧栏「+ 开新对话」）—— 插件是开对话时读的，
+>    在当前这段对话里接着叫新技能，会得到「没有这个技能」
+> 3. 再跑一次 `/harness-upgrade`
+>
+> **不用关客户端。**
+
+**跑在终端里**：
 
 > 插件落后了：已安装 `<sha>`（<lastUpdated>），远端最新 `<sha>`。
 >
@@ -72,8 +112,9 @@ git -C ~/.claude/plugins/marketplaces/XGameHarness log --oneline -1 origin/main
 >
 > 然后**重启 Claude Code**（更新需要重启才生效），再跑一次 `/harness-upgrade`。
 
-本 skill 不代跑这三条命令：它们改的是**本机全局**插件安装，而且必须重启才生效，
-跑完当前会话里的一切仍是旧版本，容易造成「以为升级了」的假象。
+本 skill 两种壳下都**不代跑更新**：它改的是**本机全局**那份 harness，
+而且都要重开一段对话才生效 —— 跑完当前会话里的一切仍是旧版本，
+容易造成「以为升级了」的假象。
 
 ---
 
