@@ -29,7 +29,18 @@ against the section lists below.
 
 ## Every document, both rigor levels
 
-- MUST open with three sections, before any tier-specific content:
+- MUST open with four sections, before any tier-specific content:
+  - `## 读本` — 3-6 句白话，**写给同项目但不做这块的人**（策划读程序那篇、
+    程序读经济那篇）。答三件事：**这是什么、玩家会经历什么、为什么值得做**。
+
+    **不许出现**：系统编号（`#20 §R7`）、类名 / 函数名、文件路径、
+    缩写代号（`PP-D5`、`FP gate`）、本篇之外没解释过的术语。
+
+    它跟 `## 设计前提` **不是一回事**：那一节是**出处**（用户当初原话，
+    不许编辑），这一节是**导读**（我们写给读者的）。前者可能本身就满是行话。
+
+    **它是文档的一节，不是第二份文档。** 单独存一个「简版」的话，两份迟早
+    各说各的，而那一天不会有任何地方报错。
   - `## 设计前提` — the plain-language premise the user confirmed before writing
     started, unedited. A one-line system description in `systems-index.md` is NOT
     an approved premise; approving an index approves the enumeration, not what
@@ -57,6 +68,18 @@ against the section lists below.
 - MUST be written incrementally: create the skeleton first, then fill each section one
   at a time with user approval between sections. Write each approved section to the
   file immediately to persist decisions and manage context
+
+### 为什么加 `## 读本`（2026-09-07）
+
+用户原话：「所有 GDD 和 Memo 都需要区分读本和文档，直接产出的文档专业术语太多，
+文字太难读懂。」
+
+这件事**只能在写的时候解决**。设计文档是行为契约 —— 读的那一头没法替它翻译：
+现场重写既不可靠，也可能把契约说错，而说错一份契约不会有任何地方报错。
+
+**它管不到已经写好的文档。** 那些要等下次修订、或者专门跑一次
+`/reverse-document` 才补得上。客户端在没有这一节时会**明说这一篇还没有读本**，
+不假装（做不到的事不要长得像做得到）。
 
 ## Lite documents
 
