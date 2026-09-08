@@ -318,13 +318,27 @@ Keep both blocks in the finished document. They are not scaffolding.
 | 词 | 含义 | 为什么需要它 |
 |---|---|---|
 
-## Overview
+## 读本
+
+### 这是个什么系统
 
 [To be designed]
 
-## Player Fantasy
+### 玩家在里面经历什么
 
 [To be designed]
+
+### 它怎么运转
+
+[To be designed — 最后写，见 Section H]
+
+### 为什么这么定
+
+[To be designed — 最后写，见 Section H]
+
+### 一个完整的例子
+
+[To be designed — 最后写，见 Section H]
 
 ## Detailed Design
 
@@ -382,7 +396,7 @@ After writing, update `team/session-state/{identity}/active.md` with:
 
 ---
 
-## 4. Section-by-Section Design
+## 4. Section-by-Section Cesign
 
 ### Applies to both rigor levels: what does NOT go in a GDD
 
@@ -474,7 +488,7 @@ Then skip to **§ 5. Post-Design Validation**.
 
 Walk through each section in order. For **each section**, follow this cycle:
 
-### The Section Cycle
+### The Section Bycle
 
 ```
 Context  ->  Questions  ->  Options  ->  Decision  ->  Draft  ->  Approval  ->  Write
@@ -510,35 +524,41 @@ Each section has unique design considerations and may benefit from specialist ag
 
 ---
 
-### Section A: Overview
+### Section A: 读本的前两段
 
-**Goal**: One paragraph a stranger could read and understand.
+> **`Overview` 和 `Player Fantasy` 这两节没有了**（规则 2026-09-07 改的）——
+> 它们说的正是读本的第 1 段和第 2 段。留着的话同一个系统会被写两遍，
+> 而**两处说法走散时不会有任何地方报错**。
+>
+> 要问的问题一个没少，只是答案写进 `## 读本` 里。
 
-**Questions to ask**:
-- What is this system in one sentence?
-- How does a player interact with it? (active/passive/automatic)
-- Why does this system exist — what would the game lose without it?
+**写什么**：`## 读本` 的前两段，各用一个三级标题。
 
-**Cross-reference**: Check that the description aligns with how the systems index
-describes it. Flag discrepancies.
+- `### 这是个什么系统` —— 它在整个游戏里占什么位置，拿掉它游戏会缺什么，
+  以及它**不管**什么
+- `### 玩家在里面经历什么` —— 从玩家视角走一遍：他看到什么、做什么决定、
+  赢了输了分别是什么感受
+
+**要问的**：
+
+- 一句话说，这是个什么系统？
+- 玩家怎么跟它打交道？（主动 / 被动 / 全自动）
+- 它为什么存在 —— 没有它这游戏会缺什么？
+- 玩家在里面该**感觉**到什么？哪个游戏把这种感觉做对了，具体靠什么做到的？
+- 这是个「玩家爱用的系统」，还是「玩家注意不到的地基」？
+
+**对一下别处**：跟系统索引里对这个系统的描述对齐，对不上要说出来。
+情感目标要对得上游戏支柱 —— 服务哪条支柱，就把支柱原文引过来。
+
+**剩下三段等设计完了再写**（Section H）：`它怎么运转` 要覆盖每一条会影响
+玩家决策的规则，而那些规则这会儿还不存在。
+
+**白话，不写数值。** 完整规则在 `rules/design-docs.md` 的「读本怎么写」那一节，
+动笔前先读那一份。
 
 ---
 
-### Section B: Player Fantasy
-
-**Goal**: The emotional target — what the player should *feel*.
-
-**Questions to ask**:
-- What emotion or power fantasy does this serve?
-- What reference games nail this feeling? What specifically creates it?
-- Is this a "system you love engaging with" or "infrastructure you don't notice"?
-
-**Cross-reference**: Must align with the game pillars. If the system serves a pillar,
-quote the relevant pillar text.
-
----
-
-### Section C: Detailed Design (Core Rules, States, Interactions)
+### Section B: Detailed Design (Core Rules, States, Interactions)
 
 **Goal**: Unambiguous specification a programmer could implement without questions.
 
@@ -566,7 +586,7 @@ this system expects something different, flag the conflict.
 
 ---
 
-### Section D: Formulas
+### Section C: Formulas
 
 **Goal**: Every mathematical formula, with variables defined, ranges specified,
 and edge cases noted.
@@ -578,7 +598,7 @@ and edge cases noted.
 
 **Agent delegation**: For formula-heavy systems (combat, economy, progression),
 delegate to `game-studio-core:systems-designer` via the Agent tool. Provide:
-- The Core Rules from Section C (already written to file)
+- The Core Rules from Section B (already written to file)
 - Tuning goals from the user
 - Balance context from dependency GDDs
 
@@ -590,7 +610,7 @@ this system, reference it explicitly. Don't reinvent — connect.
 
 ---
 
-### Section E: Edge Cases
+### Section D: Edge Cases
 
 **Goal**: Explicitly handle unusual situations so they don't become bugs.
 
@@ -611,7 +631,7 @@ conflict to resolve.
 
 ---
 
-### Section F: Dependencies
+### Section E: Dependencies
 
 **Goal**: Map every system connection with direction and nature.
 
@@ -628,7 +648,7 @@ system]". Flag any one-directional dependencies for correction.
 
 ---
 
-### Section G: Tuning Knobs
+### Section F: Tuning Knobs
 
 **Goal**: Every designer-adjustable value, with safe ranges and extreme behaviors.
 
@@ -645,7 +665,7 @@ reference them here. Don't create duplicate knobs — point to the source of tru
 
 ---
 
-### Section H: Acceptance Criteria
+### Section G: Acceptance Criteria
 
 **Goal**: Testable conditions that prove the system works as designed.
 
@@ -656,6 +676,48 @@ reference them here. Don't create duplicate knobs — point to the source of tru
 
 **Cross-reference**: Include criteria that verify cross-system interactions work,
 not just this system in isolation.
+
+---
+
+### Section H: 读本的后三段（**最后写，但放在文件最前面**）
+
+到这儿契约那几节都写完了 —— 现在才有东西可以用白话讲完整。
+
+**判据只有一条，而且很硬**：
+
+> **不做这块的人只读读本，就该完全懂这个系统怎么运转。**
+
+读完还得回去翻规则表才明白，就是没写够。写成三五句导语，就是没做这件事。
+
+**写什么**：接在 Section A 那两段后面，各用一个三级标题。
+
+- `### 它怎么运转` —— **最长的一段，而且必须完整**。把 Section B 到 F
+  里每一条会影响玩家决策的规则用白话讲到，只是不写成条目和公式
+- `### 为什么这么定` —— 关键取舍。定成另一个样子会怎样、为什么没那么定
+- `### 一个完整的例子` —— 从头到尾走一遍具体的一局 / 一次交互
+
+**动笔前把上面那几节整篇读一遍。** 规则散在 Detailed Design、Edge Cases、
+Tuning Knobs 里，漏一条的表现是**读本看起来很完整、但少讲了一件事** ——
+没有任何地方会报错。
+
+**排版三条**（完整版在 `rules/design-docs.md` 的「排版」那一小节）：
+
+1. `它怎么运转` 长过十来段就用 `####` 分小节，按**玩家在做什么**分，
+   不按实现模块分 —— 客户端的目录认到四级，分了读的人才跳得过来
+2. **并列的几种情况写成列表。** 上面那句「不写成条目和公式」说的是
+   不许把规则表抄过来，**不是不许用列表**（这条被误读过一次，
+   结果是一堵墙）
+3. 一段一件事，开头一句加粗说完这一段的结论
+
+**三条硬规矩**：不许出现系统编号 / 类名 / 文件路径 / 里程碑代号 /
+本篇之外没解释过的术语；**不许写具体数值和公式**（数值只有规则表那一份 ——
+同一个数写两处，改了一处不会有任何地方报错）；**不许省**
+（「详见下文」在读本里是失败信号，读本的读者正是那个不会往下翻的人）。
+
+**Lite 文档**只写到 `它怎么运转`，取舍理由并进那一段。
+
+**交回去的时候说清楚**：有没有哪一块你没把握讲对，具体是哪一块。
+读本要是把系统讲错了，读的人不会知道，而他会拿这个错的理解去做事。
 
 ---
 

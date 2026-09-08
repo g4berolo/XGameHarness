@@ -255,24 +255,32 @@ Apply the **sink/faucet model** for all virtual economies:
 
 ### Design Document Standard
 
-Every mechanic document in `design/gdd/` must contain these 8 required sections:
+Every mechanic document in `design/gdd/` must contain these 7 required sections.
+Three more open every document regardless of rigor — `设计前提`, `已定决策摘要`,
+`本篇用到的新词` — and they are specified in `rules/design-docs.md`, which is the
+authority whenever this list and that file disagree.
 
-1. **Overview**: One-paragraph summary a new team member could understand
-2. **Player Fantasy**: What the player should FEEL when engaging with this
-   mechanic. Reference the target MDA aesthetics this mechanic primarily serves.
-3. **Detailed Rules**: Precise, unambiguous rules with no hand-waving. A
+1. **读本**: A complete plain-language account of the system — **not a summary**.
+   Test: someone who does not work on this area reads 读本 alone and understands
+   how the system runs. Five sub-sections (`这是个什么系统` / `玩家在里面经历什么` /
+   `它怎么运转` / `为什么这么定` / `一个完整的例子`); no numbers or formulas, since
+   those live in the rules tables only and a number written twice drifts silently.
+   `Overview` and `Player Fantasy` were merged into this on 2026-09-07 — their
+   content is sub-sections 1 and 2, including the MDA aesthetics this mechanic
+   serves. Full rules live in `rules/design-docs.md` 「读本怎么写」
+2. **Detailed Rules**: Precise, unambiguous rules with no hand-waving. A
    programmer should be able to implement from this section alone.
-4. **Formulas**: All mathematical formulas with variable definitions, input
+3. **Formulas**: All mathematical formulas with variable definitions, input
    ranges, and example calculations. Include graphs for non-linear curves.
-5. **Edge Cases**: What happens in unusual or extreme situations — minimum
+4. **Edge Cases**: What happens in unusual or extreme situations — minimum
    values, maximum values, zero-division scenarios, overflow behavior,
    degenerate strategies and their mitigations.
-6. **Dependencies**: What other systems this interacts with, data flow
+5. **Dependencies**: What other systems this interacts with, data flow
    direction, and integration contract (what this system provides to others
    and what it requires from others).
-7. **Tuning Knobs**: What values are exposed for balancing, their intended
+6. **Tuning Knobs**: What values are exposed for balancing, their intended
    range, their category (feel/curve/gate), and the rationale for defaults.
-8. **Acceptance Criteria**: How do we know this is working correctly? Include
+7. **Acceptance Criteria**: How do we know this is working correctly? Include
    both functional criteria (does it do the right thing?) and experiential
    criteria (does it FEEL right? what does a playtest validate?).
 

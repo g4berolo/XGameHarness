@@ -58,8 +58,20 @@ When this skill is invoked:
          the tier is wrong, not the writing
 
    **Full checklist**:
-   - [ ] Has Overview section (one-paragraph summary)
-   - [ ] Has Player Fantasy section (intended feeling)
+   - [ ] Has 读本, and it is **a complete plain-language account of the system**,
+         not a three-sentence intro. Test it the way a reader would: **could
+         someone who does not work on this area understand how the system runs
+         from 读本 alone?** Still needing the rules tables means it is not written
+         yet. `Overview` and `Player Fantasy` were merged into 读本 on 2026-09-07 —
+         a document still carrying those two as separate sections says the same
+         thing twice, and the two copies drift with nothing reporting it
+   - [ ] 读本 is **readable**, not merely complete. `它怎么运转` running past a
+         dozen paragraphs with no `####` sub-headings is a finding, and so is a set
+         of parallel cases ("chests do X, merchants do Y, tents do Z") flattened
+         into prose. A wall nobody gets through fails the same test a missing
+         section does
+   - [ ] 读本 carries no concrete numbers or formulas — those live in the rules
+         tables only
    - [ ] Has Detailed Rules section (unambiguous mechanics)
    - [ ] Has Formulas section (all math defined with variables)
    - [ ] Has Edge Cases section (unusual situations handled)
