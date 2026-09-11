@@ -151,6 +151,14 @@
 5. `/sync-rules` 实例化 rules，按项目目录改 `paths:`（改后删 managed-by 行）
 6. 重启 session → 信任目录 → 按提示装 marketplace
 7. 每台新机器一次性：`gh auth setup-git` + env `CLAUDE_CODE_PLUGIN_KEEP_MARKETPLACE_ON_FAILURE=1`
+8. **接工作室服务器的项目才有这一步：仓库怎么摆。**
+   那种项目是**两个仓** —— 游戏工程仓（**不含** `plan/ design/ team/`）+ 只装
+   那三个目录和 `.claude/team.json` 的文档仓；服务器上还要配名册那条
+   （`repo` = 游戏工程仓 / `docs` = 文档仓）、写入令牌、异地备份。
+   ⚠ **顺序不许颠倒**：**验过下发真的通**，才从游戏工程仓里去掉那三个目录 ——
+   反过来做的话那段时间谁都拿不到它们。整套和检查单在
+   [`repo-and-deploy.md`](repo-and-deploy.md)。
+   **不接服务器的项目没有这一步**，一个仓就够，那是正常用法不是简化版。
 
 **项目目录契约**（hooks/skills 依赖的约定，按需 lazy 创建，缺失静默降级）：
 `design/gdd/`（策划案）｜`plan/`（sprint/milestone）｜`plan/stage.md`（**阶段 SoT**，
