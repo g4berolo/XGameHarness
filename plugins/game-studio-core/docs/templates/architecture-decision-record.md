@@ -53,11 +53,13 @@ flowchart TD
     B --> C{分歧点}
     C -->|这个决定选的| D[本 ADR 采纳的做法]
     C -->|被否掉的| E[替代方案]
-    style D fill:#d6e5dc,stroke:#2d6a4f,stroke-width:3px
+    class D key
+    class E ghost
 ```
 
-把**这个决定本身**在图里描出来（上面 `style` 那行），
+把**这个决定本身**在图里描出来（上面 `class D key` 那行，被否掉的挂 `ghost`），
 否则读者看不出这张架构图里哪一块是本篇拍的板、哪一块是既有的。
+**不写 `style D fill:#…`** —— 写死的颜色在客户端深色档下看不清，客户端会拿掉（绘图词表见 `docs/diagrams.md`）。
 
 ### Key Interfaces
 
