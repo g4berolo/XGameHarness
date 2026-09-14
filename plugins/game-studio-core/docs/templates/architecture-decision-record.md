@@ -44,10 +44,20 @@ implement it without further clarification.]
 
 ### Architecture
 
+画成 mermaid，不要用 ASCII。骨架见 `docs/diagrams.md` 的「五、构成」与「四、依赖」。
+**ADR 是唯一允许在图里写真实类名与接口名的文档** —— 它本来就是讲实现的。
+
+```mermaid
+flowchart TD
+    A[组件 A] --> B[组件 B]
+    B --> C{分歧点}
+    C -->|这个决定选的| D[本 ADR 采纳的做法]
+    C -->|被否掉的| E[替代方案]
+    style D fill:#d6e5dc,stroke:#2d6a4f,stroke-width:3px
 ```
-[ASCII diagram showing the system architecture this decision creates.
-Show components, data flow direction, and key interfaces.]
-```
+
+把**这个决定本身**在图里描出来（上面 `style` 那行），
+否则读者看不出这张架构图里哪一块是本篇拍的板、哪一块是既有的。
 
 ### Key Interfaces
 

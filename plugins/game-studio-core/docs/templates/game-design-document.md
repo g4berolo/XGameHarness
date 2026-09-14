@@ -226,6 +226,17 @@ and bullet points for properties.]
 [If this system has states (e.g., weapon states, status effects, phases),
 document every state and every valid transition between states.]
 
+**先画图，再列表。** 表格给的是精确定义，图给的是形状 —— 读者得先看见形状。
+记法见 `docs/diagrams.md` 的「二、流转」。
+
+```mermaid
+stateDiagram-v2
+    [*] --> 状态A
+    状态A --> 状态B: 触发条件
+    状态B --> 状态A: 触发条件
+    状态B --> [*]: 结束条件
+```
+
 | State | Entry Condition | Exit Condition | Behavior |
 |-------|----------------|----------------|----------|
 
@@ -234,6 +245,10 @@ document every state and every valid transition between states.]
 [How does this system interact with combat? Inventory? Progression? UI?
 For each interaction, specify the interface: what data flows in, what flows
 out, and who is responsible for what.]
+
+**上下游超过三个就画一张依赖图**（`docs/diagrams.md` 的「四、依赖」），
+并把本系统 `style` 描出来 —— 否则读者分不清这张图的主角是谁。
+调用链有来回的（A 问 B、B 再回头调 A）画时序图，那种关系用表格说不清楚。
 
 ## Formulas
 
