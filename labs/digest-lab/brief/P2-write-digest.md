@@ -1,4 +1,6 @@
-# P2 —— 单独写读本（V3 用；先删掉 `design/digest/stamina.md`，再新开一个对话贴）
+# P2 —— 单独写读本（只有 V3 那一组做）
+
+先在资源管理器里删掉 `RichLethe-lab\design\digest\stamina.md`，然后新开一个对话，贴这一行的内容：
 
 ```
 /game-studio-core:write-digest design/gdd/stamina.md
