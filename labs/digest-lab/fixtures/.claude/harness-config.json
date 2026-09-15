@@ -1,0 +1,5 @@
+{
+  "_comment": "读本实验室的假项目。没有引擎，不装 unreal-pack。syncedHarnessCommit 由 make-project.mjs 在生成时填成当前 harness 的短 SHA。",
+  "excludedAgents": [],
+  "syncedHarnessCommit": "<filled by make-project.mjs>"
+}
