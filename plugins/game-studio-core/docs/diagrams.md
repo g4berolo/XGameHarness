@@ -7,14 +7,21 @@ Harness 所有文档的画图约定 —— GDD、ADR、便条、sprint plan、�
 
 ## 什么时候该画
 
-**判据：一段话要读者在脑子里同时记住三样以上东西之间的关系时，画出来。**
+**判据：一段话要读者在脑子里同时记住三样以上东西之间的关系、
+或者要在脑子里「摆」出一个形状时，画出来。**
 
 | | 例 |
 |---|---|
 | ✅ 该画 | 「三种拼接失败都走兜底，而五种真错误根本不产生战场」—— 两组东西、两条去向 |
 | ✅ 该画 | 「分发器问本系统选房 → 切换层组装 → 再调本系统拼装 → 交给战场层」—— 四方、两次往返 |
+| ✅ 该画 | 「锚房落在原点，东边那间不转，北边那间掉头」—— 读者得摆出一个 L 形 |
 | ❌ 不该画 | 「容差是半格」—— 一句话说完的事 |
 | ❌ 不该画 | 把一段已经很清楚的文字再用方框重画一遍 |
+
+**读本里讲位置、朝向、怎么接上的每一个小节，都该有一张图解。**
+这条是硬的（2026-09-15 加的）：`它怎么运转` 里凡是在说「谁在谁旁边」「转了多少」
+「哪两个能接上」的小节，写完之后回头看一眼 —— 没有图解就是漏了。
+⚠ **这类小节画成 mermaid 是白画**：它排的是关系，把位置这件事正好画没了。
 
 **图要替掉那段话，不是给那段话配插图。** 画完之后如果原文一个字都没减，
 说明这张图没在干活。
@@ -172,9 +179,13 @@ flowchart TD
   <rect class="box" x="140" y="58" width="40" height="24"/>
   <rect class="box" x="300" y="58" width="40" height="24"/>
   <line class="gap" x1="140" y1="60" x2="140" y2="80"/>
+  <line class="door" x1="140" y1="60" x2="140" y2="80"/>
   <line class="gap" x1="180" y1="60" x2="180" y2="80"/>
+  <line class="door" x1="180" y1="60" x2="180" y2="80"/>
   <line class="gap" x1="300" y1="60" x2="300" y2="80"/>
+  <line class="door" x1="300" y1="60" x2="300" y2="80"/>
   <line class="gap key" x1="340" y1="60" x2="340" y2="80"/>
+  <line class="door key" x1="340" y1="60" x2="340" y2="80"/>
   <path class="route" d="M50 70 H 420" marker-end="url(#arrow-key)"/>
   <circle class="dot key" cx="50" cy="70" r="6"/>
   <text class="label" x="80" y="146" text-anchor="middle">小厅</text>
@@ -183,10 +194,14 @@ flowchart TD
 </svg>
 ```
 
-**要点**：房间是 `box`，本篇的主角加 `key`。门是 `gap` —— **画在墙上**，
-把那一截墙线盖掉；开在 `key` 那间墙上的门也挂 `key`（缺口要跟那间的底色一样）。
-走廊就是一个窄的 `box`。路线用 `route`，箭头用词表里的 `#arrow-key`。
+**要点**：房间是 `box`，本篇的主角加 `key`。走廊就是一个窄的 `box`。
+路线用 `route`，箭头用词表里的 `#arrow-key`。
 **路线穿过哪面墙，那面墙上就得有门** —— 不然画的是穿墙。
+
+**门画两笔**：先 `gap` 把那一截墙线盖掉（`gap` 要跟它所在那个块的语气一样，
+开在 `key` 房上的就写 `class="gap key"`），再在同一个位置画一条 `door`。
+**只画 `gap` 的门在一个孤零零的方框上几乎看不出来** —— 那是一段跟底色一样的线。
+两笔合起来才是「这儿有一扇门」。
 
 ### 骨架二：左右对照（好的一边 / 坏的一边）
 
@@ -207,21 +222,59 @@ flowchart TD
 **要点**：两边**画进同一张图**（markdown 里没有左右两栏）。好的一边 `ok`、坏的一边 `no`；
 「什么都没有」画成一个只有轮廓的框（`line` 挂在 `<rect>` 上就是只描边不填色）。
 
-### 骨架三：并排的几个小图
+### 骨架三：并排的几个小图（**每一格都要有能对比的东西**）
 
 ```svg
-<svg viewBox="0 0 400 110">
-  <title>没有别的角度，只有这四种</title>
-  <defs><rect id="room" class="box" x="10" y="10" width="60" height="60"/></defs>
-  <g transform="translate(0,0)"><use href="#room"/><path class="line key thick" d="M20 60 L20 20 L60 20"/><text class="name" x="40" y="98" text-anchor="middle">不转</text></g>
-  <g transform="translate(100,0)"><use href="#room"/><path class="line key thick" d="M20 20 L60 20 L60 60"/><text class="name" x="40" y="98" text-anchor="middle">右转</text></g>
-  <g transform="translate(200,0)"><use href="#room"/><path class="line key thick" d="M60 20 L60 60 L20 60"/><text class="name" x="40" y="98" text-anchor="middle">掉头</text></g>
-  <g transform="translate(300,0)"><use href="#room"/><path class="line key thick" d="M60 60 L20 60 L20 20"/><text class="name" x="40" y="98" text-anchor="middle">左转</text></g>
+<svg viewBox="0 0 460 150">
+  <title>转房间就是把门转到别的边上</title>
+  <defs>
+    <g id="cell">
+      <rect class="box ghost" x="4" y="4" width="28" height="72"/>
+      <line class="door" x1="32" y1="28" x2="32" y2="52"/>
+      <rect class="box" x="36" y="4" width="72" height="72"/>
+    </g>
+  </defs>
+  <g transform="translate(0,0)">
+    <use href="#cell"/>
+    <line class="gap" x1="36" y1="28" x2="36" y2="52"/>
+    <line class="door key" x1="36" y1="28" x2="36" y2="52"/>
+    <text class="name" x="56" y="98" text-anchor="middle">不转</text>
+    <text class="label ok" x="56" y="118" text-anchor="middle">对上了</text>
+  </g>
+  <g transform="translate(118,0)">
+    <use href="#cell"/>
+    <line class="gap" x1="60" y1="4" x2="84" y2="4"/>
+    <line class="door key" x1="60" y1="4" x2="84" y2="4"/>
+    <text class="name" x="56" y="98" text-anchor="middle">右转</text>
+    <text class="label no" x="56" y="118" text-anchor="middle">对不上</text>
+  </g>
+  <g transform="translate(236,0)">
+    <use href="#cell"/>
+    <line class="gap" x1="108" y1="28" x2="108" y2="52"/>
+    <line class="door key" x1="108" y1="28" x2="108" y2="52"/>
+    <text class="name" x="56" y="98" text-anchor="middle">掉头</text>
+    <text class="label no" x="56" y="118" text-anchor="middle">对不上</text>
+  </g>
+  <g transform="translate(354,0)">
+    <use href="#cell"/>
+    <line class="gap" x1="60" y1="76" x2="84" y2="76"/>
+    <line class="door key" x1="60" y1="76" x2="84" y2="76"/>
+    <text class="name" x="56" y="98" text-anchor="middle">左转</text>
+    <text class="label no" x="56" y="118" text-anchor="middle">对不上</text>
+  </g>
 </svg>
 ```
 
 **要点**：一样的东西在 `<defs>` 里画一次，用 `<use href="#id">` 摆几次。
 **`<use>` 只能引本图里的 `#id`**，指向外面的地址会被拿掉。
+
+⚠ **每一格里都要有那个「在变的东西」，还要有它相对的参照物。**
+这张图里变的是门的位置，参照物是左边那间 `ghost` 邻居**以及它那扇不动的门** ——
+「对上了」指的正是两扇门正对着。没有参照物的话，四个格子就只是四个空方框，
+读者看不出「转」改变了什么。
+2026-09-15 实测：上一版骨架没有参照物，agent 抄过去画成了四个空框，
+用户说「并没有更好看的那种图」。**并排的每一格底下写一句结论**（对上了 / 对不上），
+那一行才是这张图要说的话。
 
 ### 绘图词表
 
@@ -232,7 +285,8 @@ flowchart TD
 | `box` | 一块东西：房间、模块、状态 | `<rect>` `<circle>` `<polygon>` |
 | `zone` | 一片区域：几块东西合起来的范围，淡底虚线 | `<rect>` |
 | `line` | 连线、墙、边界；挂在 `<rect>` 上就是只描边的框 | `<line>` `<path>` `<rect>` |
-| `gap` | 墙上的缺口（门、开口）：画在块的边上，把那一截线盖掉 | `<line>` |
+| `gap` | 墙上的缺口：用块的底色盖掉一截墙线。只说「这儿是通的」 | `<line>` |
+| `door` | **看得见的门**：缺口上再画一段粗线。要说清门在哪一边、对着谁时用它 | `<line>` |
 | `route` | 一条路线：谁从哪走到哪，虚线圆头 | `<path>` `<line>` |
 | `dot` | 一个点：人、入口、原点 | `<circle>` |
 | `name` | 字：主要的名字，深一档、加粗 | `<text>` |
@@ -270,6 +324,14 @@ flowchart TD
 > 客户端的测试逐个比两边的名字。**加名字要两边一起加**，否则写了也是灰的。
 
 ### 图解的规矩
+
+0. **一张图要讲一个变化或一组对比，不是罗列。**
+   「四种朝向」画成四个空方框是罗列；画成「门转到了哪一边、哪一种对得上」是对比。
+   动笔前先答一句：**这张图要让读者看出什么差别？** 答不上来就别画，写一句话更省事。
+
+   > 2026-09-15 实测：一篇重写过的读本里三张图全画出来了，但只有一张图解、
+   > 而且是四个空框。用户的反应是「并没有更好看的那种图」——
+   > **画出来了不等于画对了**，而这件事不会有任何地方报错。
 
 1. **一个颜色都不写。** `fill="#…"`、`stroke="red"`、`fill="var(--…)"`、`<style>`、`style="…"`
    客户端全部拿掉，并在图下面提示「N 处写死的颜色没用上」。
