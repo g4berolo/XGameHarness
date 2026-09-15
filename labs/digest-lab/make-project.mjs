@@ -8,6 +8,9 @@
  *       生成只有一份文档的答题项目：默认只放 design/digest/stamina.md（只读读本答题），
  *       `--mode gdd` 只放 design/gdd/stamina.md（对照组）。题目一起放进去，答案不放。
  *
+ *   node labs/digest-lab/make-project.mjs <目标目录> --view <runs/某次目录>
+ *       回看：实验项目 + 那一次的 GDD / 读本 / 系统索引，在客户端里重新看一次旧产物。
+ *
  * 安全：目标目录已存在时，只有里面有 `.digest-lab` 标记才会被整个删掉重建；
  * 没有标记就拒绝 —— 这个脚本唯一能造成真损失的地方就是删错目录。
  */
@@ -49,15 +52,29 @@ if (fs.existsSync(target)) {
 fs.mkdirSync(target, { recursive: true });
 
 const qaFrom = opt('--qa');
+const viewFrom = opt('--view');
 if (qaFrom) {
   makeQa(path.resolve(qaFrom), opt('--mode', 'digest'));
+} else if (viewFrom) {
+  makeLab(path.resolve(viewFrom));
 } else {
   makeLab();
 }
 
 // ── 实验项目 ────────────────────────────────────────────────────────────────
-function makeLab() {
+// `viewRun` 给了的话，把那一次收进 runs/ 的 GDD / 读本 / 系统索引铺回去 ——
+// 为的是在客户端里回看一次旧的产物（实验项目每次都重建，旧的早没了）
+function makeLab(viewRun = null) {
   fs.cpSync(FIXTURES, target, { recursive: true });
+  if (viewRun) {
+    const pairs = [['gdd.md', path.join('design', 'gdd', GDD_FILE)], ['digest.md', path.join('design', 'digest', GDD_FILE)], ['systems-index.md', path.join('design', 'gdd', 'systems-index.md')]];
+    for (const [from, to] of pairs) {
+      const src = path.join(viewRun, from);
+      if (!fs.existsSync(src)) { console.log(`  回看：${viewRun} 里没有 ${from}，跳过`); continue; }
+      fs.mkdirSync(path.dirname(path.join(target, to)), { recursive: true });
+      fs.copyFileSync(src, path.join(target, to));
+    }
+  }
 
   // rules 和 stage 模板从当前 harness 拿，不放夹具里 —— 夹具里那份迟早会旧
   const rulesDir = path.join(target, '.claude', 'rules');
@@ -75,12 +92,17 @@ function makeLab() {
   cfg.syncedHarnessCommit = harnessSha;
   fs.writeFileSync(cfgFile, JSON.stringify(cfg, null, 2) + '\n');
 
-  writeMark({ kind: 'lab' });
-  seedGit(`lab: seed (harness ${harnessSha})`);
+  writeMark({ kind: viewRun ? 'view' : 'lab', ...(viewRun ? { from: viewRun } : {}) });
+  seedGit(viewRun ? `view: ${path.basename(viewRun)}` : `lab: seed (harness ${harnessSha})`);
 
-  console.log(`实验项目已铺好：${target}`);
-  console.log(`  harness ${harnessSha} · rules ${fs.readdirSync(rulesDir).join(', ')}`);
-  console.log(`  下一步：客户端本地模式打开它，新开对话，贴 brief/P1-design-system.md`);
+  if (viewRun) {
+    console.log(`回看项目已铺好：${target}（${path.basename(viewRun)} 的 GDD 和读本）`);
+    console.log(`  下一步：客户端换项目重新打开它，看板 → GDD → 体力`);
+  } else {
+    console.log(`实验项目已铺好：${target}`);
+    console.log(`  harness ${harnessSha} · rules ${fs.readdirSync(rulesDir).join(', ')}`);
+    console.log(`  下一步：客户端本地模式打开它，新开对话，贴 brief/P1-design-system.md 里那一行`);
+  }
 }
 
 // ── 答题项目：只有一份文档 ─────────────────────────────────────────────────
