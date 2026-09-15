@@ -120,7 +120,7 @@ function makeQa(runDir, mode) {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.copyFileSync(src, dest);
   fs.mkdirSync(path.join(target, 'qa'), { recursive: true });
-  fs.copyFileSync(path.join(HERE, 'qa', 'questions.md'), path.join(target, 'qa', 'questions.md'));
+  fs.copyFileSync(path.join(HERE, 'later', 'qa', 'questions.md'), path.join(target, 'qa', 'questions.md'));
   fs.writeFileSync(path.join(target, 'CLAUDE.md'), [
     '# 答题项目（读本实验室）',
     '',

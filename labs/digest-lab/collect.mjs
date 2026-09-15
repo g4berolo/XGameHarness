@@ -46,39 +46,34 @@ const ssDir = path.join(project, 'team', 'session-state');
 if (fs.existsSync(ssDir)) {
   for (const id of fs.readdirSync(ssDir)) copy(`team/session-state/${id}/active.md`, `session-state-${id}.md`);
 }
-const notes = path.join(runDir, 'notes.md');
+const notes = path.join(runDir, '看法.md');
 if (!fs.existsSync(notes)) {
   fs.writeFileSync(notes, [
-    `# ${runId} —— 跑的人的记录`,
+    `# ${runId} —— 看的人怎么说`,
     '',
-    '## 变量',
+    '填的人是**在客户端里看读本的那个开发人员**，不是跑的人。三个分 1 到 5，两句话。',
     '',
-    '- 引擎：',
-    '- 执笔：主 agent / systems-designer / game-designer',
-    '- 读本路径：design-system 内嵌 / 单独 write-digest',
-    `- harness：${sha()}`,
+    '| | 分 | 问的是 |',
+    '|---|---|---|',
+    '| 一眼懂 |  | 读完前三节，知不知道这东西是干什么的、跟自己有什么关系 |',
+    '| 读得下去 |  | 有没有哪一节是一堵墙，读到一半想放弃 |',
+    '| 好看 |  | 目录、编号、图、表，看着舒不舒服 |',
     '',
-    '## 它选了什么（answers.md 要求记的）',
+    '**最好的一节**（哪节、为什么）：',
     '',
-    '- 2f 第一版前提：',
-    '- 建议档位：',
-    '- 各节选项：',
-    '- 想开的子 agent：',
+    '**最差的一节**（哪节、为什么）：',
     '',
-    '## 跑的人说了话的地方（只允许两种）',
+    '**一句话**：',
     '',
-    '- ',
+    '---',
     '',
-    '## 在客户端里读完读本的一句话',
+    '跑的人补两行：',
     '',
-    '- ',
-    '',
-    '## 花费 · 时间',
-    '',
-    '- ',
+    `- 引擎 / 模型：　　　harness：${sha()}`,
+    '- 它写的前提跟 premise.md 对不对得上、建议了哪个档位、有没有认斜杠命令：',
     '',
   ].join('\n'));
-  console.log('  写了 notes.md 模板');
+  console.log('  写了 看法.md 模板');
 }
 
 // 尺子
@@ -114,10 +109,10 @@ if (SHOTS && gotGdd) {
   }
 }
 
-// RUNLOG 骨架
-const figs = lint ? `${(lint.nums.mermaid ?? 0) + (lint.nums.svg ?? 0)}` : '?';
-const drawnCol = drawn ? `${drawn.ok}/${drawn.total}` : `?/${figs}`;
-console.log('\nRUNLOG 那一行（拷去手填剩下的）：');
-console.log(`| ${runId} | — | ${sha()} | ${lint ? lint.red.length : '?'} | ${lint ? lint.yellow.length : '?'} | ${drawnCol} | ? / ? / ? | ? | ? · ? | ${gotDigest ? '' : '（没有读本）'} |`);
+// RUNLOG 骨架 —— 三个分和两句话等看的人填
+if (lint) console.log(`\n尺子顺手跑了：红 ${lint.red.length} · 黄 ${lint.yellow.length}（在 lint.txt，这轮不算分，排版类的红可以对照看法卡）`);
+if (drawn) console.log(`客户端截图：${drawn.ok}/${drawn.total} 张图画出来了`);
+console.log('\nRUNLOG 那一行（拷去，看的人填完分再补）：');
+console.log(`| ${runId} | — | ${sha()} |  |  |  |  |  | ${gotDigest ? '' : '（没有读本）'} |`);
 
 function sha() { try { return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return '?'; } }
