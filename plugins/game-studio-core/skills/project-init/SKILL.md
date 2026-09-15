@@ -107,6 +107,7 @@ harness 项目契约目录按需 lazy 创建即可，但若用户愿意现在建
 
 ```
 design/gdd/
+design/digest/         ← 读本，跟 GDD 同名一一对应（2026-09-14 从 GDD 里搬出来的）
 plan/
 plan/stage.md          ← 必建，拷模板（见下）
 team/session-state/{identity}/

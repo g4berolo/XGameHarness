@@ -2,6 +2,9 @@
 managed-by: XGameHarness/game-studio-core
 paths:
   - "design/gdd/**"
+  # 读本 2026-09-14 从 GDD 里搬到这儿了 —— 不写进来的话，
+  # 改读本的时候这份规则不会注入，而「读本怎么写」那一整节就在这份规则里
+  - "design/digest/**"
 ---
 
 # Design Document Rules
@@ -29,9 +32,10 @@ against the section lists below.
 
 ## Every document, both rigor levels
 
-- MUST open with four sections, before any tier-specific content:
-  - `## 读本` — **一份完整的、能从头读到尾的策划案**，不是导语、不是摘要。
-    详见下面「读本怎么写」那一节。
+- **MUST have a companion 读本 file** at `design/digest/<same filename>.md` —
+  **一份完整的、能从头读到尾的策划案**，不是导语、不是摘要。详见下面「读本怎么写」。
+  它**不在 GDD 文件里**（2026-09-14 改的，理由在那一节开头）
+- MUST open with three sections, before any tier-specific content:
   - `## 设计前提` — the plain-language premise the user confirmed before writing
     started, unedited. A one-line system description in `systems-index.md` is NOT
     an approved premise; approving an index approves the enumeration, not what
@@ -71,6 +75,49 @@ against the section lists below.
 
 判据只有一条：**一个不做这块的开发者只读读本，应该完全懂这个系统怎么运转。**
 读完还得回去翻规则表才明白，就是没写够。
+
+### 读本住在哪儿：`design/digest/<跟 GDD 同名>.md`
+
+**2026-09-14 从 GDD 里搬出来了。** 用户原话：
+
+> 读本和 gdd 要不要分开？在开发过程中，需要读取 GDD 的时候，因为在一个文件里，
+> agent 会把读本也一起读进来，平白无故的占用我的上下文。
+
+量过：`room-layout-generation.md` 整篇 78.8 KB，读本那一节 29.1 KB —— **37%**。
+做开发的 agent 每读一次那篇 GDD，这 29 KB 白话都跟着进上下文，而它要的是规则表那半。
+
+⚠ **这推翻了「读本是文档的一节」那条**（原话：「读本和契约不是两份文档，
+是同一件事的两层」）。那条的理由是**防走散** —— 两份文件各说各的，
+而且走散时不会有任何地方报错。现在靠三件事顶上：
+
+1. **读本头上记着写它时那篇 GDD 的「最后更新」**（下面那个头部块）。
+   客户端打开时比一次，对不上就在读本顶上说「这份读本写在文档上次改动之前」，
+   并给一个「让它重写读本」的按钮
+2. **改了 GDD 就要改它的「最后更新」那一格** —— 这条本来就在（头部字段那一节），
+   现在它多承担了一件事：读本旧没旧全靠它。**漏改那一格 = 读本悄悄过期**
+3. 改 GDD 的正文规则时，**顺手问一句读本要不要跟着改**
+
+**文件长这样**（头部块只有三行，别照抄 GDD 那一大套）：
+
+```markdown
+# <跟 GDD 一样的标题> — 读本
+
+> **文档**：design/gdd/<文件名>.md
+> **写于文档的最后更新**：<原样照抄那篇 GDD 头部的 Last Updated>
+> **最后更新**：<今天>
+
+### 1. 一句话
+
+…
+```
+
+**`写于文档的最后更新` 那一行是硬的** —— 客户端拿它判读本旧没旧，
+写错或者不写，那个提示就永远不亮（而且不报错）。
+
+### 已经写在 GDD 里的那些
+
+**不会自己挪窝，而且照样能看** —— 客户端两种都认，只是会提示挪出去。
+改到那一篇时顺手跑一次 `/game-studio-core:move-digest`，别专门开一轮去搬。
 
 ### 读本不是把规则表翻译一遍
 
@@ -361,21 +408,21 @@ flowchart TD
 
 ### 它跟别的几节的关系
 
-| 这一节 | 是什么 | 谁说的 |
+| 哪一份 | 是什么 | 谁说的 |
 |---|---|---|
-| `## 读本` | **完整的策划案**，白话，不带数值 | 我们写给读者的 |
+| `design/digest/<同名>.md` | **完整的策划案**，白话，不带数值 | 我们写给读者的 |
 | `## 设计前提` | **出处** —— 用户当初确认的原话，一个字不许编辑 | 用户说的 |
 | Detailed Rules / Formulas / … | **契约** —— 精确、可判定、带数值 | 给实现和 QA 的 |
 
-读本和契约**不是两份文档，是同一件事的两层**。分界线是：
-**读本说「发生什么、为什么」，契约说「精确到什么程度」。**
+读本和契约**是同一件事的两层**，只是分在两个文件里（上面那一节说了为什么）。
+分界线没变：**读本说「发生什么、为什么」，契约说「精确到什么程度」。**
 
-### 一份都还没有
+### 还差很多篇
 
-这条规则 2026-09-07 才立，**现存文档一篇都没有读本**。它们要等下次修订、
+这条规则 2026-09-07 才立，现存文档**绝大多数还没有读本**。它们要等下次修订、
 或者专门跑一次 `/reverse-document` 才补得上。
 
-客户端在没有这一节时**明说这一篇还没有读本**，不假装
+客户端没有读本时**明说这一篇还没有读本**，不假装
 （做不到的事不要长得像做得到）。
 
 ## Lite documents
@@ -395,7 +442,8 @@ flowchart TD
 
 - MUST contain these 6 sections: Detailed Rules, Formulas, Edge Cases,
   Dependencies, Tuning Knobs, Acceptance Criteria
-- **`Overview` 和 `Player Fantasy` 并进 `## 读本` 了**（2026-09-07）。
+- **`Overview` 和 `Player Fantasy` 并进读本了**（2026-09-07；读本 2026-09-14 搬去了
+  `design/digest/`，见「读本怎么写」那一节）。
   读本的第 1 段和第 2 段说的正是这两件事 —— 留着的话同一个系统会被写两遍，
   而**两处说法走散时不会有任何地方报错**，正是这份规则刚在
   「不许写具体数值」那条里警告的东西。

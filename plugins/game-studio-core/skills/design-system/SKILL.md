@@ -247,6 +247,33 @@ carries none of its own constraints forward.
 
 Keep both blocks in the finished document. They are not scaffolding.
 
+### 读本的骨架（**另一个文件**）
+
+`design/digest/<跟 GDD 同名>.md`。两档都要，**跟 GDD 骨架同时建**：
+
+```markdown
+# [System Name] — 读本
+
+> **文档**：design/gdd/[文件名].md
+> **写于文档的最后更新**：[原样照抄那篇 GDD 的 Last Updated]
+> **最后更新**：[today's date]
+
+### 1. 一句话
+
+[Section A]
+
+### 2. 打个比方
+
+[Section A]
+
+...（十三节，节名和写法见 rules/design-docs.md 的「读本怎么写」；
+    Section A 写前两段，Section H 在契约写完之后补完剩下的）
+```
+
+⚠ 2026-09-14 之前读本是 GDD 里的 `## 读本` 一节。搬出来是因为做开发的 agent
+读 GDD 时会把它一起读进上下文（实测占一篇的 37%）。
+**GDD 骨架里不要再放 `## 读本`。**
+
 ### Lite skeleton
 
 ```markdown
@@ -317,28 +344,6 @@ Keep both blocks in the finished document. They are not scaffolding.
 
 | 词 | 含义 | 为什么需要它 |
 |---|---|---|
-
-## 读本
-
-### 这是个什么系统
-
-[To be designed]
-
-### 玩家在里面经历什么
-
-[To be designed]
-
-### 它怎么运转
-
-[To be designed — 最后写，见 Section H]
-
-### 为什么这么定
-
-[To be designed — 最后写，见 Section H]
-
-### 一个完整的例子
-
-[To be designed — 最后写，见 Section H]
 
 ## Detailed Design
 
@@ -530,9 +535,13 @@ Each section has unique design considerations and may benefit from specialist ag
 > 它们说的正是读本的第 1 段和第 2 段。留着的话同一个系统会被写两遍，
 > 而**两处说法走散时不会有任何地方报错**。
 >
-> 要问的问题一个没少，只是答案写进 `## 读本` 里。
+> 要问的问题一个没少，只是答案写进读本里。
+>
+> ⚠ **读本是另一个文件**：`design/digest/<跟 GDD 同名>.md`（2026-09-14 改的）。
+> 这一段和 Section H 都写到那个文件里，**不写进 GDD**。
+> 文件的模样、那三行头部块，在 `rules/design-docs.md` 的「读本住在哪儿」。
 
-**写什么**：`## 读本` 的前两段，各用一个三级标题。
+**写什么**：读本的前两段，各用一个三级标题。
 
 - `### 这是个什么系统` —— 它在整个游戏里占什么位置，拿掉它游戏会缺什么，
   以及它**不管**什么
@@ -679,9 +688,15 @@ not just this system in isolation.
 
 ---
 
-### Section H: 读本的后三段（**最后写，但放在文件最前面**）
+### Section H: 读本的后三段（**最后写，写进读本那个文件**）
 
 到这儿契约那几节都写完了 —— 现在才有东西可以用白话讲完整。
+
+⚠ **写到 `design/digest/<跟 GDD 同名>.md`**，接在 Section A 那两段后面
+（2026-09-14 改的：读本是另一个文件，不写进 GDD）。
+**这一步之前 GDD 的 `Last Updated` 要已经是最终值** ——
+读本头部那行「写于文档的最后更新」照抄它，抄成一个待会儿还要改的值，
+客户端就会一直说这份读本旧了。
 
 **判据只有一条，而且很硬**：
 
@@ -723,7 +738,7 @@ Tuning Knobs 里，漏一条的表现是**读本看起来很完整、但少讲�
 
 ### Optional Sections: Visual/Audio, UI Requirements, Open Questions
 
-These sections are included in the template but aren't part of the 8 required
+These sections are included in the template but aren't part of the 9 required
 sections. Offer them after the required sections are done:
 
 Use `AskUserQuestion`:

@@ -71,7 +71,7 @@ I recommend Option C because [reasoning based on their goals], but you should ch
 User: "Option C, but with X modification"
 
 You (draft iteratively):
-"Great choice. Here's a draft of the first two parts of 读本 —— 这是个什么系统 & 玩家在里面经历什么:
+"Great choice. Here's a draft of the first two sections of the 读本 (it goes in design/digest/, not in the GDD):
 
 [Draft content]
 
@@ -85,10 +85,11 @@ You: [drafts next section, shows it, iterates]
 
 You (request approval):
 "The complete crafting system design is ready. I've covered:
- 读本（最后补齐后三段）, Detailed Rules, Formulas,
- Edge Cases, Dependencies, Tuning Knobs, Acceptance Criteria
+ Detailed Rules, Formulas, Edge Cases, Dependencies,
+ Tuning Knobs, Acceptance Criteria — plus the 读本, finished last
 
- May I write this to design/gdd/crafting-system.md?"
+ May I write these to design/gdd/crafting-system.md and
+ design/digest/crafting-system.md?"
 
 User: "Yes"
 

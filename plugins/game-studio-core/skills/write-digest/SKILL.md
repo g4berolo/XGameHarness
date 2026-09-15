@@ -1,14 +1,18 @@
 ---
 name: write-digest
-description: "Write the 读本 (reader's edition) section into an existing design document or memo — a complete plain-language account of the same system, for someone on the project who does not work on this area."
+description: "Write the 读本 (reader's edition) for an existing design document or memo — a complete plain-language account of the same system, for someone on the project who does not work on this area. For a GDD it goes into a companion file under design/digest/."
 argument-hint: "[path-to-doc] (e.g., design/gdd/social-contract.md)"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Edit, Write
 ---
 
-# 补一节读本
+# 补一份读本
 
-给一份**已经存在**的设计文档或便条补上 `## 读本`。
+给一份**已经存在**的设计文档或便条补上读本。
+
+**GDD 的读本是另一个文件**：`design/digest/<跟 GDD 同名>.md`（2026-09-14 改的 ——
+做开发的 agent 读 GDD 时会把读本一起读进上下文，实测占一篇的 37%）。
+便条的读本照旧写在便条里面。
 
 ## 这不是写摘要，也不是把规则表翻译一遍
 
@@ -41,10 +45,16 @@ allowed-tools: Read, Glob, Grep, Edit, Write
 
 ## 步骤
 
-### 1. 认清楚要改哪一篇
+### 1. 认清楚要改哪一篇，以及读本要写到哪个文件
 
-参数是仓库根目录起算的路径。读不到就说读不到，**不要去猜一个相近的文件名** ——
-写进错的文件里，没有任何地方会报错。
+参数是仓库根目录起算的路径，指的是**那篇 GDD**（`design/gdd/x.md`）。
+读不到就说读不到，**不要去猜一个相近的文件名** —— 写进错的文件里，没有任何地方会报错。
+
+**读本写到 `design/digest/<跟 GDD 同名>.md`**，不写进 GDD 里（2026-09-14 改的）。
+理由、文件模样、那三行头部块，在 `rules/design-docs.md` 的「读本住在哪儿」那一节。
+
+便条（`team/memo/...`）**照旧写在便条文件里面** —— 便条本身就短，
+拆开反而多一个文件要对齐。
 
 ### 2. 整篇读完，再动笔
 
@@ -75,10 +85,17 @@ allowed-tools: Read, Glob, Grep, Edit, Write
 **取不准的宁可不写**，或者写上「（待核）」。
 一个错的映射比没有映射更糟 —— 读者会拿着它去代码里找一个不存在的东西。
 
-### 3. 已经有 `## 读本` 的话，先问
+### 3. 已经有读本的话，先问
 
-不许直接覆盖。摆出现在那一节，问是要重写还是要补哪一块。
+两个地方都要看：`design/digest/<同名>.md`，以及 GDD 正文里有没有还留着的 `## 读本`
+（2026-09-14 之前写的都在那儿）。
+
+有的话**不许直接覆盖**。摆出现在那一份，问是要重写还是要补哪一块。
 **一份写过的读本可能是人改过的** —— 覆盖掉不会有任何提示。
+
+GDD 里还留着 `## 读本` 的：写完新文件之后，**要把 GDD 里那一节删掉**，
+否则同一份东西在两个文件里各有一份，走散时不会有任何地方报错
+（这正是 `/game-studio-core:move-digest` 做的事，那条路更稳妥 —— 先搬再改）。
 
 ### 4. 写
 
@@ -258,16 +275,34 @@ Lite 文档写 **1 / 2 / 5 / 8 / 13** 五节，序号重排成 1-5，**不要沿
    **跨小节引用步骤序号同理** —— 「同样走到第 5 步」会因为上游列表重排而悬空，
    改成描述性的（「同样一路走到校验连接那一步」）
 
-### 6. 插在哪儿
+### 6. 写到哪儿
 
-`## 读本` 是**正文第一节**：H1 和头部引用块之后，`## 设计前提` 之前。
-便条里是 H1 之后、背景那段之前。
+**GDD 的读本 → `design/digest/<跟 GDD 同名>.md`，整个文件就是读本。**
+开头三行头部块，照 `docs/templates/game-design-document.md` 末尾那个模样：
 
-**只加这一节，别动别的。** 这次任务不是重构那篇文档 ——
+```markdown
+# <跟 GDD 一样的标题> — 读本
+
+> **文档**：design/gdd/<文件名>.md
+> **写于文档的最后更新**：<原样照抄那篇 GDD 头部的 Last Updated>
+> **最后更新**：<今天>
+```
+
+⚠ **`写于文档的最后更新` 那一行是硬的。** 客户端拿它判「这份读本是不是写在
+文档上次改动之前」。**原样照抄**那篇 GDD 头部 `Last Updated` 那一格的字符串，
+不要改格式、不要写成今天 —— 写错的话那个提示永远不亮，而且不报错。
+
+那篇 GDD 头部没有 `Last Updated` 的：照写这一行、值写 `未知`，
+并在交回去的时候说一句「那篇 GDD 没写最后更新，读本旧了客户端提示不了」。
+
+**便条的读本**照旧写在便条文件里面：H1 之后、背景那段之前。
+
+**除了这个新文件，别动 GDD**（第 3 步说的删掉旧 `## 读本` 是唯一的例外）。
 顺手改了别处，用户在 diff 里就分不出哪些是他要的。
 
-### 7. 交回去的时候说三件事
+### 7. 交回去的时候说四件事
 
+- **写到哪个文件了**（`design/digest/x.md`），以及 GDD 里那节旧读本删没删
 - 写了几节、多少字
 - **读的时候发现的问题**（规则自相矛盾、缺了边界情况）—— 只报，不改
 - 有没有哪一块你**没把握讲对**，具体是哪一块
