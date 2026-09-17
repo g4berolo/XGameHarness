@@ -6,6 +6,11 @@ user-invocable: true
 allowed-tools: Read, Glob, Grep, AskUserQuestion, Skill
 ---
 
+> **路径说明**：下面的 `${CLAUDE_PLUGIN_ROOT}` 指本插件根目录。
+> **只有 Claude Code 会设这个变量** —— 别的 harness（Codex 等）下它不会展开，
+> 那时它就是**本 SKILL.md 所在目录的上两级**（`skills/<本技能>/` 的上两级）。
+> 先按那个位置去读，读不到再说读不到，别跳过。
+
 # /how-to-do — 我想做 X，该怎么做？
 
 比 `/handbook` 更进一步：handbook 是查表（X → 用哪个 skill），本 skill 是**导航**

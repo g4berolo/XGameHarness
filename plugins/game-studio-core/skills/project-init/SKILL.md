@@ -6,6 +6,11 @@ user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, Skill
 ---
 
+> **路径说明**：下面的 `${CLAUDE_PLUGIN_ROOT}` 指本插件根目录。
+> **只有 Claude Code 会设这个变量** —— 别的 harness（Codex 等）下它不会展开，
+> 那时它就是**本 SKILL.md 所在目录的上两级**（`skills/<本技能>/` 的上两级）。
+> 先按那个位置去读，读不到再说读不到，别跳过。
+
 # /project-init — 新项目接入 XGameHarness
 
 在**新项目根目录**运行。完成后重启 session，harness（skills / agents / hooks）
