@@ -70,13 +70,26 @@ When this skill is invoked:
          yet. `Overview` and `Player Fantasy` were merged into 读本 on 2026-09-07 —
          a document still carrying those two as separate sections says the same
          thing twice, and the two copies drift with nothing reporting it
-   - [ ] 读本 is **readable**, not merely complete. `它怎么运转` running past a
+   - [ ] 读本 is **readable**, not merely complete. `机制构成` running past a
          dozen paragraphs with no `####` sub-headings is a finding, and so is a set
          of parallel cases ("chests do X, merchants do Y, tents do Z") flattened
          into prose. A wall nobody gets through fails the same test a missing
          section does
    - [ ] 读本 carries no concrete numbers or formulas — those live in the rules
          tables only
+   - [ ] **读本 follows the sentence rules** in `rules/design-docs.md`'s 「句子怎么写」.
+         The ones worth spot-checking: no em-dashes (`——`), no bold in body prose,
+         no metaphors, no sentence past ~30 Chinese characters. These were added
+         2026-09-16 after a reader called a structurally-perfect 读本 verbose —
+         the structure checks above were all green at the time
+   - [ ] **读本's 关键决定 and 容易搞错的地方 contain nothing the GDD does not.**
+         A trade-off invented for the 读本 has nothing checking it against anything
+   - [ ] **读本's 机制构成 carries at least one diagram.** Required since 2026-09-16,
+         Lite included. Test: **scanning only the headings and the diagrams should
+         tell a reader roughly how the system runs.** States get a flow diagram,
+         branching outcomes get a branch diagram, anything spatial gets a ```svg
+         图解. Report a diagram that merely lists boxes as a finding too — drawn is
+         not the same as drawn right
    - [ ] Has Detailed Rules section (unambiguous mechanics)
    - [ ] Has Formulas section (all math defined with variables)
    - [ ] Has Edge Cases section (unusual situations handled)
