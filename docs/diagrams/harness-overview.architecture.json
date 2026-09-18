@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "XGameHarness —— 一个仓库，三条到达项目的路",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "lane-a",
+        "label": "A 档 · 插件本体",
+        "focus": [
+          "market",
+          "payload",
+          "cache",
+          "session"
+        ],
+        "note": "skills / agents / hooks 走插件缓存，缓存按 commit SHA 钉版本，要 plugin update 加重启。"
+      },
+      {
+        "id": "lane-b",
+        "label": "B 档 · rules 实例",
+        "focus": [
+          "rulesrc",
+          "projrules",
+          "session"
+        ],
+        "note": "分发源改了不会自己进项目，各项目跑 /sync-rules；实例被编辑命中 paths 才注入。"
+      },
+      {
+        "id": "lane-c",
+        "label": "C 档 · 项目文件",
+        "focus": [
+          "tmpl",
+          "projfiles",
+          "session"
+        ],
+        "note": "模板只在 /project-init 时落地一次，之后补齐靠 /harness-upgrade 对着契约清单查。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "market",
+      "type": "cloud",
+      "label": "XGameHarness",
+      "sublabel": "marketplace · commit 即版本",
+      "pos": [
+        60,
+        296
+      ],
+      "size": [
+        200,
+        74
+      ]
+    },
+    {
+      "id": "uepack",
+      "type": "backend",
+      "label": "unreal-pack",
+      "sublabel": "仅 UE 项目启用",
+      "pos": [
+        60,
+        470
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "rulesrc",
+      "type": "database",
+      "label": "rules 分发源",
+      "sublabel": "带 managed-by 标记",
+      "pos": [
+        370,
+        104
+      ],
+      "size": [
+        196,
+        66
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "backend",
+      "label": "插件本体",
+      "sublabel": "26 skills · 13 agents · 8 hooks",
+      "pos": [
+        370,
+        296
+      ],
+      "size": [
+        212,
+        74
+      ]
+    },
+    {
+      "id": "tmpl",
+      "type": "database",
+      "label": "模板与手册",
+      "sublabel": "project-template · 21 份模板",
+      "pos": [
+        370,
+        496
+      ],
+      "size": [
+        206,
+        70
+      ]
+    },
+    {
+      "id": "cache",
+      "type": "cloud",
+      "label": "插件缓存",
+      "sublabel": "按 commit SHA 钉版本",
+      "pos": [
+        690,
+        296
+      ],
+      "size": [
+        196,
+        66
+      ]
+    },
+    {
+      "id": "projrules",
+      "type": "database",
+      "label": ".claude/rules/*.md",
+      "sublabel": "注入 hook 只读这里",
+      "pos": [
+        1000,
+        104
+      ],
+      "size": [
+        206,
+        66
+      ]
+    },
+    {
+      "id": "session",
+      "type": "frontend",
+      "label": "项目里的 session",
+      "sublabel": "Claude Code",
+      "pos": [
+        1000,
+        296
+      ],
+      "size": [
+        206,
+        66
+      ]
+    },
+    {
+      "id": "projfiles",
+      "type": "database",
+      "label": "项目契约目录",
+      "sublabel": "design/gdd · plan/stage.md · team/",
+      "pos": [
+        1000,
+        496
+      ],
+      "size": [
+        222,
+        74
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "XGameHarness 仓库 —— 推送即发布",
+      "wraps": [
+        "market",
+        "uepack",
+        "rulesrc",
+        "payload",
+        "tmpl"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "region",
+      "label": "游戏项目仓库",
+      "wraps": [
+        "projrules",
+        "session",
+        "projfiles"
+      ],
+      "pad": 22
+    }
+  ],
+  "connections": [
+    {
+      "from": "market",
+      "to": "rulesrc"
+    },
+    {
+      "from": "market",
+      "to": "payload"
+    },
+    {
+      "from": "market",
+      "to": "tmpl"
+    },
+    {
+      "from": "market",
+      "to": "uepack",
+      "label": "第二个插件",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "payload",
+      "to": "cache",
+      "label": "A 档 · 要重启",
+      "variant": "emphasis"
+    },
+    {
+      "from": "cache",
+      "to": "session",
+      "label": "载入",
+      "variant": "emphasis"
+    },
+    {
+      "from": "rulesrc",
+      "to": "projrules",
+      "label": "B 档 · /sync-rules",
+      "variant": "security"
+    },
+    {
+      "from": "tmpl",
+      "to": "projfiles",
+      "label": "C 档 · /project-init",
+      "variant": "security"
+    },
+    {
+      "from": "projrules",
+      "to": "session",
+      "label": "命中 paths 才注入",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "from": "session",
+      "to": "projfiles",
+      "label": "读写",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "三档各更各的",
+      "items": [
+        "A 插件本体：缓存钉在 commit SHA，要 plugin update 加重启",
+        "B rules 实例：改了源不会自己进项目，各项目跑 /sync-rules",
+        "C 项目文件：新增的必需文件要登记进 project-contract.md"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "rules 是双层的",
+      "items": [
+        "pack 内 rules/ 是分发源，.claude/rules/ 是运行实例",
+        "带 managed-by 行的会被 /sync-rules 覆盖",
+        "项目改完删掉那行，这份就固定不再被覆盖"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "两条会咬人的约定",
+      "items": [
+        "调 agent 必须带插件前缀，裸名直接报 not found",
+        "脚本引用自身用 CLAUDE_PLUGIN_ROOT，读项目用 CLAUDE_PROJECT_DIR",
+        "13 个 agent 全是 model: inherit，harness 不锁模型"
+      ]
+    }
+  ]
+}

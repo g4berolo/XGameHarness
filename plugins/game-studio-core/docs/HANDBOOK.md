@@ -74,6 +74,7 @@
 | **画状态机 / 生命周期 / 重试与终态** | `archify`（`lifecycle`） | GDD 里最常用的一种 —— 状态、事件、重试路径、终态 |
 | 不确定该用哪种图 | `node bin/archify.mjs guide "<场景>"` | cwd 在技能包根目录；它会推荐图型并给结构范例 |
 | 给读本(digest)配一张读者看得懂的图 | `archify` + `/write-digest` | 先写读本定清楚要讲什么，再让 archify 出图；别反过来 |
+| **想看 harness 自己长什么样** | 打开 harness 仓 `docs/diagrams/` 下三张 HTML | 三档分发 / 一次 session 里 hook 何时插话 / 两个仓库接在哪儿。UI 仓 `docs/diagrams/` 另有三张 |
 
 > **archify 是第三方 vendored 技能包，不是本 harness 写的**，整包收录自上游
 > [tt-a1i/archify](https://github.com/tt-a1i/archify) v2.16.0（MIT）。它的定位是
@@ -84,6 +85,17 @@
 > 改了就再也没法对账。来源、SHA-256 校验方法、升级步骤、联网检查如何关闭、
 > 品牌图标的许可注意事项，全部见
 > [`${CLAUDE_PLUGIN_ROOT}/docs/vendored-archify.md`](vendored-archify.md)。
+
+**实际画的时候（2026-09-17 画那六张图踩出来的）：**
+
+| 事 | 怎么回事 |
+|---|---|
+| **三条命令是三件事，别混** | `validate` 在修复循环里反复跑；`deliver` 是终态验收，只有全过才原子替换目标文件；`visual-check` 真开 Chrome 量四档视口。**前两个过了不等于第三个过** |
+| **说明卡每条写一行，别写小作文** | 六张第一版全部超出 1440×900 首屏，最严重的高 1603px。卡片文字换行会直接顶高整页 —— 每条压到 25 个中文字以内就都过了 |
+| **汇聚超过三条，标签必打架** | 四条边汇聚到同一个节点时，汇聚走廊里放不下四个标签，挪 `labelDx/labelDy` 是打地鼠。**先砍边或合并节点**，别先调几何 |
+| **`dataflow` 的布局是固定网格** | 段中心间距 215px、节点区 `x ∈ [24, 宽−24]`，所以节点最宽 152、最多 5 段。加大 viewBox 不会拉开间距，只会让字变小。规格在 `renderers/dataflow/README.md` 的 Layout budget |
+| **节点越窄，字号越小** | 渲染器会自动缩小 sublabel 去适配窄节点，然后撞上 6px 可读性底线。**缺空间要减段/减节点，不是缩节点** |
+| **冗余标签该省就省** | 两端节点已经完全说明的措辞（如边车→SDK 标 `query()`，而 SDK 的说明里就写着「一次 query()」）按规则该删。**这是语义判断，不是为了让检查通过** |
 
 ### 美术
 

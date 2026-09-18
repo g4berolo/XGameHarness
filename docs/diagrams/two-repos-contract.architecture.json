@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "两个仓库接在哪儿 —— harness 定结构，UI 照结构读",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "who-writes",
+        "label": "谁在写这些文件",
+        "focus": [
+          "harness",
+          "skills",
+          "stage",
+          "sysidx",
+          "gdd",
+          "memo"
+        ],
+        "note": "结构由 harness 的模板建出来，内容由 skills 和人一起写进去。"
+      },
+      {
+        "id": "who-reads",
+        "label": "谁在读这些文件",
+        "focus": [
+          "stage",
+          "sysidx",
+          "gdd",
+          "memo",
+          "parsers",
+          "ui"
+        ],
+        "note": "UI 不调 harness 的任何代码，它只读这四类文件 —— 两个仓库之间没有 API，只有文件格式。"
+      },
+      {
+        "id": "the-seam",
+        "label": "那道缝",
+        "focus": [
+          "harness",
+          "contract",
+          "parsers"
+        ],
+        "note": "harness 改了列名或字段名而契约没同步，UI 会静默错位：不报错，只是数字不对了。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "harness",
+      "type": "cloud",
+      "label": "XGameHarness",
+      "sublabel": "模板定出文件长什么样",
+      "pos": [
+        60,
+        110
+      ],
+      "size": [
+        200,
+        70
+      ]
+    },
+    {
+      "id": "skills",
+      "type": "backend",
+      "label": "skills 与 agents",
+      "sublabel": "design-system · write-digest …",
+      "pos": [
+        60,
+        300
+      ],
+      "size": [
+        200,
+        70
+      ]
+    },
+    {
+      "id": "contract",
+      "type": "security",
+      "label": "ui-contract.md",
+      "sublabel": "列名与字段名的约定",
+      "tag": "还没建",
+      "pos": [
+        60,
+        508
+      ],
+      "size": [
+        200,
+        72
+      ]
+    },
+    {
+      "id": "stage",
+      "type": "database",
+      "label": "plan/stage.md",
+      "sublabel": "阶段矩阵 · 两种版式",
+      "pos": [
+        380,
+        80
+      ],
+      "size": [
+        196,
+        64
+      ]
+    },
+    {
+      "id": "sysidx",
+      "type": "database",
+      "label": "systems-index.md",
+      "sublabel": "系统清单 · 依赖列",
+      "pos": [
+        380,
+        194
+      ],
+      "size": [
+        196,
+        64
+      ]
+    },
+    {
+      "id": "gdd",
+      "type": "database",
+      "label": "GDD 头部引用块",
+      "sublabel": "Status · Author · Last Updated",
+      "pos": [
+        380,
+        308
+      ],
+      "size": [
+        196,
+        64
+      ]
+    },
+    {
+      "id": "memo",
+      "type": "database",
+      "label": "team/memo/",
+      "sublabel": "harness 有权威规格",
+      "pos": [
+        380,
+        422
+      ],
+      "size": [
+        196,
+        64
+      ]
+    },
+    {
+      "id": "parsers",
+      "type": "backend",
+      "label": "UI 的解析器",
+      "sublabel": "两种版式归一 · 带偏移",
+      "pos": [
+        700,
+        250
+      ],
+      "size": [
+        200,
+        70
+      ]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "XGameHarnessUI",
+      "sublabel": "看板 · 改一格 diff 只有一行",
+      "pos": [
+        1010,
+        250
+      ],
+      "size": [
+        210,
+        70
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "XGameHarness —— 定义结构的那一侧",
+      "wraps": [
+        "harness",
+        "skills",
+        "contract"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "security-group",
+      "label": "游戏项目仓库里的四类文件 —— 两个仓库之间唯一的接口",
+      "wraps": [
+        "stage",
+        "sysidx",
+        "gdd",
+        "memo"
+      ],
+      "pad": 20
+    },
+    {
+      "kind": "region",
+      "label": "XGameHarnessUI —— 照结构读的那一侧",
+      "wraps": [
+        "parsers",
+        "ui"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "from": "harness",
+      "to": "stage",
+      "label": "模板建出来",
+      "variant": "emphasis"
+    },
+    {
+      "from": "harness",
+      "to": "sysidx",
+      "variant": "emphasis"
+    },
+    {
+      "from": "skills",
+      "to": "gdd",
+      "label": "写内容"
+    },
+    {
+      "from": "skills",
+      "to": "memo"
+    },
+    {
+      "from": "stage",
+      "to": "parsers"
+    },
+    {
+      "from": "sysidx",
+      "to": "parsers"
+    },
+    {
+      "from": "gdd",
+      "to": "parsers",
+      "variant": "emphasis"
+    },
+    {
+      "from": "memo",
+      "to": "parsers"
+    },
+    {
+      "from": "parsers",
+      "to": "ui",
+      "variant": "emphasis"
+    },
+    {
+      "from": "contract",
+      "to": "parsers",
+      "label": "UI 依赖具体列名",
+      "variant": "security",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "这道缝会怎么坏",
+      "items": [
+        "harness 改了列名或字段名，UI 就静默错位",
+        "不报错、不崩，只是数字不对了 —— 最难发现的一类失败",
+        "约定是改结构必须同步 ui-contract.md，那份还没建（D-003）"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "两个仓库之间没有 API",
+      "items": [
+        "UI 不 import harness 的代码，也不调它的 skill",
+        "两侧可以各自升级，坏的只可能是文件格式",
+        "UI 指向 harness 的本地 clone，钉版就是 git checkout"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "两个方言都得活着",
+      "items": [
+        "RichGamble 是新模板，RichLethe 是自己长出来的旧格式",
+        "只支持新版式的话，RichLethe 整个看板都用不了",
+        "那不是推动迁移，是让工具对最需要它的项目失效"
+      ]
+    }
+  ]
+}

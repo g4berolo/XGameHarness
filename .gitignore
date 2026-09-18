@@ -13,5 +13,11 @@ __pycache__/
 # 但 harness 仓库自身不是游戏项目 —— 这里只是开发 harness 时的副产物。
 /team/
 
-# 读本实验室：docshot 在截图目录里造的 Chrome 用户目录
-labs/digest-lab/runs/**/chromeprofile/
+# 读本实验室的运行产物（每轮的 digest / gdd / lint 输出 / 看法卡 / docshot 截图
+# 和它造的 Chrome 用户目录）。结论已经收进 RUNLOG.md —— 入库的是结论和它落成的
+# 规矩，不是每一轮的原始产物。要留档就单独归档，别进这个仓库。
+labs/digest-lab/runs/
+
+# archify 的 visual-check 证据：四档视口 × 明暗两套截图 + 回执。
+# 每跑一次都重新生成，入库的是 .json 源、交付的 .html、和 README 用的那张 .png。
+docs/diagrams/*.visual-check.*

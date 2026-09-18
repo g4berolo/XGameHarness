@@ -36,6 +36,32 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 > SHA-256。来源、校验方法、升级步骤、它那个低频联网版本检查怎么关、品牌图标的许可
 > 注意事项，见 [`plugins/game-studio-core/docs/vendored-archify.md`](plugins/game-studio-core/docs/vendored-archify.md)。
 
+## 图
+
+用 `archify` 画的，源在 [`docs/diagrams/`](docs/diagrams/)。每张都是**一个自包含的
+可交互 HTML**：能搜节点、追上下游、按引导视图逐段看、切明暗主题、导出 PNG/SVG。
+下面的 PNG 只是静态快照，**点标题打开 HTML 才是完整的**。
+
+| 图 | 讲什么 |
+|---|---|
+| [**一个仓库，三条到达项目的路**](docs/diagrams/harness-overview.html) | marketplace → 两个插件 → A/B/C 三档各自怎么到项目，以及 rules 的双层结构 |
+| [**一次 session 里 harness 在什么时候插话**](docs/diagrams/harness-session.html) | 8 个 hook 的三种时机、R5 Skill-first 路由、两道闸门分别拦什么 |
+| [**两个仓库接在哪儿**](docs/diagrams/two-repos-contract.html) | harness 定结构、UI 照结构读，中间那四类文件就是唯一的接口 |
+
+[![harness 全貌：三档分发](docs/diagrams/harness-overview.png)](docs/diagrams/harness-overview.html)
+
+改图不要动 HTML，改同名的 `.json` 再重新交付：
+
+```powershell
+cd plugins\game-studio-core\skills\archify
+node bin\archify.mjs validate architecture ..\..\..\..\docs\diagrams\harness-overview.architecture.json --quality showcase --json
+node bin\archify.mjs deliver  architecture ..\..\..\..\docs\diagrams\harness-overview.architecture.json ..\..\..\..\docs\diagrams\harness-overview.html --quality showcase --json
+node bin\archify.mjs visual-check ..\..\..\..\docs\diagrams\harness-overview.html --json
+```
+
+三张都过了 showcase 档：9 项产物检查全通过、0 错 0 警，`visual-check` 在
+1440×900 / 1600×1000 / 1920×1080 / 2048×1320 四档视口、明暗两套主题下都不溢出。
+
 ## 新项目接入
 
 在新项目根目录跑一次 **`/project-init`**（自动复制模板 + 填项目名 + 同步 rules +

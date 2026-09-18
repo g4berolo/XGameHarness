@@ -1,0 +1,274 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "一次 session 里，harness 在什么时候插话",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "boot",
+        "label": "开场注入",
+        "focus": [
+          "start",
+          "sstart",
+          "prompt"
+        ],
+        "note": "身份、上次干到哪、项目 rules 和 Agent Process Rules 在第一句话之前就已经在上下文里了。"
+      },
+      {
+        "id": "routing",
+        "label": "先查表再动手",
+        "focus": [
+          "prompthooks",
+          "route",
+          "work"
+        ],
+        "note": "R5 Skill-first 是强制流程：接到任务先扫手册匹配 skill，命中即调用，不是自己从头写。"
+      },
+      {
+        "id": "gates",
+        "label": "两道闸门",
+        "focus": [
+          "injrules",
+          "files",
+          "gitgate"
+        ],
+        "note": "写文件前按路径注入对应规则，提交前校验暂存的 JSON —— 非法直接阻断，不是告警。"
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "dev",
+      "label": "开发者"
+    },
+    {
+      "id": "hooks",
+      "label": "harness hooks · 自动跑，不用触发"
+    },
+    {
+      "id": "agent",
+      "label": "Claude Code agent"
+    },
+    {
+      "id": "proj",
+      "label": "项目文件"
+    }
+  ],
+  "phases": [
+    {
+      "id": "boot",
+      "label": "会话开始",
+      "fromCol": 0,
+      "toCol": 0
+    },
+    {
+      "id": "turn",
+      "label": "每条消息",
+      "fromCol": 1,
+      "toCol": 2,
+      "variant": "emphasis"
+    },
+    {
+      "id": "act",
+      "label": "动手与落笔",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "dashed"
+    },
+    {
+      "id": "close",
+      "label": "收尾",
+      "fromCol": 5,
+      "toCol": 5
+    }
+  ],
+  "mainPath": [
+    "start",
+    "sstart",
+    "prompt",
+    "prompthooks",
+    "route",
+    "work",
+    "injrules",
+    "files",
+    "gitgate",
+    "sstop"
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "lane": "dev",
+      "col": 0,
+      "type": "external",
+      "label": "打开项目",
+      "width": 138
+    },
+    {
+      "id": "sstart",
+      "lane": "hooks",
+      "col": 0,
+      "type": "messagebus",
+      "label": "session-start + detect-gaps",
+      "sublabel": "身份 · 上次干到哪 · 全量注入 rules",
+      "width": 192
+    },
+    {
+      "id": "prompt",
+      "lane": "dev",
+      "col": 1,
+      "type": "external",
+      "label": "发一句话",
+      "width": 138
+    },
+    {
+      "id": "prompthooks",
+      "lane": "hooks",
+      "col": 1,
+      "type": "messagebus",
+      "label": "每条 prompt 两个 hook",
+      "sublabel": "R2 语言规则 · subagent 提示",
+      "width": 156
+    },
+    {
+      "id": "route",
+      "lane": "agent",
+      "col": 2,
+      "type": "backend",
+      "label": "R5 Skill-first 路由",
+      "sublabel": "先扫手册匹配 skill",
+      "tag": "强制流程",
+      "width": 150
+    },
+    {
+      "id": "work",
+      "lane": "agent",
+      "col": 3,
+      "type": "backend",
+      "label": "调 skill / spawn agent",
+      "sublabel": "26 skills · 13 agents",
+      "width": 150
+    },
+    {
+      "id": "injrules",
+      "lane": "hooks",
+      "col": 3,
+      "type": "security",
+      "label": "inject-rules",
+      "sublabel": "命中 paths 才注入",
+      "width": 150
+    },
+    {
+      "id": "files",
+      "lane": "proj",
+      "col": 4,
+      "type": "database",
+      "label": "项目契约目录",
+      "sublabel": "design/gdd · plan/stage.md · team/",
+      "width": 162
+    },
+    {
+      "id": "gitgate",
+      "lane": "hooks",
+      "col": 4,
+      "type": "security",
+      "label": "validate-git",
+      "sublabel": "暂存 JSON 非法则阻断",
+      "tag": "唯一会拦住你的",
+      "width": 156
+    },
+    {
+      "id": "sstop",
+      "lane": "hooks",
+      "col": 5,
+      "type": "messagebus",
+      "label": "pre-compact + session-stop",
+      "sublabel": "压缩前补上下文 · 写月度 log",
+      "width": 186
+    }
+  ],
+  "edges": [
+    {
+      "id": "open",
+      "from": "start",
+      "to": "sstart",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ready",
+      "from": "sstart",
+      "to": "prompt",
+      "label": "上下文已就位",
+      "variant": "emphasis"
+    },
+    {
+      "id": "each-turn",
+      "from": "prompt",
+      "to": "prompthooks",
+      "variant": "emphasis"
+    },
+    {
+      "id": "to-agent",
+      "from": "prompthooks",
+      "to": "route",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dispatch",
+      "from": "route",
+      "to": "work",
+      "label": "命中即调用",
+      "variant": "emphasis"
+    },
+    {
+      "id": "before-edit",
+      "from": "work",
+      "to": "injrules",
+      "label": "每次 Edit / Write",
+      "variant": "security"
+    },
+    {
+      "id": "write",
+      "from": "injrules",
+      "to": "files",
+      "variant": "emphasis"
+    },
+    {
+      "id": "before-commit",
+      "from": "files",
+      "to": "gitgate",
+      "label": "提交前",
+      "variant": "security"
+    },
+    {
+      "id": "close",
+      "from": "gitgate",
+      "to": "sstop",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "8 个 hook，三种时机",
+      "items": [
+        "会话级 3 个、每条消息 2 个、每次动作 2 个，另有 pre-compact"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "只有一道闸门真的会拦",
+      "items": [
+        "validate-git：暂存的 JSON 非法直接阻断，其余一律只告警"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "全都有存在性守卫",
+      "items": [
+        "读约定路径，缺失就静默跳过，不报错也不阻塞"
+      ]
+    }
+  ]
+}
