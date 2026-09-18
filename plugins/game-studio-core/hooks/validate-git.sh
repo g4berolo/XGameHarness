@@ -204,6 +204,17 @@ sys.stdout.buffer.write("\n".join(bad).encode("utf-8"))
             if [ "$staged_v" = "$head_v" ]; then
                 WARNINGS="$WARNINGS\nVERSION: plugins/$p changed but ${staged_v} is unchanged. Projects pin to that string -- bump it, or they keep the cached copy with no error anywhere."
             fi
+
+            # The same plugin also ships a Codex manifest. Two files holding one
+            # number is exactly the shape that rots, so compare them here rather
+            # than trusting anyone to remember. Only warns when the Codex
+            # manifest exists -- plugins with no Codex side are unaffected.
+            codex_manifest="plugins/$p/.codex-plugin/plugin.json"
+            codex_v=$(git_t show ":$codex_manifest" 2>/dev/null \
+                | grep -oE '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1)
+            if [ -n "$codex_v" ] && [ "$codex_v" != "$staged_v" ]; then
+                WARNINGS="$WARNINGS\nVERSION: plugins/$p has ${staged_v} for Claude Code but ${codex_v} for Codex. One plugin, one number -- the two manifests must agree."
+            fi
         done
     fi
 

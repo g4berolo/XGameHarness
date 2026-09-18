@@ -1,0 +1,13 @@
+{
+  "name": "game-studio-core",
+  "version": "1.1.0",
+  "description": "Engine-agnostic game production harness: workflow skills, design/production agents, session-state & identity hooks, plus the vendored archify skill for validated architecture/workflow/sequence/dataflow/lifecycle diagrams. Keep version in step with .claude-plugin/plugin.json.",
+  "author": {
+    "name": "G4ber"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "XGameHarness Core",
+    "shortDescription": "游戏production流程：策划案、冲刺、评审、阶段门禁、画图"
+  }
+}

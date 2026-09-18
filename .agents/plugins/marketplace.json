@@ -1,0 +1,30 @@
+{
+  "name": "XGameHarness",
+  "interface": {
+    "displayName": "XGameHarness"
+  },
+  "plugins": [
+    {
+      "name": "game-studio-core",
+      "source": {
+        "source": "local",
+        "path": "./plugins/game-studio-core"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "unreal-pack",
+      "source": {
+        "source": "local",
+        "path": "./plugins/unreal-pack"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

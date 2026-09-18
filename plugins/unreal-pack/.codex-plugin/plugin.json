@@ -1,0 +1,12 @@
+{
+  "name": "unreal-pack",
+  "version": "1.1.0",
+  "description": "Unreal Engine specialist agents and UE rule templates. Enable alongside game-studio-core on UE projects only. Keep version in step with .claude-plugin/plugin.json.",
+  "author": {
+    "name": "G4ber"
+  },
+  "interface": {
+    "displayName": "XGameHarness Unreal Pack",
+    "shortDescription": "UE 专家 agent 与 UE path-scoped rules"
+  }
+}

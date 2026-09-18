@@ -58,16 +58,26 @@ handler 全是 `command`：
 | `type: "command"` | 支持 | ✓ |
 | 条目结构 | 同构 | ✓ |
 
-**六个事件一个不缺，类型也对。真正会炸的只有一处：`${CLAUDE_PLUGIN_ROOT}`。**
-每条命令都长这样：
+**六个事件一个不缺，类型也对。**
+
+⚠ **这里原来写着「真正会炸的只有一处：`${CLAUDE_PLUGIN_ROOT}`」——那句也是错的**
+（2026-09-18 当天先写错再更正）。Codex 给插件内的 hook 设这几个环境变量：
+
+| 变量 | 说明 |
+|---|---|
+| `PLUGIN_ROOT` | 装好的插件根目录 |
+| `PLUGIN_DATA` | 插件可写的数据目录 |
+| `CLAUDE_PLUGIN_ROOT` / `CLAUDE_PLUGIN_DATA` | **兼容别名** |
+
+也就是说 harness 这 8 个 hook 的命令：
 
 ```json
 { "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"", "timeout": 20 }
 ```
 
-Codex 不设这个变量，它会展开成空串，命令变成 `bash "/hooks/session-start.sh"` ——
-**找不到文件，而 hook 失败通常是静默的**。所以搬过去不是重写事件名的活，
-是解决一个路径变量的活。
+**大概率一个字都不用改。** 但注意 Codex 的配置层只替换 `${session_id}` 和 `${cwd}`
+两个，别的原样交给 shell —— 所以这条命令能不能跑，取决于 shell 展开那个环境变量，
+**而这一步没有实测过**。新设备上第一件要验的就是它。
 
 搬之前 Codex 下的上下文继续靠 `AGENTS.md`（UI 仓的 `sidecar/src/parity.mjs` 在守这件事）。
 
@@ -98,10 +108,47 @@ Codex 兼容，不是升级。**改 harness 必须同时 bump**，写进 README�
 它们在不同路径（`.claude-plugin/` vs `.agents/plugins/`），互不干扰。
 所以**同一个仓库可以同时是两边的市场**，不用拆仓、不用分支。
 
+### 已经铺好的（2026-09-18，**都没实测**）
+
+仓库里加了三份 Codex 侧的清单，跟 Claude 那份并存、互不干扰：
+
+| 文件 | 作用 |
+|---|---|
+| `.agents/plugins/marketplace.json` | 市场清单，登记两个插件 |
+| `plugins/game-studio-core/.codex-plugin/plugin.json` | 插件清单，`skills: "./skills/"` |
+| `plugins/unreal-pack/.codex-plugin/plugin.json` | 同上 |
+
+装的命令（**还没人跑成功过**）：
+
+```bash
+codex plugin marketplace add D:/work/GameStudio/XGameHarness
+codex plugin add game-studio-core@XGameHarness
+codex plugin list
+```
+
+⚠ **两处 version 必须一致**（`.claude-plugin` 和 `.codex-plugin` 各一份）。
+一个数字放两个文件正是会烂的形状，所以 `validate-git` hook 在提交时比对它们，
+不一致当场告警。别靠记。
+
 ### 还没验的
 
-- 自定义市场怎么注册进 `~/.codex/config.toml`：格式是
-  `[marketplaces.<名>]` + `source_type = "local"` + `source = '<路径>'`，
-  但本机那个 `personal` 市场没写在 config 里，说明还有一条别的注册路径
-- `${CLAUDE_PLUGIN_ROOT}` 在 Codex 下怎么办（各 skill 已经写了「上两级」的兜底，但没实跑验证过）
-- Codex 那边**没有 path-scoped rules 的对等物**，这一条大概率补不上，只能继续靠 `AGENTS.md` 并进去
+**按新设备上该验的顺序排**：
+
+1. **`codex plugin marketplace add` 认不认这个仓** —— 上面那三份清单全是照本机
+   已装插件的真实结构抄的，没有一条跑通过。policy 那格只写了 `installation`，
+   本机样本还有 `authentication: "ON_INSTALL"`，省略会不会报错不知道
+2. **hooks 认不认插件里的 `hooks/hooks.json`** —— 文档说认，但也可能要在
+   `plugin.json` 里显式声明 `hooks`（本机四个样本都是内联写的，没有用路径引用的）
+3. **`${CLAUDE_PLUGIN_ROOT}` 在命令里展不展得开** —— 见上面 hooks 那节。
+   失败是静默的，所以要主动查：开一个 session 看横幅出没出来，而不是等报错
+4. **skill 里那句 `${CLAUDE_PLUGIN_ROOT}` 的兜底**（「读不到就当本 SKILL.md 上两级」）
+   在 Codex 下走哪个分支
+5. 自定义市场怎么注册进 `~/.codex/config.toml`：格式是
+   `[marketplaces.<名>]` + `source_type = "local"` + `source = '<路径>'`，
+   但本机那个 `personal` 市场没写在 config 里，说明还有一条别的注册路径
+
+**结构性的，不用验也知道补不上**：
+
+- 13 个 agent 是 Claude 插件里的 `.md`，Codex 读 `~/.codex/agents/*.toml`，
+  **而且按账号目录装、不跟插件走** —— 就算清单认了，agent 也不会跟过去
+- Codex 没有 path-scoped rules 的对等物，只能继续靠 `AGENTS.md` 并进去
