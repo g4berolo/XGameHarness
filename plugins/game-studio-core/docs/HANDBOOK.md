@@ -63,6 +63,28 @@
 | 快速验证一个玩法点子 | `/prototype` | 放宽标准的一次性原型，产出进 `prototypes/` + 结构化报告 |
 | 引擎版本固定 / 升级 | `/setup-engine` | 钉版本进 CLAUDE.md + WebSearch 生成 engine-reference 文档（LLM 知识缺口补全） |
 
+### 画图（架构 / 流程 / 时序 / 数据流 / 状态机）
+
+| 我想… | 用这个 | 说明 |
+|---|---|---|
+| 画系统架构图 / 模块依赖 / 服务边界 | `archify`（`architecture`） | 说"用 archify 画一下这个仓库的运行时架构"即可。也能读真实代码出图：给它仓库，它按 commit 钉源码证据 |
+| 画流程图 / 审批关卡 / CI-CD / runbook | `archify`（`workflow`） | 主路径 + 侧分支，泳道保持主线清晰 |
+| 画调用时序 / 请求链路 / 异步链 | `archify`（`sequence`） | 调用方、被调方、返回、时序 |
+| 画数据管线 / 血缘 / 敏感数据边界 | `archify`（`dataflow`） | 来源 → 转换 → 存储 → 下游消费者 |
+| **画状态机 / 生命周期 / 重试与终态** | `archify`（`lifecycle`） | GDD 里最常用的一种 —— 状态、事件、重试路径、终态 |
+| 不确定该用哪种图 | `node bin/archify.mjs guide "<场景>"` | cwd 在技能包根目录；它会推荐图型并给结构范例 |
+| 给读本(digest)配一张读者看得懂的图 | `archify` + `/write-digest` | 先写读本定清楚要讲什么，再让 archify 出图；别反过来 |
+
+> **archify 是第三方 vendored 技能包，不是本 harness 写的**，整包收录自上游
+> [tt-a1i/archify](https://github.com/tt-a1i/archify) v2.16.0（MIT）。它的定位是
+> *不让模型画图* —— 模型只产出带 schema 的 JSON 中间表示，坐标和路由由确定性渲染器
+> 算，交付前过校验闸门，产物是一个自包含的可交互 HTML。
+>
+> **不要直接改 `skills/archify/` 里的文件** —— 那 76 个文件与上游 release 逐字节一致，
+> 改了就再也没法对账。来源、SHA-256 校验方法、升级步骤、联网检查如何关闭、
+> 品牌图标的许可注意事项，全部见
+> [`${CLAUDE_PLUGIN_ROOT}/docs/vendored-archify.md`](vendored-archify.md)。
+
 ### 美术
 
 | 我想… | 用这个 | 说明 |

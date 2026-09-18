@@ -8,7 +8,7 @@
     {
       "name": "game-studio-core",
       "source": "./plugins/game-studio-core",
-      "description": "Engine-agnostic game production harness: /start dashboard, sprint/design/review skills, producer & designer agents, session-state / identity / language / path-scoped-rules hooks."
+      "description": "Engine-agnostic game production harness: /start dashboard, sprint/design/review skills, the vendored archify diagram skill, producer & designer agents, session-state / identity / language / path-scoped-rules hooks."
     },
     {
       "name": "unreal-pack",

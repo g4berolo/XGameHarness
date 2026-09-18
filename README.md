@@ -18,7 +18,7 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 
 | 插件 | 内容 | 适用 |
 |---|---|---|
-| `game-studio-core` | 23 个流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
+| `game-studio-core` | 25 个自研流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 1 个 vendored 第三方 skill（`archify` 画架构/流程/时序/数据流/状态机图，见下）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
@@ -28,6 +28,13 @@ commit 推送后，各项目下个 session 自动收到更新（插件不写 `ve
 > 不锁定 —— 硬编码模型对没有该模型权限的开发者是直接故障，而项目侧无法覆盖
 > 插件 agent 的配置（同名文件只会新建一个裸名 agent）。**建议在 Opus 或 Fable
 > 下调用 subagent**；单次覆盖可在 Agent 调用时传 `model` 参数。
+
+> **vendored 第三方 skill**：`plugins/game-studio-core/skills/archify/` 是整包收录的上游
+> release（[tt-a1i/archify](https://github.com/tt-a1i/archify) v2.16.0，MIT），把系统描述
+> 或仓库代码变成单文件可交互架构图。**那 76 个文件与官方 `archify.zip` 逐字节一致，
+> 不要直接改** —— `.gitattributes` 给该路径设了 `-text` 关掉行尾转换，保证随时能对
+> SHA-256。来源、校验方法、升级步骤、它那个低频联网版本检查怎么关、品牌图标的许可
+> 注意事项，见 [`plugins/game-studio-core/docs/vendored-archify.md`](plugins/game-studio-core/docs/vendored-archify.md)。
 
 ## 新项目接入
 

@@ -3,3 +3,9 @@
 *.py text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+
+# vendored 第三方技能包，按上游 release 字节原样保存 —— 任何时候都能拿官方
+# archify.zip 对 SHA-256。必须关掉行尾转换，否则上面 *.json / *.md 两行会在
+# 检出时改写它的字节，校验就再也对不上了。收录记录见
+# plugins/game-studio-core/docs/vendored-archify.md
+plugins/game-studio-core/skills/archify/** -text
