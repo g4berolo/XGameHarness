@@ -1,8 +1,0 @@
-# XGameHarness hook 运行时状态 —— 不入库
-.claude/state/
-
-# 本机私有覆盖配置
-.claude/settings.local.json
-
-# 读本实验室的标记文件（make-project.mjs 认它才敢重建目录）
-.digest-lab
