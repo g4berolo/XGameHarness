@@ -306,9 +306,34 @@ harness 的内容按「怎么到达项目」分三档，**三档各有各的更�
 "hooks": { "hooks": { "Stop": [ { "hooks": [ { "type": "mcp_tool", "server": "…", "tool": "…" } ] } ] } }
 ```
 
-所以**这不是「那边没有」，是「我们没搬」**。搬的代价是 harness 要维护两套 hook 清单，
-那是个产品决定，还没人做。在那之前 Codex 下的上下文继续靠 `AGENTS.md`
-（UI 仓的 `sidecar/src/parity.mjs` 在守这件事）。
+所以**这不是「那边没有」，是「我们没搬」**。
+
+**逐条比过之后，差距比想的小**。harness 这份 `hooks/hooks.json` 用了 6 个事件，
+handler 全是 `command`：
+
+| harness 用的事件 | Codex | |
+|---|---|---|
+| `SessionStart` | 有 | ✓ |
+| `UserPromptSubmit` | 有 | ✓ |
+| `PreToolUse` | 有 | ✓ |
+| `PostToolUse` | 有 | ✓ |
+| `PreCompact` | 有 | ✓ |
+| `SessionEnd` | 有 | ✓ |
+| `type: "command"` | 支持 | ✓ |
+| 条目结构 | 同构 | ✓ |
+
+**六个事件一个不缺，类型也对。真正会炸的只有一处：`${CLAUDE_PLUGIN_ROOT}`。**
+每条命令都长这样：
+
+```json
+{ "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"", "timeout": 20 }
+```
+
+Codex 不设这个变量，它会展开成空串，命令变成 `bash "/hooks/session-start.sh"` ——
+**找不到文件，而 hook 失败通常是静默的**。所以搬过去不是重写事件名的活，
+是解决一个路径变量的活。
+
+搬之前 Codex 下的上下文继续靠 `AGENTS.md`（UI 仓的 `sidecar/src/parity.mjs` 在守这件事）。
 
 ### 版本号：2026-09-18 改了
 
