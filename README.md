@@ -126,7 +126,10 @@ pack 内 `rules/` 目录是**分发源**（frontmatter 带 `managed-by: XGameHar
 - 插件内脚本引用自身文件用 `${CLAUDE_PLUGIN_ROOT}`，读项目文件用相对路径 /
   `CLAUDE_PROJECT_DIR`（勿用 `__file__` 推项目根——脚本运行在插件缓存里）
 - **`.codex/hooks/` 镜像不自动同步**：项目里的 Codex CLI hook 副本独立存在，
-  hooks 改动后需手动搬运（Codex 无插件机制）
+  hooks 改动后需手动搬运。⚠ 括号里原来写的「Codex 无插件机制」**2026-09-18 起不成立**
+  —— Codex 2026-03 上了插件市场，插件能带 skills / hooks / MCP。要手动搬的真实原因
+  是**两边的清单格式不同**，不是那边没有机制。对照见
+  [HANDBOOK § 7](plugins/game-studio-core/docs/HANDBOOK.md#7-codex-那一侧现在有什么)
 - rules 源改动不会自动进入已接入项目——各项目跑 `/sync-rules` 拉取
 - 加新插件流程见 HANDBOOK § 5
 

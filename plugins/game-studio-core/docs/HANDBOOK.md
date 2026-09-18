@@ -266,4 +266,46 @@ harness 的内容按「怎么到达项目」分三档，**三档各有各的更�
 | `git commit` 被 hook 阻断 | 只有一种情况会阻断：暂存的 `.json` 解析失败。报错行会指出是哪个文件、哪一行。UTF-8 BOM 不再误伤；若提示「JSON validation did not run」说明解释器起不来，此时**未做校验**而不是校验通过 |
 | 阶段类 skill 说不出项目在哪个阶段 | 项目有 `plan/stage.md` 吗？没有就跑 `/project-init` 或让 `/gate-check` 从模板生成。它是 gate-check / project-stage-detect / start / how-to-do 的唯一真相源 |
 | harness 改坏了所有项目 | `git revert` XGameHarness 对应 commit + push + 各机 `/plugin marketplace update XGameHarness` |
-| `.codex/hooks/` 行为不一致 | 指的是项目里**同时用 Codex CLI 当第二个 agent 运行时**的场景：Codex 无插件机制，它那份 hook 副本不会跟随 XGameHarness 更新，改了 harness hooks 要手动搬。与已移除的 `/codex-bridge` skill 无关 |
+| `.codex/hooks/` 行为不一致 | 指的是项目里**同时用 Codex CLI 当第二个 agent 运行时**的场景：它那份 hook 副本不会跟随 XGameHarness 更新，改了 harness hooks 要手动搬。⚠ 这条原来写的理由是「Codex 无插件机制」，**2026-09-18 起不成立** —— 真实原因是两边清单格式不同，见 § 7。与已移除的 `/codex-bridge` skill 无关 |
+
+---
+
+## 7. Codex 那一侧现在有什么
+
+**2026-09-18 在本机实测记录**（读 `~/.codex/` 下的真实安装，不是照文档抄）。
+起因：有人问 XGameHarness 能不能同步上 Codex 的插件市场。
+
+**结论：机制都有了，卡在清单格式和版本模型。**
+
+### 两边的对照
+
+| 层 | Claude Code | Codex | 差多少 |
+|---|---|---|---|
+| **市场清单** | `.claude-plugin/marketplace.json` | `.agents/plugins/marketplace.json` | 路径不同、字段不同。`source` 那格 Claude 是字符串，Codex 是对象 `{"source":"local","path":"./plugins/x"}`，另外多 `policy` 和 `category` |
+| **插件清单** | `.claude-plugin/plugin.json` | `.codex-plugin/plugin.json` | 结构几乎一样。Codex 多 `skills: "./skills/"` 指向技能目录，**而且 `version` 必填** |
+| **市场目录布局** | `plugins/<插件名>/` | `plugins/<插件名>/` | **一模一样** |
+| **技能** | `skills/<名>/SKILL.md`，frontmatter 要 `name` + `description` | 同左，必填字段也是这两个 | **几乎白送** |
+| **子 agent** | `agents/*.md`，markdown + frontmatter | `~/.codex/agents/*.toml` 或 `.codex/agents/*.toml`，必填 `name` / `description` / `developer_instructions` | 要转格式，而且 Codex 那份**按账号目录装，不跟插件走** |
+| **hooks** | `hooks/hooks.json` + 脚本 | 插件可以带，在 Codex 运行时的生命周期点执行命令 | 格式还没实测 |
+| **path-scoped rules** | `.claude/rules/*.md` + 注入 hook | 没有对等物 | 靠 `AGENTS.md` 兜（UI 仓的 `parity.mjs` 在做这件事） |
+
+### 一个真冲突：版本号
+
+Codex 的插件缓存路径是 `~/.codex/plugins/cache/<市场>/<插件>/<版本>/` ——
+**版本号就是目录名**，所以 `version` 不是可选的。
+
+而 XGameHarness 的 `plugin.json` **故意不写 `version`**（注释原话：每个 marketplace commit
+就是一个新版本，auto-update 跟最新）。这两套版本模型是对立的，不是补个字段就完事。
+
+### 两份清单可以并存
+
+它们在不同路径（`.claude-plugin/` vs `.agents/plugins/`），互不干扰。
+所以**同一个仓库可以同时是两边的市场**，不用拆仓、不用分支。
+
+### 还没验的
+
+- hooks 的具体格式（插件怎么声明生命周期钩子）
+- 自定义市场怎么注册进 `~/.codex/config.toml`：格式是
+  `[marketplaces.<名>]` + `source_type = "local"` + `source = '<路径>'`，
+  但本机那个 `personal` 市场没写在 config 里，说明还有一条别的注册路径
+- `${CLAUDE_PLUGIN_ROOT}` 在 Codex 下怎么办（各 skill 已经写了「上两级」的兜底，但没实跑验证过）
