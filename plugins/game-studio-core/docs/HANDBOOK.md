@@ -286,16 +286,51 @@ harness 的内容按「怎么到达项目」分三档，**三档各有各的更�
 | **市场目录布局** | `plugins/<插件名>/` | `plugins/<插件名>/` | **一模一样** |
 | **技能** | `skills/<名>/SKILL.md`，frontmatter 要 `name` + `description` | 同左，必填字段也是这两个 | **几乎白送** |
 | **子 agent** | `agents/*.md`，markdown + frontmatter | `~/.codex/agents/*.toml` 或 `.codex/agents/*.toml`，必填 `name` / `description` / `developer_instructions` | 要转格式，而且 Codex 那份**按账号目录装，不跟插件走** |
-| **hooks** | `hooks/hooks.json` + 脚本 | 插件可以带，在 Codex 运行时的生命周期点执行命令 | 格式还没实测 |
+| **hooks** | `hooks/hooks.json` + 脚本 | **同一个位置**：插件里的 `hooks/hooks.json`，也可以写进 `plugin.json` 的 `hooks` 项 | 事件名要改，见下 |
 | **path-scoped rules** | `.claude/rules/*.md` + 注入 hook | 没有对等物 | 靠 `AGENTS.md` 兜（UI 仓的 `parity.mjs` 在做这件事） |
 
-### 一个真冲突：版本号
+### hooks：事件对得上，位置也对得上
+
+读本机四个带 hooks 的已装插件（browser / chrome / computer-use / unified-computer-use）
+加官方文档，确认下来：
+
+- **事件覆盖了 harness 这 8 个 hook 需要的全部** —— `SessionStart` / `SessionEnd` /
+  `UserPromptSubmit` / `PreToolUse` / `PostToolUse` / `PermissionRequest` /
+  `PreCompact` / `PostCompact` / `SubagentStart` / `SubagentStop` / `Stop` / `Interrupt`
+- **支持 `type: "command"`**，跑 shell 脚本，工作目录是 session 的 cwd
+- 声明位置认**插件里的 `hooks/hooks.json`** —— 和 Claude 那边同一个路径
+
+结构也同构，Codex 那边长这样（本机 `unified-computer-use` 的真实内容）：
+
+```json
+"hooks": { "hooks": { "Stop": [ { "hooks": [ { "type": "mcp_tool", "server": "…", "tool": "…" } ] } ] } }
+```
+
+所以**这不是「那边没有」，是「我们没搬」**。搬的代价是 harness 要维护两套 hook 清单，
+那是个产品决定，还没人做。在那之前 Codex 下的上下文继续靠 `AGENTS.md`
+（UI 仓的 `sidecar/src/parity.mjs` 在守这件事）。
+
+### 版本号：2026-09-18 改了
 
 Codex 的插件缓存路径是 `~/.codex/plugins/cache/<市场>/<插件>/<版本>/` ——
 **版本号就是目录名**，所以 `version` 不是可选的。
 
-而 XGameHarness 的 `plugin.json` **故意不写 `version`**（注释原话：每个 marketplace commit
-就是一个新版本，auto-update 跟最新）。这两套版本模型是对立的，不是补个字段就完事。
+原来两个插件都不写 `version`（commit 即版本，推一次更新一次）。
+**现在都写了 `1.0.0`。** 换掉是为了同一个仓库也能当 Codex 的市场。
+
+代价要记清楚，它是反方向的：
+
+| | 不写 version（原来） | 写 version（现在） |
+|---|---|---|
+| 推一次 | 所有项目下个 session 自动拿到 | **没变化**，除非版本号也动了 |
+| 忘了操作 | 不可能忘 —— 没有要操作的东西 | 忘了 bump = 全员静默停在旧版本 |
+| 失败长什么样 | —— | **没有任何报错**，看起来像"推上去了但没生效" |
+
+Claude Code 官方对内部插件的建议本来就是**不写** version。这次是拿这个便利换
+Codex 兼容，不是升级。**改 harness 必须同时 bump**，写进 README「修改 harness 的规范」了。
+
+⚠ 只在 `plugin.json` 里写，**别在 `marketplace.json` 的条目里也写** ——
+两处都有时 Claude Code 静默取前者，后者会掩盖你以为改了的那个版本号。
 
 ### 两份清单可以并存
 
@@ -304,8 +339,8 @@ Codex 的插件缓存路径是 `~/.codex/plugins/cache/<市场>/<插件>/<版本
 
 ### 还没验的
 
-- hooks 的具体格式（插件怎么声明生命周期钩子）
 - 自定义市场怎么注册进 `~/.codex/config.toml`：格式是
   `[marketplaces.<名>]` + `source_type = "local"` + `source = '<路径>'`，
   但本机那个 `personal` 市场没写在 config 里，说明还有一条别的注册路径
 - `${CLAUDE_PLUGIN_ROOT}` 在 Codex 下怎么办（各 skill 已经写了「上两级」的兜底，但没实跑验证过）
+- Codex 那边**没有 path-scoped rules 的对等物**，这一条大概率补不上，只能继续靠 `AGENTS.md` 并进去

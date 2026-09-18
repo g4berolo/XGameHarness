@@ -1,6 +1,7 @@
 {
   "name": "unreal-pack",
-  "description": "Unreal Engine specialist agents and UE rule templates. Enable alongside game-studio-core on UE projects only. Version intentionally omitted — every marketplace commit is a new version.",
+  "version": "1.0.0",
+  "description": "Unreal Engine specialist agents and UE rule templates. Enable alongside game-studio-core on UE projects only. Bump version on every change that should reach projects — Claude Code pins the plugin to this string and skips the update when it has not moved.",
   "author": {
     "name": "G4ber"
   }

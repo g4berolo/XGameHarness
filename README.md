@@ -1,8 +1,14 @@
 # XGameHarness — GameStudio 共享 Agent Harness
 
 多项目共享的 Claude Code 插件市场(plugin marketplace，注册名同仓库名 XGameHarness)。
-所有 GameStudio 项目从这里获取统一的 skills / agents / hooks / 流程规则；本仓库每次
-commit 推送后，各项目下个 session 自动收到更新（插件不写 `version` 字段 → commit 即版本）。
+所有 GameStudio 项目从这里获取统一的 skills / agents / hooks / 流程规则。
+
+> ⚠ **2026-09-18 起改成显式版本号。** 两个插件的 `plugin.json` 现在都写
+> `"version"`，**改了 harness 就要 bump 它**，否则各项目静默停在缓存里那一份 ——
+> Claude Code 按这个字符串判断要不要更新，字符串没动就跳过，而且不会有任何提示。
+> 原来是不写 version（commit 即版本，推一次更新一次），换掉是为了让同一个仓库也能
+> 当 Codex 的插件市场：那边的缓存路径就是版本号，没有它装不进去。取舍见
+> [HANDBOOK § 7](plugins/game-studio-core/docs/HANDBOOK.md#7-codex-那一侧现在有什么)。
 
 > **⚡ 主推入口：`/how-to-do <想做的事>`** —— 任何时间任何情况帮你澄清目标、检索
 > 匹配 skill/agent、给出完整建议流程并立刻推进（无参数 = "我现在该干嘛"）。
@@ -121,6 +127,10 @@ pack 内 `rules/` 目录是**分发源**（frontmatter 带 `managed-by: XGameHar
 ## 修改 harness 的规范
 
 - 直接在 `main` 提交(commit)；推送(push)后所有项目下个 session 生效
+- **改了要让项目收到的东西，必须同时 bump 对应插件 `plugin.json` 的 `version`** ——
+  忘了 bump 的表现是「推上去了，但谁都没变化」，而且**没有任何地方会报错**。
+  只改 `plugin.json` 那一处，**别在 `marketplace.json` 里也写** ——
+  两处都有时 Claude Code 静默取 `plugin.json` 那个，另一个会掩盖问题
 - 改前 `claude plugin validate .`；坏改动回滚 = `git revert` + 各机
   `/plugin marketplace update XGameHarness`
 - 插件内脚本引用自身文件用 `${CLAUDE_PLUGIN_ROOT}`，读项目文件用相对路径 /
