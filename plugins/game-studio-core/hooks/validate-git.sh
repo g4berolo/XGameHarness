@@ -169,6 +169,44 @@ sys.stdout.buffer.write("\n".join(bad).encode("utf-8"))
         fi
     done < "$TMP_LIST"
 
+    # Plugin content changed but its version did not.
+    #
+    # Only meaningful inside a marketplace repo (one with a root
+    # .claude-plugin/marketplace.json). Consumer projects have no plugins/
+    # directory, so nothing here ever fires for them.
+    #
+    # Why this warning exists: these plugins used to omit "version", which made
+    # every pushed commit an update. Since 2026-09-18 they pin a version string
+    # instead, so Claude Code skips the update when the string has not moved --
+    # and the failure is completely silent. It looks exactly like "I pushed but
+    # nothing changed over there." Nothing else in the toolchain notices.
+    if git_t cat-file -e ":.claude-plugin/marketplace.json" 2>/dev/null; then
+        TOUCHED=""
+        while IFS= read -r -d '' file; do
+            case "$file" in plugins/*/*) ;; *) continue ;; esac
+            p="${file#plugins/}"
+            p="${p%%/*}"
+            case " $TOUCHED " in *" $p "*) ;; *) TOUCHED="$TOUCHED $p" ;; esac
+        done < "$TMP_LIST"
+
+        for p in $TOUCHED; do
+            manifest="plugins/$p/.claude-plugin/plugin.json"
+            # ":path" reads the index, which holds every tracked file whether or
+            # not this commit touches it -- so an unbumped manifest compares
+            # equal to HEAD, which is exactly the case worth warning about.
+            staged_v=$(git_t show ":$manifest" 2>/dev/null \
+                | grep -oE '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1)
+            # No version field at all: that plugin is still on the commit-SHA
+            # model and needs no bump. Say nothing.
+            [ -z "$staged_v" ] && continue
+            head_v=$(git_t show "HEAD:$manifest" 2>/dev/null \
+                | grep -oE '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1)
+            if [ "$staged_v" = "$head_v" ]; then
+                WARNINGS="$WARNINGS\nVERSION: plugins/$p changed but ${staged_v} is unchanged. Projects pin to that string -- bump it, or they keep the cached copy with no error anywhere."
+            fi
+        done
+    fi
+
     # Print warnings (non-blocking) and allow commit
     if [ -n "$WARNINGS" ]; then
         echo -e "=== Commit Validation Warnings ===$WARNINGS\n================================" >&2

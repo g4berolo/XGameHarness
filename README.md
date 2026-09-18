@@ -3,12 +3,10 @@
 多项目共享的 Claude Code 插件市场(plugin marketplace，注册名同仓库名 XGameHarness)。
 所有 GameStudio 项目从这里获取统一的 skills / agents / hooks / 流程规则。
 
-> ⚠ **2026-09-18 起改成显式版本号。** 两个插件的 `plugin.json` 现在都写
-> `"version"`，**改了 harness 就要 bump 它**，否则各项目静默停在缓存里那一份 ——
-> Claude Code 按这个字符串判断要不要更新，字符串没动就跳过，而且不会有任何提示。
-> 原来是不写 version（commit 即版本，推一次更新一次），换掉是为了让同一个仓库也能
-> 当 Codex 的插件市场：那边的缓存路径就是版本号，没有它装不进去。取舍见
-> [HANDBOOK § 7](plugins/game-studio-core/docs/HANDBOOK.md#7-codex-那一侧现在有什么)。
+> **版本**：两个插件的 `plugin.json` 写显式 `version`（2026-09-18 起，原来是
+> commit 即版本）。**改了 harness 要 bump 它**，否则各项目静默停在旧版本 ——
+> 规则和坏法见下面「修改 harness 的规范」，为什么这么定见
+> [`docs/codex-parity.md`](docs/codex-parity.md)。
 
 > **⚡ 主推入口：`/how-to-do <想做的事>`** —— 任何时间任何情况帮你澄清目标、检索
 > 匹配 skill/agent、给出完整建议流程并立刻推进（无参数 = "我现在该干嘛"）。
@@ -136,10 +134,9 @@ pack 内 `rules/` 目录是**分发源**（frontmatter 带 `managed-by: XGameHar
 - 插件内脚本引用自身文件用 `${CLAUDE_PLUGIN_ROOT}`，读项目文件用相对路径 /
   `CLAUDE_PROJECT_DIR`（勿用 `__file__` 推项目根——脚本运行在插件缓存里）
 - **`.codex/hooks/` 镜像不自动同步**：项目里的 Codex CLI hook 副本独立存在，
-  hooks 改动后需手动搬运。⚠ 括号里原来写的「Codex 无插件机制」**2026-09-18 起不成立**
-  —— Codex 2026-03 上了插件市场，插件能带 skills / hooks / MCP。要手动搬的真实原因
-  是**两边的清单格式不同**，不是那边没有机制。对照见
-  [HANDBOOK § 7](plugins/game-studio-core/docs/HANDBOOK.md#7-codex-那一侧现在有什么)
+  hooks 改动后需手动搬运。两边到底差什么见
+  [`docs/codex-parity.md`](docs/codex-parity.md)（**不是**「那边没有机制」，
+  括号里原来那句话 2026-09-18 起不成立）
 - rules 源改动不会自动进入已接入项目——各项目跑 `/sync-rules` 拉取
 - 加新插件流程见 HANDBOOK § 5
 
