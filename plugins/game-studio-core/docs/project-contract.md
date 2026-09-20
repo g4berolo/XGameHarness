@@ -1,5 +1,30 @@
 # 项目契约 —— 一个「当前版本」的项目该有什么
 
+> **Codex / Claude 共用说明（1.2.0）**：Codex 先读 [运行时约定](codex-runtime.md)。
+> 下文 Claude 的 Skill/Agent 工具、`/命令`、缓存与 settings 安装步骤仅适用 Claude；
+> Codex 的调用、项目级 agents、hook 信任和任务记忆按运行时约定执行。`.claude/team.json`
+> 与 `.claude/rules/` 保持为共享项目数据；已有的 `CLAUDE.md` 是项目知识文件，Codex 按需读，
+> 不是另一个运行时的工具授权。已授权的日常修改不因旧模板审批措辞再次停下。
+
+## Codex 项目必需项（1.2.0）
+
+| 路径 | 来源／作用 |
+|---|---|
+| `AGENTS.md` 管理块 | `harness.py init/sync` 合并，保留项目其它内容 |
+| `.codex/xgameharness.md` | 运行时与记忆规则，定制后保留 |
+| `.codex/agents/<pack>--<role>.toml` | 从共享角色生成；core 8 个，UE 按需 5 个 |
+| `.codex/harness.json` | 来源、版本和生成文件哈希；不代表引擎验证通过 |
+| `.claude/team.json` | 共享身份；未知时不自动写记忆 |
+| `.claude/rules/*.md` | 共享规则；删除 managed-by 固定项目定制 |
+| `plan/stage.md` | 与 Claude 相同的阶段事实源 |
+| `CLAUDE.md` | 缺失时补共享 Technology Stack 模板；已有项目内容保留 |
+| `.gitignore` 中 `.codex/state/` | 本地 hook 日志与摘要快照不提交 |
+
+Codex 不要求 `.claude/settings.json`，不需要把 Bash hook 复制进项目。
+团队目录与 GDD/ADR 路径保持下表不变。任务摘要使用
+`team/session-state/{identity}/sessions/{session-key}.md`；active.md 用于人工交接。
+
+
 本文件是**唯一真相源**，回答一个问题：一个接入了 XGameHarness 的项目，在当前
 harness 版本下必须有哪些文件和目录。
 

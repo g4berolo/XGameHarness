@@ -1,10 +1,15 @@
 ---
 name: prototype
 description: "Rapid prototyping workflow. Skips normal standards to quickly validate a game concept or mechanic. Produces throwaway code and a structured prototype report."
-argument-hint: "[concept-description]"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash
 ---
+
+参数：[concept-description]
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 When this skill is invoked:
 

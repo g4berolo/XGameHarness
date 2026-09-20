@@ -1,6 +1,6 @@
 {
   "name": "game-studio-core",
-  "version": "1.1.1",
+  "version": "1.2.0+codex.20260920044226",
   "description": "Engine-agnostic game production harness: workflow skills, design/production agents, session-state & identity hooks, plus the vendored archify skill for validated architecture/workflow/sequence/dataflow/lifecycle diagrams. Keep version in step with .claude-plugin/plugin.json.",
   "author": {
     "name": "G4ber"
@@ -8,6 +8,16 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "XGameHarness Core",
-    "shortDescription": "游戏production流程：策划案、冲刺、评审、阶段门禁、画图"
+    "shortDescription": "\u6e38\u620fproduction\u6d41\u7a0b\uff1a\u7b56\u5212\u6848\u3001\u51b2\u523a\u3001\u8bc4\u5ba1\u3001\u9636\u6bb5\u95e8\u7981\u3001\u753b\u56fe",
+    "longDescription": "\u8de8 Codex \u4e0e Claude Code \u7684\u6e38\u620f\u5f00\u53d1\u6d41\u7a0b\u3001\u9879\u76ee\u4e13\u5bb6\u3001\u89c4\u5219\u540c\u6b65\u548c\u53ef\u6062\u590d\u4efb\u52a1\u72b6\u6001\u3002",
+    "developerName": "G4ber",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "\u68c0\u67e5\u6e38\u620f\u9879\u76ee\u72b6\u6001\u5e76\u5efa\u8bae\u4e0b\u4e00\u6b65"
+    ]
   }
 }

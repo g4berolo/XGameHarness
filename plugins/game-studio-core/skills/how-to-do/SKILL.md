@@ -1,15 +1,15 @@
 ---
 name: how-to-do
 description: "XGameHarness 主推入口 — 说出你想做的事（哪怕很模糊），帮你澄清目标、检索匹配的 skill/agent、给出完整的建议流程并立刻推进第一步。任何时间任何情况都可调用：不知道下一步干嘛时无参数直接跑。触发词：怎么做/该用什么/帮我推进/下一步/不知道从哪开始/我想做…"
-argument-hint: "[想做的事，可留空 = 帮我看看现在该干嘛]"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, AskUserQuestion, Skill
 ---
 
-> **路径说明**：下面的 `${CLAUDE_PLUGIN_ROOT}` 指本插件根目录。
-> **只有 Claude Code 会设这个变量** —— 别的 harness（Codex 等）下它不会展开，
-> 那时它就是**本 SKILL.md 所在目录的上两级**（`skills/<本技能>/` 的上两级）。
-> 先按那个位置去读，读不到再说读不到，别跳过。
+参数：[想做的事，可留空 = 帮我看看现在该干嘛]
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 # /how-to-do — 我想做 X，该怎么做？
 

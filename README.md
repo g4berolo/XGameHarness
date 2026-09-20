@@ -1,6 +1,6 @@
 # XGameHarness — GameStudio 共享 Agent Harness
 
-多项目共享的 Claude Code 插件市场(plugin marketplace，注册名同仓库名 XGameHarness)。
+多项目共享的 **Codex + Claude Code** 插件市场（注册名 `XGameHarness`）。
 所有 GameStudio 项目从这里获取统一的 skills / agents / hooks / 流程规则。
 
 > **版本**：两个插件的 `plugin.json` 写显式 `version`（2026-09-18 起，原来是
@@ -18,12 +18,49 @@
 > agent 侧执行 **R5 Skill-first 路由**（superpowers 式强制流程）：接到任务先扫
 > skill 匹配，命中即调用；SessionStart hook 每 session 注入该规则。
 
+## Codex 快速接入
+
+需要 Python 3.11+、Git。macOS/Linux hooks 通过 Bash 选择 Python；Windows Codex
+使用原生 `python`，无需 Git Bash。Claude 原有 Bash hooks 保留。
+
+```powershell
+# 当前本地仓库（包括尚未推送的改动）
+codex plugin marketplace add D:/work/GameStudio/XGameHarness
+codex plugin add game-studio-core@XGameHarness
+codex plugin add unreal-pack@XGameHarness   # 仅 UE 项目
+codex plugin marketplace list
+```
+
+其他机器在变更发布后使用仓库地址添加：
+`codex plugin marketplace add https://github.com/g4berolo/XGameHarness.git`。
+私有仓库需要可用的 Git 身份验证。不要同时用同名本地和远程市场。
+
+在 Codex **新任务**里使用 `$project-init`（已有项目 `$harness-upgrade`）。它会从
+实际插件目录安装项目 `AGENTS.md` 入口、13 个可选专家中的适用部分和共享规则，
+不会改个人 Codex 记忆或自动提交。用 `/hooks` 审阅并信任 hook 定义；信任前自动钩子
+不会执行，项目 AGENTS.md 与显式 skills 仍可使用。
+
+| 能力 | Codex 入口 |
+|---|---|
+| 任务流程 | `$how-to-do`、`$start`、26 个其他技能（两个插件合计 28 个，含 vendored archify） |
+| Unreal | `$unreal-workflow`；项目级 `unreal-pack--<role>` |
+| 初始化／升级 | `scripts/harness.py init` / `sync`；支持 `--dry-run` 和定制保护 |
+| 记忆／交接 | `$session-checkpoint`；共享 team 目录 + 按任务隔离的本地机械快照 |
+| hook | 共享清单、运行时 dispatch；Codex 原生 JSON payload 与 Windows 命令 |
+| 校验 | `python scripts/validate.py` + `python -m unittest discover -s tests -v` |
+
+完整安装、项目迁移、升级和验证边界见 [Codex 接入说明](docs/codex-parity.md)。
+游戏开发的不足及开源对比见 [审查报告](docs/harness-game-development-review.md)。
+
+以下 `/skill`、`subagent_type` 和 `claude plugin` 示例属于 **Claude Code**；Codex
+使用 `$skill`，专家名用 `<pack>--<role>`，按上述接入说明操作。
+
 ## 插件
 
 | 插件 | 内容 | 适用 |
 |---|---|---|
-| `game-studio-core` | 25 个自研流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 1 个 vendored 第三方 skill（`archify` 画架构/流程/时序/数据流/状态机图，见下）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
-| `unreal-pack` | 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
+| `game-studio-core` | 26 个自研流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 1 个 vendored 第三方 skill（`archify` 画架构/流程/时序/数据流/状态机图，见下）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
+| `unreal-pack` | 1 个 unreal-workflow skill + 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
 > `unreal-pack:ue-gas-specialist` 这种全名，裸名会直接报 `Agent type not found`。
@@ -124,19 +161,16 @@ pack 内 `rules/` 目录是**分发源**（frontmatter 带 `managed-by: XGameHar
 
 ## 修改 harness 的规范
 
-- 直接在 `main` 提交(commit)；推送(push)后所有项目下个 session 生效
+- 提交与推送遵循用户授权；发布后各项目显式更新插件，不能假设下个 session 自动生效
 - **改了要让项目收到的东西，必须同时 bump 对应插件 `plugin.json` 的 `version`** ——
   忘了 bump 的表现是「推上去了，但谁都没变化」，而且**没有任何地方会报错**。
-  只改 `plugin.json` 那一处，**别在 `marketplace.json` 里也写** ——
+  同步改 Claude/Codex 两份 `plugin.json`，**别在 `marketplace.json` 里也写** ——
   两处都有时 Claude Code 静默取 `plugin.json` 那个，另一个会掩盖问题
 - 改前 `claude plugin validate .`；坏改动回滚 = `git revert` + 各机
   `/plugin marketplace update XGameHarness`
-- 插件内脚本引用自身文件用 `${CLAUDE_PLUGIN_ROOT}`，读项目文件用相对路径 /
+- 插件内脚本引用自身文件用 `${CLAUDE_PLUGIN_ROOT}`（Codex hook 提供兼容别名及 `PLUGIN_ROOT`），读项目文件用相对路径 /
   `CLAUDE_PROJECT_DIR`（勿用 `__file__` 推项目根——脚本运行在插件缓存里）
-- **`.codex/hooks/` 镜像不自动同步**：项目里的 Codex CLI hook 副本独立存在，
-  hooks 改动后需手动搬运。两边到底差什么见
-  [`docs/codex-parity.md`](docs/codex-parity.md)（**不是**「那边没有机制」，
-  括号里原来那句话 2026-09-18 起不成立）
+- Codex 使用插件内共享 hooks，不再手工镜像 `.codex/hooks/`。旧项目存在镜像时先比对，移除重复注册需保留用户自定义项。详见 [接入说明](docs/codex-parity.md)。
 - rules 源改动不会自动进入已接入项目——各项目跑 `/sync-rules` 拉取
 - 加新插件流程见 HANDBOOK § 5
 

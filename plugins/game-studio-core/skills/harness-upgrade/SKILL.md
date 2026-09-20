@@ -1,15 +1,33 @@
 ---
 name: harness-upgrade
 description: "把一个已接入 XGameHarness 的老项目升级到当前 harness 版本：检查插件缓存是否过期、按项目契约查缺补漏、同步 rules、写回同步水位。harness 更新后在每个项目跑一次。触发词：harness 升级/更新 harness/项目落后了/插件是不是旧的/缺 stage.md"
-argument-hint: "[--dry-run]"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, Skill
 ---
 
-> **路径说明**：下面的 `${CLAUDE_PLUGIN_ROOT}` 指本插件根目录。
-> **只有 Claude Code 会设这个变量** —— 别的 harness（Codex 等）下它不会展开，
-> 那时它就是**本 SKILL.md 所在目录的上两级**（`skills/<本技能>/` 的上两级）。
-> 先按那个位置去读，读不到再说读不到，别跳过。
+参数：[--dry-run]
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
+
+## Codex 分支（在 Claude 专属步骤之前执行）
+
+当前宿主是 Codex 时，从已加载技能的真实插件路径运行：
+
+```text
+python <core-root>/scripts/harness.py sync --project <project-root> --dry-run
+python <core-root>/scripts/harness.py sync --project <project-root>
+python <core-root>/scripts/harness.py doctor --project <project-root>
+```
+
+UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存 mtime 选择版本。
+首次接入且缺身份表时，确定用户身份 key 后加 `--identity <key>`，只用 Git 用户名，不默认收录邮箱。
+脚本保留已有配置及定制文件，输出 PRESERVE 项由本次任务范围决定是否手工合并。
+`init/sync` 安装项目级 agents 和 AGENTS.md 入口；`sync-rules` 仅更新共享规则及同步记录。
+技能／hook 版本需要从 Codex 插件界面更新；命令支持时使用 `codex plugin marketplace upgrade`
+和 `codex plugin add <plugin>@XGameHarness`，检查实际 CLI help。变更 hooks 后用 `/hooks` 审阅信任。
+完成后结束本分支，不执行以下 Claude 缓存、settings.json、重启 Claude 等专属步骤。
 
 # /harness-upgrade — 老项目追上当前 harness
 

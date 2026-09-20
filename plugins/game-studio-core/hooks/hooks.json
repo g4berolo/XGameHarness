@@ -6,37 +6,52 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
-            "timeout": 20
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" start",
+            "timeout": 20,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" start"
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/detect-gaps.sh\"",
-            "timeout": 20
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" gaps",
+            "timeout": 20,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" gaps"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|exec_command|shell_command",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/validate-git.sh\"",
-            "timeout": 30
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" git",
+            "timeout": 30,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" git"
+          }
+        ]
+      },
+      {
+        "matcher": "apply_patch|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" rules",
+            "timeout": 20,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" rules"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit",
+        "matcher": "apply_patch|Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/inject-rules.py\"",
-            "timeout": 20
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" rules",
+            "timeout": 20,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" rules"
           }
         ]
       }
@@ -47,13 +62,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/inject-language-reminder.py\"",
-            "timeout": 20
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" language",
+            "timeout": 20,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" language"
           },
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/suggest-subagent.py\"",
-            "timeout": 20
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" suggest",
+            "timeout": 20,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" suggest"
           }
         ]
       }
@@ -64,8 +81,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-compact.sh\"",
-            "timeout": 30
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" compact",
+            "timeout": 30,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" compact"
           }
         ]
       }
@@ -76,8 +94,21 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-stop.sh\"",
-            "timeout": 20
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" end",
+            "timeout": 3,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" end"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/run-python.sh\" \"${CLAUDE_PLUGIN_ROOT}/hooks/dispatch.py\" checkpoint",
+            "timeout": 3,
+            "commandWindows": "python -X utf8 -c \"import os,runpy; runpy.run_path(os.path.join(os.environ['PLUGIN_ROOT'],'hooks','dispatch.py'),run_name='__main__')\" checkpoint"
           }
         ]
       }

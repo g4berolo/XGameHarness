@@ -1,10 +1,15 @@
 ---
 name: explore-design
 description: "只讨论、不产出文件的设计探索 —— 带着一个还没想清楚的改动想法进来，读完现有 GDD 和代码后摆出 2-4 条可选路线和取舍，帮你把模糊想法收敛成一个具体决定。触发词：先别写文件/只想聊聊/我想改X但不确定怎么改/有哪些做法/摆几个选项/探讨一下/思路/要不要做"
-argument-hint: "[想探索的方向，可留空 = 让我先看看有什么值得聊的]"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, AskUserQuestion, Skill
 ---
+
+参数：[想探索的方向，可留空 = 让我先看看有什么值得聊的]
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 # /explore-design — 只想聊聊，先别写文件
 

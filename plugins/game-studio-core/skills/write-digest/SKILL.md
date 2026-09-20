@@ -1,10 +1,15 @@
 ---
 name: write-digest
 description: "Write the 读本 (reader's edition) for an existing design document or memo — a complete plain-language account of the same system, for someone on the project who does not work on this area. For a GDD it goes into a companion file under design/digest/."
-argument-hint: "[path-to-doc] (e.g., design/gdd/social-contract.md)"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, Edit, Write
 ---
+
+参数：[path-to-doc] (e.g., design/gdd/social-contract.md)
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 # 补一份读本
 

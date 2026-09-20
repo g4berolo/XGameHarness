@@ -42,9 +42,9 @@ from pathlib import Path
 # Compiled once per process, keyed by lowercased keyword.
 _ASCII_KW_CACHE: dict = {}
 
-if hasattr(sys.stdout, "buffer"):
+if __name__ == "__main__" and hasattr(sys.stdout, "buffer"):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-if hasattr(sys.stderr, "buffer"):
+if __name__ == "__main__" and hasattr(sys.stderr, "buffer"):
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 # Plugin-hosted: this script lives in the plugin cache, so the project root must

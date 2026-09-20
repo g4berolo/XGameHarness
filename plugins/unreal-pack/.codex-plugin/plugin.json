@@ -1,12 +1,23 @@
 {
   "name": "unreal-pack",
-  "version": "1.1.0",
+  "version": "1.2.0+codex.20260920044226",
   "description": "Unreal Engine specialist agents and UE rule templates. Enable alongside game-studio-core on UE projects only. Keep version in step with .claude-plugin/plugin.json.",
   "author": {
     "name": "G4ber"
   },
   "interface": {
     "displayName": "XGameHarness Unreal Pack",
-    "shortDescription": "UE 专家 agent 与 UE path-scoped rules"
-  }
+    "shortDescription": "UE \u4e13\u5bb6 agent \u4e0e UE path-scoped rules",
+    "longDescription": "Unreal Engine \u4e13\u5bb6\u4e0e\u89c4\u5219\uff1b\u901a\u8fc7 unreal-workflow \u5728 Codex \u4e2d\u4f7f\u7528\u5e76\u5b89\u88c5\u9879\u76ee\u7ea7\u89d2\u8272\u3002",
+    "developerName": "G4ber",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "\u5ba1\u67e5 Unreal \u9879\u76ee\u67b6\u6784\u548c\u9a8c\u8bc1\u7f3a\u53e3"
+    ]
+  },
+  "skills": "./skills/"
 }

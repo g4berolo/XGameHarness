@@ -1,15 +1,15 @@
 ---
 name: gate-check
 description: "Validate readiness to advance between development phases. Produces a PASS/CONCERNS/FAIL verdict with specific blockers and required artifacts."
-argument-hint: "[target-phase: pre-production | first-playable | vertical-slice | alpha | beta | release]"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Write
 ---
 
-> **路径说明**：下面的 `${CLAUDE_PLUGIN_ROOT}` 指本插件根目录。
-> **只有 Claude Code 会设这个变量** —— 别的 harness（Codex 等）下它不会展开，
-> 那时它就是**本 SKILL.md 所在目录的上两级**（`skills/<本技能>/` 的上两级）。
-> 先按那个位置去读，读不到再说读不到，别跳过。
+参数：[target-phase: pre-production | first-playable | vertical-slice | alpha | beta | release]
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 # Phase Gate Validation
 

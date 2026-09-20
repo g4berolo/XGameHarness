@@ -1,154 +1,145 @@
-# Codex 那一侧现在有什么
+# Codex 接入、升级与验证
 
-> **这份是给改 XGameHarness 的人看的，不随插件分发。**
-> 用 harness 做游戏时不需要读它 —— 那些内容在
-> plugins/game-studio-core/docs/HANDBOOK.md。
->
-> 放在这里的判据：**一条知识如果只在「维护 harness 本身」时才用得上，
-> 它就不该占用每个游戏项目的手册篇幅。** 这份文件原来是 HANDBOOK 的 § 7，
-> 2026-09-18 挪出来。
+更新：2026-09-19（本地时区）。本文件替代原先“都没实测／大概率无需修改”的记录。
+本轮本机 CLI 为 `codex-cli 0.155.0-alpha.9.2`，两插件基础版本为 `1.2.0`，本机最终安装版本为
+`1.2.0+codex.20260920044226`（官方 helper 生成的开发缓存后缀）。
 
-**2026-09-18 在本机实测记录**（读 `~/.codex/` 下的真实安装，不是照文档抄）。
-起因：有人问 XGameHarness 能不能同步上 Codex 的插件市场。
+## 1. 市场和插件
 
-**结论：机制都有了，卡在清单格式和版本模型。**
+仓库保留两套清单：Claude `.claude-plugin/marketplace.json`；Codex
+`.agents/plugins/marketplace.json`。两者引用同一 `plugins/<name>/` 源目录。
+Codex 条目包含 installation/authentication policy，两套 plugin.json 的 version 同步。
 
-### 两边的对照
+本机本地安装（可以使用尚未提交的工作区改动）：
 
-| 层 | Claude Code | Codex | 差多少 |
-|---|---|---|---|
-| **市场清单** | `.claude-plugin/marketplace.json` | `.agents/plugins/marketplace.json` | 路径不同、字段不同。`source` 那格 Claude 是字符串，Codex 是对象 `{"source":"local","path":"./plugins/x"}`，另外多 `policy` 和 `category` |
-| **插件清单** | `.claude-plugin/plugin.json` | `.codex-plugin/plugin.json` | 结构几乎一样。Codex 多 `skills: "./skills/"` 指向技能目录，**而且 `version` 必填** |
-| **市场目录布局** | `plugins/<插件名>/` | `plugins/<插件名>/` | **一模一样** |
-| **技能** | `skills/<名>/SKILL.md`，frontmatter 要 `name` + `description` | 同左，必填字段也是这两个 | **几乎白送** |
-| **子 agent** | `agents/*.md`，markdown + frontmatter | `~/.codex/agents/*.toml` 或 `.codex/agents/*.toml`，必填 `name` / `description` / `developer_instructions` | 要转格式，而且 Codex 那份**按账号目录装，不跟插件走** |
-| **hooks** | `hooks/hooks.json` + 脚本 | **同一个位置**：插件里的 `hooks/hooks.json`，也可以写进 `plugin.json` 的 `hooks` 项 | 事件名要改，见下 |
-| **path-scoped rules** | `.claude/rules/*.md` + 注入 hook | 没有对等物 | 靠 `AGENTS.md` 兜（UI 仓的 `parity.mjs` 在做这件事） |
-
-### hooks：事件对得上，位置也对得上
-
-读本机四个带 hooks 的已装插件（browser / chrome / computer-use / unified-computer-use）
-加官方文档，确认下来：
-
-- **事件覆盖了 harness 这 8 个 hook 需要的全部** —— `SessionStart` / `SessionEnd` /
-  `UserPromptSubmit` / `PreToolUse` / `PostToolUse` / `PermissionRequest` /
-  `PreCompact` / `PostCompact` / `SubagentStart` / `SubagentStop` / `Stop` / `Interrupt`
-- **支持 `type: "command"`**，跑 shell 脚本，工作目录是 session 的 cwd
-- 声明位置认**插件里的 `hooks/hooks.json`** —— 和 Claude 那边同一个路径
-
-结构也同构，Codex 那边长这样（本机 `unified-computer-use` 的真实内容）：
-
-```json
-"hooks": { "hooks": { "Stop": [ { "hooks": [ { "type": "mcp_tool", "server": "…", "tool": "…" } ] } ] } }
-```
-
-所以**这不是「那边没有」，是「我们没搬」**。
-
-**逐条比过之后，差距比想的小**。harness 这份 `hooks/hooks.json` 用了 6 个事件，
-handler 全是 `command`：
-
-| harness 用的事件 | Codex | |
-|---|---|---|
-| `SessionStart` | 有 | ✓ |
-| `UserPromptSubmit` | 有 | ✓ |
-| `PreToolUse` | 有 | ✓ |
-| `PostToolUse` | 有 | ✓ |
-| `PreCompact` | 有 | ✓ |
-| `SessionEnd` | 有 | ✓ |
-| `type: "command"` | 支持 | ✓ |
-| 条目结构 | 同构 | ✓ |
-
-**六个事件一个不缺，类型也对。**
-
-⚠ **这里原来写着「真正会炸的只有一处：`${CLAUDE_PLUGIN_ROOT}`」——那句也是错的**
-（2026-09-18 当天先写错再更正）。Codex 给插件内的 hook 设这几个环境变量：
-
-| 变量 | 说明 |
-|---|---|
-| `PLUGIN_ROOT` | 装好的插件根目录 |
-| `PLUGIN_DATA` | 插件可写的数据目录 |
-| `CLAUDE_PLUGIN_ROOT` / `CLAUDE_PLUGIN_DATA` | **兼容别名** |
-
-也就是说 harness 这 8 个 hook 的命令：
-
-```json
-{ "type": "command", "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"", "timeout": 20 }
-```
-
-**大概率一个字都不用改。** 但注意 Codex 的配置层只替换 `${session_id}` 和 `${cwd}`
-两个，别的原样交给 shell —— 所以这条命令能不能跑，取决于 shell 展开那个环境变量，
-**而这一步没有实测过**。新设备上第一件要验的就是它。
-
-搬之前 Codex 下的上下文继续靠 `AGENTS.md`（UI 仓的 `sidecar/src/parity.mjs` 在守这件事）。
-
-### 版本号：2026-09-18 改了
-
-Codex 的插件缓存路径是 `~/.codex/plugins/cache/<市场>/<插件>/<版本>/` ——
-**版本号就是目录名**，所以 `version` 不是可选的。
-
-原来两个插件都不写 `version`（commit 即版本，推一次更新一次）。
-**现在都写了 `1.0.0`。** 换掉是为了同一个仓库也能当 Codex 的市场。
-
-代价要记清楚，它是反方向的：
-
-| | 不写 version（原来） | 写 version（现在） |
-|---|---|---|
-| 推一次 | 所有项目下个 session 自动拿到 | **没变化**，除非版本号也动了 |
-| 忘了操作 | 不可能忘 —— 没有要操作的东西 | 忘了 bump = 全员静默停在旧版本 |
-| 失败长什么样 | —— | **没有任何报错**，看起来像"推上去了但没生效" |
-
-Claude Code 官方对内部插件的建议本来就是**不写** version。这次是拿这个便利换
-Codex 兼容，不是升级。**改 harness 必须同时 bump**，写进 README「修改 harness 的规范」了。
-
-⚠ 只在 `plugin.json` 里写，**别在 `marketplace.json` 的条目里也写** ——
-两处都有时 Claude Code 静默取前者，后者会掩盖你以为改了的那个版本号。
-
-### 两份清单可以并存
-
-它们在不同路径（`.claude-plugin/` vs `.agents/plugins/`），互不干扰。
-所以**同一个仓库可以同时是两边的市场**，不用拆仓、不用分支。
-
-### 已经铺好的（2026-09-18，**都没实测**）
-
-仓库里加了三份 Codex 侧的清单，跟 Claude 那份并存、互不干扰：
-
-| 文件 | 作用 |
-|---|---|
-| `.agents/plugins/marketplace.json` | 市场清单，登记两个插件 |
-| `plugins/game-studio-core/.codex-plugin/plugin.json` | 插件清单，`skills: "./skills/"` |
-| `plugins/unreal-pack/.codex-plugin/plugin.json` | 同上 |
-
-装的命令（**还没人跑成功过**）：
-
-```bash
+```powershell
 codex plugin marketplace add D:/work/GameStudio/XGameHarness
 codex plugin add game-studio-core@XGameHarness
+codex plugin add unreal-pack@XGameHarness
+codex plugin marketplace list
 codex plugin list
 ```
 
-⚠ **两处 version 必须一致**（`.claude-plugin` 和 `.codex-plugin` 各一份）。
-一个数字放两个文件正是会烂的形状，所以 `validate-git` hook 在提交时比对它们，
-不一致当场告警。别靠记。
+其他机器在发布本轮改动之后添加远程 Git 市场：
 
-### 还没验的
+```text
+codex plugin marketplace add https://github.com/g4berolo/XGameHarness.git
+```
 
-**按新设备上该验的顺序排**：
+私有仓库需要 Git 认证。不要把远程地址当作已包含本地未推送改动。
+同名市场只能选择一个来源；切换来源前检查 `marketplace list`。
+CLI 命令以 `codex plugin --help` 为准，旧版客户端可能需升级。
 
-1. **`codex plugin marketplace add` 认不认这个仓** —— 上面那三份清单全是照本机
-   已装插件的真实结构抄的，没有一条跑通过。policy 那格只写了 `installation`，
-   本机样本还有 `authentication: "ON_INSTALL"`，省略会不会报错不知道
-2. **hooks 认不认插件里的 `hooks/hooks.json`** —— 文档说认，但也可能要在
-   `plugin.json` 里显式声明 `hooks`（本机四个样本都是内联写的，没有用路径引用的）
-3. **`${CLAUDE_PLUGIN_ROOT}` 在命令里展不展得开** —— 见上面 hooks 那节。
-   失败是静默的，所以要主动查：开一个 session 看横幅出没出来，而不是等报错
-4. **skill 里那句 `${CLAUDE_PLUGIN_ROOT}` 的兜底**（「读不到就当本 SKILL.md 上两级」）
-   在 Codex 下走哪个分支
-5. 自定义市场怎么注册进 `~/.codex/config.toml`：格式是
-   `[marketplaces.<名>]` + `source_type = "local"` + `source = '<路径>'`，
-   但本机那个 `personal` 市场没写在 config 里，说明还有一条别的注册路径
+安装之后在新任务中检查 `$how-to-do`、`$project-init`、`$unreal-workflow` 是否可用。
+用 `/hooks` 查看并信任定义。**安装成功不意味着 hooks 已获信任**，不能由 harness
+替用户绕过信任审查。没有信任时用项目 AGENTS.md 和显式 skills。
 
-**结构性的，不用验也知道补不上**：
+## 2. 项目初始化与迁移
 
-- 13 个 agent 是 Claude 插件里的 `.md`，Codex 读 `~/.codex/agents/*.toml`，
-  **而且按账号目录装、不跟插件走** —— 就算清单认了，agent 也不会跟过去
-- Codex 没有 path-scoped rules 的对等物，只能继续靠 `AGENTS.md` 并进去
+在目标游戏项目使用 `$project-init` 或 `$harness-upgrade`，它们有独立 Codex 分支。
+也可从当前加载的 core 插件根目录手工执行（Python 3.11+）：
+
+```text
+python <core-root>/scripts/harness.py init --project <game-project> --identity <identity-key> --dry-run
+python <core-root>/scripts/harness.py init --project <game-project> --identity <identity-key>
+python <core-root>/scripts/harness.py doctor --project <game-project>
+```
+
+`<...>` 是需要替换的实际路径／身份，带空格路径加引号。UE 另传
+`--unreal-root <当前启用的unreal-pack根目录>`。非 UE 不传。已存在身份表则保留。
+新身份仅写 Git 用户名、不写邮箱；未映射身份时 hooks 不向 unknown 共享目录写入。
+
+初始化／同步会：
+
+- 合并 AGENTS.md 管理块，保留块外内容；检测到块内手改也保留并报告。
+- 安装 `.codex/xgameharness.md` 和项目级 `.codex/agents/*.toml`：core 8 个，UE 可选 5 个。
+  默认继承宿主模型／沙箱，Claude 的 tools、memory、maxTurns 不冒充 Codex 配置。
+- 同步共享 `.claude/rules/`，只更新仍带匹配 managed-by 的规则。
+- 补缺 `plan/stage.md`、共享 Technology Stack 文件 `CLAUDE.md` 和忽略项；已有阶段、team 配置和 Claude settings 不覆盖。
+- 记录 `.codex/harness.json` 中来源、版本和文件哈希，用于定制保护和来源失效检查。
+
+保留 `.claude/team.json`、`.claude/rules/` 等名称是为了兼容现有 Studio／Claude 消费方，
+不是要求安装 Claude。Codex 的 project contract 不依赖 `.claude/settings.json`。
+`doctor` 只验证项目文件契约，不能证明宿主已加载插件、信任 hook 或运行引擎。
+
+旧项目若有手工 `.codex/hooks/` 镜像，先比对内容，再移除重复注册；脚本不自动删用户 hook。
+同一个事件注册两份会导致重复注入／记录。
+
+## 3. 运行时对照
+
+| 能力 | Claude Code | Codex |
+|---|---|---|
+| Skills | `/skill` / Skill tool | `$skill` 或读取 SKILL.md，28 个技能共用 |
+| 专家 | `<pack>:<role>` 插件 agents | `<pack>--<role>` 项目 TOML；需 init/sync |
+| 角色缺失 | 报告缺少插件 | 读取角色正文主任务执行，或授权后传给现有通用子 agent |
+| 工具 | Bash / Edit / Write | 支持 Bash 别名、exec_command/cmd、apply_patch 多文件／移动 |
+| 项目根 | 旧脚本约定 | 从 payload cwd 向上定位项目边界，支持子目录启动 |
+| 规则 | 旧 SessionStart 全量 + PostToolUse | AGENTS.md 编辑前按需读；Pre/PostToolUse 提醒匹配文件 |
+| Hooks | dispatch 转发既有 Bash/Python 脚本 | dispatch 处理原生 JSON，Windows 使用 commandWindows |
+| 记忆 | 原 team 会话结构 | 同一 team 知识 + sessions/<key>.md + 本地快照 |
+| 更新 | Claude marketplace/plugin update | Codex marketplace upgrade（Git 来源）+ plugin add，再开新任务 |
+
+官方当前文档说明 shell/exec 的 matcher 有 Bash 别名，但 apply_patch 输入仍是补丁，
+不能只看 matcher 匹配就认为旧 `tool_input.file_path` 解析器可用。
+
+## 4. Hook 功能及限制
+
+共享 `hooks/hooks.json` 默认被两个宿主发现；不在 manifest 添加未经验证的额外字段。
+macOS/Linux 用 Bash 启动 Python；Windows Codex 的 commandWindows 从 PLUGIN_ROOT 定位脚本。
+Python 出错显式写 stderr；不会把没有运行的检查记录为通过。
+
+- SessionStart：项目、身份、任务摘要路径和有限长度恢复预览；缺项提示。
+- UserPromptSubmit：中文提醒；只提示已在项目安装且未排除的相关专家，不自动创建 agent。
+- PreToolUse：暂存 JSON 检查；无效 JSON 返回 2 阻断；版本/跨成员文件/推送提示为告警。
+  规则提示涵盖 patch 的新增、更新、删除和移动目标，外部路径不当作本项目规则路径。
+- PostToolUse：规则补充提醒，工具导致的变动仍要由任务自行验证。
+- Stop / PreCompact / SessionEnd：Codex 记录 Git 状态并保存未提交任务摘要快照。
+  Stop 不续跑任务、不写重复的团队月度摘要；SessionEnd 不能代替工作中的及时保存。
+
+Git 命令识别是辅助 guardrail，**不是 shell 语法解析器或安全策略**。处理常见
+`git commit/push`、`git -C <path>`、exec workdir；先 cd/Set-Location 的命令明确提示未检查。
+别名、脚本间接执行、stdin 续写、宿主绕过 hook 等不能保证覆盖。CI 才是确定性的发布门槛。
+
+快照在 `.codex/state/sessions/{identity}/{session-key}/`，本地忽略、按任务隔离。
+它保存摘要实际内容，不再声称 HEAD 能恢复未提交摘要。日志达到 1 MiB 时保留一份轮转。
+长期知识仍写 GDD/ADR；个人 Codex memories 不属于这些脚本的写入范围。
+
+## 5. 验证和发布
+
+```powershell
+python scripts/validate.py
+python -m unittest discover -s tests -v
+```
+
+CI 在 Windows/Linux、Python 3.11 运行同一组测试。测试覆盖新项目、重复升级、项目定制、
+子目录和中英文空格路径、多文件 patch、暂存区与工作区不同、未提交快照及任务隔离。
+实际客户端安装记录见本次交付说明；**新任务技能加载、hook 信任后的真实事件、UE 编译／
+PIE／打包／真机性能未由这些测试证明**。验证时逐项记录，不把单元测试标成端到端通过。
+
+发布时同步两个 manifest 版本；本地开发可使用官方 cachebuster helper，但保持 Claude/Codex
+版本一致。市场条目不重复写版本。用户未授权提交／推送时只交付工作区改动。
+
+### 本轮本机验收记录
+
+| 检查 | 结果 |
+|---|---|
+| 本地 marketplace add | 已成功，来源 `D:/work/GameStudio/XGameHarness` |
+| 两插件 plugin add/list | 已安装且 enabled=true；上述最终版本 |
+| 两插件缓存 | 对比实际文件 SHA-256，与源码一致（忽略 Python 字节码） |
+| Windows Python 回归 | 15 项通过，含清单全部 commandWindows 的真实子进程执行 |
+| Codex manifest / Claude marketplace 与两插件 manifest | 校验通过 |
+| 第一方 SKILL.md 元数据 | 官方 quick_validate 校验通过；vendored archify 保持原样 |
+| Git diff whitespace | 通过；archify 无修改 |
+| Linux CI | 已添加 workflow，本机未执行 Linux runner |
+| 新任务 skill discovery / 受信 hook 生命周期 | 待用户在新任务中验证；未绕过 hook trust |
+| 游戏引擎编译、运行、打包、性能 | 未执行，本仓库不包含消费方游戏工程 |
+
+工作区变更尚未提交／推送，因此远程 Git 市场当前不包含本轮改动。
+
+## 6. 核对来源
+
+- [官方插件打包及市场注册](https://developers.openai.com/plugins/build/plugins)
+- [官方 hooks：事件、payload、Windows 命令、插件发现与信任](https://learn.chatgpt.com/docs/hooks)
+- [官方项目级自定义 agents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
+
+上面是 2026-09-19 读取的当前文档，运行时会演进；本机 CLI help 和实际检查结果优先于历史推测。

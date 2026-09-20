@@ -1,5 +1,11 @@
 # Path-Scoped Rules Mechanism
 
+> **Codex / Claude 共用说明（1.2.0）**：Codex 先读 [运行时约定](codex-runtime.md)。
+> 下文 Claude 的 Skill/Agent 工具、`/命令`、缓存与 settings 安装步骤仅适用 Claude；
+> Codex 的调用、项目级 agents、hook 信任和任务记忆按运行时约定执行。`.claude/team.json`
+> 与 `.claude/rules/` 保持为共享项目数据；已有的 `CLAUDE.md` 是项目知识文件，Codex 按需读，
+> 不是另一个运行时的工具授权。已授权的日常修改不因旧模板审批措辞再次停下。
+
 本机制在编辑指定 path 的文件时自动向 agent 注入对应规则。基于 Claude Code hooks 实现，**非官方 API**（属 XGameHarness 自定义 convention）。
 
 ---

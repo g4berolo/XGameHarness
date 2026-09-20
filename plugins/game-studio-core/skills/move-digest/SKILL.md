@@ -1,10 +1,15 @@
 ---
 name: move-digest
 description: "Move a 读本 (reader's edition) that still lives inside a GDD out into its companion file under design/digest/, unchanged. Use when the client says the reader's edition is still inside the document."
-argument-hint: "[path-to-gdd] (e.g., design/gdd/room-layout-generation.md)"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, Edit, Write
 ---
+
+参数：[path-to-gdd] (e.g., design/gdd/room-layout-generation.md)
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 # 把读本搬出去
 

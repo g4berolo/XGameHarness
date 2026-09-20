@@ -1,10 +1,15 @@
 ---
 name: playtest-report
 description: "Generates a structured playtest report template or analyzes existing playtest notes into a structured format. Use this to standardize playtest feedback collection and analysis."
-argument-hint: "[new|analyze path-to-notes]"
-user-invocable: true
 allowed-tools: Read, Glob, Grep, Write
 ---
+
+参数：[new|analyze path-to-notes]
+
+
+> **运行时适配**：先按需读取本插件 [`docs/codex-runtime.md`](../../docs/codex-runtime.md)。
+> Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
+> `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
 When invoked with `new`, generate this template:
 

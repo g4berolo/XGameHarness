@@ -2,7 +2,7 @@
 
 > harness（skills / agents / hooks / 流程规则）由 `XGameHarness` 插件市场提供
 > （`g4berolo/XGameHarness` — `game-studio-core` + `unreal-pack`），随该仓库
-> 每次 commit 自动更新。R2 中文输出规则由插件 UserPromptSubmit hook 逐条注入。
+> 发布新版本后显式更新。R2 中文输出规则由插件 UserPromptSubmit hook 逐条注入。
 > 通用流程文档（agent-process-rules / context-management / team-memo-protocol /
 > rules-mechanism）见插件 docs/ 目录，需要时按需 Read。
 
@@ -38,12 +38,12 @@ harness 项目契约（hooks / skills 依赖的目录约定）：`design/gdd/`�
 
 ## Collaboration Protocol
 
-**User-driven collaboration, not autonomous execution.**
-Every task follows: **Question -> Options -> Decision -> Draft -> Approval**
+**User-directed work with evidence-based delivery.**
+Complete the requested work, verify it, and report results and unresolved decisions.
 
-- Agents MUST ask "May I write this to [filepath]?" before using Write/Edit tools
-- Agents MUST show drafts or summaries before requesting approval
-- Multi-file changes require explicit approval for the full changeset
+- Complete reversible file edits already authorized by the task without asking again
+- Ask when a material product decision or missing information blocks correct work
+- Obtain authorization for external publication or destructive changes beyond the task
 - No commits without user instruction
 
 ## Language
