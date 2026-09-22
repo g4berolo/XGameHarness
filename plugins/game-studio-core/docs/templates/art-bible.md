@@ -79,3 +79,8 @@
 - Minimum text size: [X]px at 1080p
 - High contrast mode specifications
 - Icon + color (never color alone) for game state
+
+
+## 美术资产总览（1.2.2）
+
+有美术资产的项目采用 [美术资产契约](../art-assets.md)（插件 docs/art-assets.md）：`design/art/assets.json`、`design/art/reviews/` 与实际源文件/导出物/引擎路径。旧项目先映射不搬迁；模板 docs/templates/art-assets.json，空表不等于全项目无资产。

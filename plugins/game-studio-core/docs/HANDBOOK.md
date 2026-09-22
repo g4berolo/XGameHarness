@@ -274,3 +274,8 @@ harness 的内容按「怎么到达项目」分三档，**三档各有各的更�
 | 阶段类 skill 说不出项目在哪个阶段 | 项目有 `plan/stage.md` 吗？没有就跑 `/project-init` 或让 `/gate-check` 从模板生成。它是 gate-check / project-stage-detect / start / how-to-do 的唯一真相源 |
 | harness 改坏了所有项目 | `git revert` XGameHarness 对应 commit + push + 各机 `/plugin marketplace update XGameHarness` |
 | `.codex/hooks/` 行为不一致 | 指的是项目里**同时用 Codex CLI 当第二个 agent 运行时**的场景：那份 hook 副本是独立的，不跟随 XGameHarness 更新 —— 改了 harness hooks 要手动搬过去。与已移除的 `/codex-bridge` skill 无关 |
+
+
+## 美术资产总览（1.2.2）
+
+有美术资产的项目采用 [美术资产契约](art-assets.md)（插件 docs/art-assets.md）：`design/art/assets.json`、`design/art/reviews/` 与实际源文件/导出物/引擎路径。旧项目先映射不搬迁；模板 docs/templates/art-assets.json，空表不等于全项目无资产。

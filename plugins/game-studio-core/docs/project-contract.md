@@ -109,3 +109,8 @@ A 档是插件缓存，B / C 档是项目仓库里的真实文件。**C 档没�
 **它只描述 C 档。** A 档插件版本以
 `~/.claude/plugins/installed_plugins.json` 里的 `gitCommitSha` 为准，B 档 rules 以
 文件内容比对为准 —— 三档各有各的判据，不要用一个水位号去代表另外两档。
+
+
+## 美术资产总览（1.2.2）
+
+有美术资产的项目采用 [美术资产契约](art-assets.md)（插件 docs/art-assets.md）：`design/art/assets.json`、`design/art/reviews/` 与实际源文件/导出物/引擎路径。旧项目先映射不搬迁；模板 docs/templates/art-assets.json，空表不等于全项目无资产。

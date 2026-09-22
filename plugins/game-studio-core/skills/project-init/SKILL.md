@@ -11,6 +11,10 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, Skill
 > Codex 用 `$技能名` 或读取 SKILL.md；共享流程中的 Claude 工具名按宿主现有能力执行。
 > `${CLAUDE_PLUGIN_ROOT}` 是本 SKILL.md 向上两级的插件根，不假定它在普通终端里存在。
 
+## 美术项目接入（两个运行时共用）
+
+项目包含美术资产时，先读取 `../../docs/art-assets.md`，盘点已有目录与注册表。用户授权接入时按实际资产建立 `design/art/assets.json`（空模板在 docs/templates/art-assets.json），保留旧注册表和定制目录，不移动引擎资产、不自动批准。只执行脚本 init/sync 不会自动创建资产登记；完成后明确报告是否接入及覆盖范围。
+
 ## Codex 分支（在 Claude 专属步骤之前执行）
 
 当前宿主是 Codex 时，从已加载技能的真实插件路径运行：
