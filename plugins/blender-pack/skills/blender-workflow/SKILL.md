@@ -16,7 +16,8 @@ Claude 与 Codex 使用同一工具和流程；模型随当前宿主，不固定
 路径优先级：`--blender`、`BLENDER_BIN`、`~/.xgh/blender.json` 的 `executable`、PATH / 常规安装位置。
 本地配置方法和实时操作看 [连接说明](../../docs/connection.md)。不改用户个人模型或权限设置。
 
-每个资产使用独立目录，如 `art/blender/<asset>/`。先按 [资产 brief](../../templates/brief.md)
+每个资产使用独立工作目录，沿用项目实际目录；新项目可用 `art/source/prop/<asset>/`。
+若已启用 core，先读其 `docs/art-assets.md`，遵守项目资产登记与版本规则。先按 [资产 brief](../../templates/brief.md)
 记录用途、单位和已知尺寸、面数预算（未知留空）、目标引擎、参考图路径、来源模式与验收视角。
 已有 `.blend` 是有效输入，先检查再局部改；不得以“可复现”为由重建并抹掉人工修改。
 参考图片要实际打开观察；区分看得见的结构、推测的背面、用户确认的尺寸。
@@ -72,3 +73,7 @@ Claude 与 Codex 使用同一工具和流程；模型随当前宿主，不固定
 UE 项目再用已启用的 unreal-pack 做真正引擎导入、材质、碰撞、单位和运行检查；无 UE 环境
 标明“UE 未验证”。`.blend`/GLB/FBX 属于游戏资产，不进 plan/design/team 文档分发通道。
 记录实际版本、输入、来源、检查和未验证项。没有分母不填 0，没有看到图片不说视觉通过。
+交付时按 core 契约登记 `design/art/assets.json`，把源文件、导出物、预览和审查报告绑定到
+同一 revision，报告附实际文件 SHA-256 或 commit/LFS OID；导出附带的 `sources.json` 一起保留。
+保留既有目录，不搬迁引擎资产。AI 的 PASS 仅是评审建议，不能自动把登记表设为 approved；
+真人批准之前使用 draft / in-review，并留空未知的真人 reviewer。
