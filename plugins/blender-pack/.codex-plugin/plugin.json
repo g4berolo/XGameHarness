@@ -1,0 +1,19 @@
+{
+  "name": "blender-pack",
+  "version": "1.0.0",
+  "description": "Local Blender modeling, reference-driven revisions, multiview review and game-asset export.",
+  "author": {
+    "name": "G4ber"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "XGameHarness Blender Pack",
+    "shortDescription": "Blender 建模、参考图重建、多视角评审和游戏资产导出",
+    "longDescription": "本地 Blender 后台与实时执行器、建模和独立评审角色，Claude 与 Codex 共用流程。",
+    "developerName": "G4ber",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": ["用 Blender 制作一个低多边形游戏道具，检查多视图并导出 GLB"]
+  }
+}

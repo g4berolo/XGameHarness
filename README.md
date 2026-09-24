@@ -57,10 +57,15 @@ codex plugin marketplace list
 
 ## 插件
 
+新增 **`blender-pack`**：本机 Blender 后台/实时建模、参考图驱动迭代、独立资产评审、
+GLB/FBX 导出回读。见 [安装与使用](plugins/blender-pack/README.md)。三个 pack 共用双引擎市场；
+Blender pack 不依赖 UE，两个 pack 可组合做真正的引擎导入验收。
+
 | 插件 | 内容 | 适用 |
 |---|---|---|
 | `game-studio-core` | 26 个自研流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 1 个 vendored 第三方 skill（`archify` 画架构/流程/时序/数据流/状态机图，见下）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 1 个 unreal-workflow skill + 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
+| `blender-pack` | 1 个 blender-workflow skill + blender-artist / asset-reviewer 两个角色 + 本地 MCP/CLI 执行器、五视图、网格检查、导出回读 | 需要 3D 资产的项目；需本机 Blender |
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
 > `unreal-pack:ue-gas-specialist` 这种全名，裸名会直接报 `Agent type not found`。

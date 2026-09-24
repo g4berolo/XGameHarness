@@ -155,9 +155,12 @@ def sync(args) -> int:
     ue = args.unreal_root or state.get("sources", {}).get("unreal-pack")
     if ue:
         sources.append(Path(ue).resolve())
+    blender = args.blender_root or state.get("sources", {}).get("blender-pack")
+    if blender:
+        sources.append(Path(blender).resolve())
     for pack in sources:
         manifest = load_json(pack / ".codex-plugin/plugin.json")
-        if manifest.get("name") not in {"game-studio-core", "unreal-pack"}:
+        if manifest.get("name") not in {"game-studio-core", "unreal-pack", "blender-pack"}:
             raise ValueError(f"Not an XGameHarness pack: {pack}")
     writer = Writer(root, state, args.dry_run)
     if args.identity and not (root / ".claude/team.json").exists():
@@ -264,6 +267,7 @@ def main() -> int:
     parser.add_argument("command", choices=["init", "sync", "sync-rules", "doctor"])
     parser.add_argument("--project", default=".")
     parser.add_argument("--unreal-root", help="Exact enabled unreal-pack root; never pick a cached version by mtime")
+    parser.add_argument("--blender-root", help="Exact enabled blender-pack root; opt-in modeling roles")
     parser.add_argument("--identity", help="Create a missing team registry using git user.name, without email")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()

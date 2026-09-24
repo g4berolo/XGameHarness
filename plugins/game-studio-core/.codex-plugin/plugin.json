@@ -1,6 +1,6 @@
 {
   "name": "game-studio-core",
-  "version": "1.2.2",
+  "version": "1.2.2+codex.20260924153705",
   "description": "Engine-agnostic game production harness: workflow skills, design/production agents, session-state & identity hooks, plus the vendored archify skill for validated architecture/workflow/sequence/dataflow/lifecycle diagrams. Keep version in step with .claude-plugin/plugin.json.",
   "author": {
     "name": "G4ber"

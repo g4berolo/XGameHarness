@@ -26,6 +26,7 @@ python <core-root>/scripts/harness.py doctor --project <project-root>
 ```
 
 UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存 mtime 选择版本。
+需要 Blender 的项目另传 `--blender-root <blender-pack-root>`，按需安装建模和独立资产评审角色。
 首次接入且缺身份表时，确定用户身份 key 后加 `--identity <key>`，只用 Git 用户名，不默认收录邮箱。
 脚本保留已有配置及定制文件，输出 PRESERVE 项由本次任务范围决定是否手工合并。
 `init/sync` 安装项目级 agents 和 AGENTS.md 入口；`sync-rules` 仅更新共享规则及同步记录。
