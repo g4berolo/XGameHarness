@@ -86,6 +86,12 @@ class RunnerContract(unittest.TestCase):
     def test_codex_blender_roles_preserve_customizations(self):
         with tempfile.TemporaryDirectory(prefix="xgh pack 中文 ") as folder:
             cli = [sys.executable, str(ROOT / "plugins/game-studio-core/scripts/harness.py"), "sync", "--project", folder, "--blender-root", str(PACK)]
+            # The roster is delivered, never invented locally; without it sync exits 3.
+            roster = Path(folder) / ".claude/team.json"
+            roster.parent.mkdir(parents=True, exist_ok=True)
+            roster.write_text('{"version":1,"identities":{"tester":{"git_users":["Harness Tester"],'
+                              '"git_emails":["tester@example.invalid"],"role":"developer"}}}\n',
+                              encoding="utf-8")
             first = subprocess.run(cli, capture_output=True, encoding="utf-8")
             self.assertEqual(first.returncode, 0, first.stderr)
             role = Path(folder) / ".codex/agents/blender-pack--asset-reviewer.toml"

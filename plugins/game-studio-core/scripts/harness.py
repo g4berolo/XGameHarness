@@ -16,6 +16,16 @@ from datetime import datetime, timezone
 CORE = Path(__file__).resolve().parents[1]
 BEGIN = "<!-- XGameHarness:begin -->"
 END = "<!-- XGameHarness:end -->"
+PACKS = {"game-studio-core", "unreal-pack", "blender-pack"}
+IDENTITY_KEY = r"[a-z][a-z0-9_-]*"
+NEEDS_ROSTER = """NEEDS-ROSTER .claude/team.json
+名册由服务器／管理员下发，本地不自注册：拿当前机器的 git 配置替你登记，换一台机器就会解析成 unknown。
+按项目形态三选一取得：
+  1. 单仓项目 —— 让管理员把 .claude/team.json 提交进本仓，git pull 即可。
+  2. 接了文档仓 —— python harness.py roster --project . --from <docs-repo-url>
+  3. 不接工作室服务器 —— 照 project-template/.claude/team.json.template 手写，
+     git_users 与 git_emails 两个字段都要填；只填其一，换机器或改 git 配置必断。
+其余项目文件已写好；补上名册后重跑 doctor。"""
 
 
 def read(path: Path) -> str:
@@ -32,11 +42,23 @@ def git(root: Path, *args: str) -> str:
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
+def git_strict(root: Path, *args: str, timeout: int = 60) -> str:
+    """Network-capable git: raises instead of swallowing, and returns stdout verbatim."""
+    result = subprocess.run(["git", "-C", str(root), *args], capture_output=True,
+                            encoding="utf-8", errors="replace", timeout=timeout)
+    if result.returncode != 0:
+        detail = result.stderr.strip() or f"exit {result.returncode}"
+        raise ValueError(f"git {' '.join(args)} failed: {detail}")
+    return result.stdout
+
+
 def project_root(cwd: str | Path) -> Path:
     path = Path(cwd).resolve()
     # A project boundary wins over a parent monorepo root.
     for parent in (path, *path.parents):
-        if (parent / ".codex/harness.json").is_file() or (parent / ".claude/team.json").is_file():
+        if ((parent / ".codex/harness.json").is_file()
+                or (parent / ".claude/settings.json").is_file()
+                or (parent / ".claude/team.json").is_file()):
             return parent
         if (parent / ".git").exists():
             return parent
@@ -61,7 +83,7 @@ def identity(root: Path) -> str | None:
         if not value:
             continue
         for key, entry in team.get("identities", {}).items():
-            if value in entry.get(field, []) and re.fullmatch(r"[a-z][a-z0-9_-]*", key):
+            if value in entry.get(field, []) and re.fullmatch(IDENTITY_KEY, key):
                 return key
     return None
 
@@ -151,31 +173,29 @@ def sync(args) -> int:
         raise ValueError("--project must be an existing directory")
     state_path = safe_path(root, ".codex/harness.json")
     state = load_json(state_path)
-    sources = [CORE]
+    roots = [CORE]
     ue = args.unreal_root or state.get("sources", {}).get("unreal-pack")
     if ue:
-        sources.append(Path(ue).resolve())
+        roots.append(Path(ue).resolve())
     blender = args.blender_root or state.get("sources", {}).get("blender-pack")
     if blender:
-        sources.append(Path(blender).resolve())
-    for pack in sources:
+        roots.append(Path(blender).resolve())
+    # Key everything by the manifest name: the installed cache directory is a version
+    # string, so a directory name silently loses the pack on the next sync.
+    packs: list[tuple[Path, dict]] = []
+    for pack in roots:
         manifest = load_json(pack / ".codex-plugin/plugin.json")
-        if manifest.get("name") not in {"game-studio-core", "unreal-pack", "blender-pack"}:
+        if manifest.get("name") not in PACKS:
             raise ValueError(f"Not an XGameHarness pack: {pack}")
+        packs.append((pack, manifest))
     writer = Writer(root, state, args.dry_run)
-    if args.identity and not (root / ".claude/team.json").exists():
-        if not re.fullmatch(r"[a-z][a-z0-9_-]*", args.identity):
-            raise ValueError("--identity must match [a-z][a-z0-9_-]*")
-        if not git(root, "config", "user.name"):
-            raise ValueError("Configure git user.name before creating an identity")
     # Validate merge markers before any writes.
     agents_path = safe_path(root, "AGENTS.md")
     old_agents = read(agents_path) if agents_path.exists() else ""
     if BEGIN in old_agents or END in old_agents:
         if old_agents.count(BEGIN) != 1 or old_agents.count(END) != 1 or old_agents.index(BEGIN) > old_agents.index(END):
             raise ValueError("AGENTS.md has malformed XGameHarness markers")
-    for pack in sources:
-        manifest = load_json(pack / ".codex-plugin/plugin.json")
+    for pack, manifest in packs:
         for source in sorted((pack / "rules").glob("*.md")):
             writer.write(".claude/rules/" + source.name, read(source), rule=True)
         if args.command == "sync-rules":
@@ -185,16 +205,16 @@ def sync(args) -> int:
             tomllib.loads(content)  # validate before writing
             writer.write(f".codex/agents/{manifest['name']}--{source.stem}.toml", content, managed=True)
     if args.command != "sync-rules":
-        team = root / ".claude/team.json"
-        if not team.exists() and args.identity:
-            if not re.fullmatch(r"[a-z][a-z0-9_-]*", args.identity):
-                raise ValueError("--identity must match [a-z][a-z0-9_-]*")
-            user = git(root, "config", "user.name")
-            if not user:
-                raise ValueError("Configure git user.name before creating an identity")
-            writer.write(".claude/team.json", json.dumps({"version": 1, "identities": {
-                args.identity: {"git_users": [user], "git_emails": [], "role": "developer"}
-            }}, ensure_ascii=False, indent=2) + "\n")
+        # The roster is never fabricated here; see NEEDS_ROSTER and the roster subcommand.
+        if not (root / ".claude/settings.json").exists():
+            # Claude resolves enabledPlugins only from settings.json; without it neither
+            # runtime-shared rules nor any skill loads on the Claude side. Guarded by
+            # exists() rather than handed to Writer: teams customize permissions here,
+            # and an unmanaged entry would print PRESERVE on every later sync.
+            settings = json.loads(read(CORE / "project-template/.claude/settings.json"))
+            settings["enabledPlugins"] = {m["name"] + "@XGameHarness": True for _, m in packs}
+            writer.write(".claude/settings.json",
+                         json.dumps(settings, ensure_ascii=False, indent=2) + "\n")
         if not (root / "plan/stage.md").exists():
             writer.write("plan/stage.md", read(CORE / "docs/templates/stage.md").replace("[日期]", datetime.now().date().isoformat()))
         if not (root / "CLAUDE.md").exists():
@@ -216,26 +236,82 @@ def sync(args) -> int:
         )
         ignore = safe_path(root, ".gitignore")
         content = read(ignore) if ignore.exists() else ""
-        additions = [line for line in (".codex/state/", ".claude/state/", "__pycache__/") if line not in content.splitlines()]
+        wanted = (".codex/state/", ".claude/state/", ".claude/settings.local.json", "__pycache__/")
+        additions = [line for line in wanted if line not in content.splitlines()]
         if additions:
             writer.actions.append("MERGE .gitignore")
             if not args.dry_run:
-                ignore.write_text(content.rstrip() + "\n" + "\n".join(additions) + "\n", encoding="utf-8")
+                body = content.rstrip()
+                ignore.write_text((body + "\n" if body else "") + "\n".join(additions) + "\n",
+                                  encoding="utf-8")
         state["schemaVersion"] = 1
-        state["sources"] = {p.name: str(p) for p in sources}
-        state["versions"] = {p.name: load_json(p / ".codex-plugin/plugin.json")["version"] for p in sources}
+        state["sources"] = {m["name"]: str(p) for p, m in packs}
+        state["versions"] = {m["name"]: m["version"] for _, m in packs}
     if not args.dry_run:
         state_path.parent.mkdir(parents=True, exist_ok=True)
         state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("\n".join(writer.actions) or "Already up to date")
     if writer.conflicts:
         print("Customized files preserved; review differences before merging.")
+    if args.command != "sync-rules" and not (root / ".claude/team.json").is_file():
+        # Everything else is written; rolling back would leave a half-configured project.
+        # Exit 3 = files are in place, one external thing is missing. 1 stays for faults.
+        print(NEEDS_ROSTER, file=sys.stderr)
+        return 3
+    return 0
+
+
+def roster(args) -> int:
+    """Fetch the roster over git. The local copy is a cache; the server/admin owns it."""
+    root = Path(args.project).resolve()
+    if not root.is_dir():
+        raise ValueError("--project must be an existing directory")
+    state_path = safe_path(root, ".codex/harness.json")
+    state = load_json(state_path)
+    remote = args.source or state.get("roster", {}).get("remote")
+    if not remote:
+        raise ValueError("No roster remote recorded; pass --from <docs-repo-url> once")
+    cache = safe_path(root, ".codex/state/roster")
+    if not (cache / "HEAD").is_file():
+        cache.mkdir(parents=True, exist_ok=True)
+        git_strict(cache, "init", "--bare", "--quiet")
+    git_strict(cache, "fetch", "--depth", "1", "--quiet", remote, args.ref)
+    content = git_strict(cache, "show", "FETCH_HEAD:.claude/team.json")
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Roster at {remote} is not valid JSON ({exc}); local copy untouched") from exc
+    identities = data.get("identities")
+    if not isinstance(identities, dict) or not identities:
+        raise ValueError("Roster has no identities; local copy untouched")
+    for key in identities:
+        if not re.fullmatch(IDENTITY_KEY, key):
+            raise ValueError(f"Roster identity key {key!r} must match {IDENTITY_KEY}; local copy untouched")
+    if args.source and not args.dry_run:
+        state.setdefault("roster", {})["remote"] = args.source
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    target = safe_path(root, ".claude/team.json")
+    old = read(target) if target.is_file() else None
+    payload = content if content.endswith("\n") else content + "\n"
+    if old == payload:
+        print("Roster already current")
+        return 0
+    # Deliberately not a Writer.write: authority lives in the remote, so a locally edited
+    # copy is overwritten rather than preserved — same rule the server applies to the
+    # admin-delivered files it owns. Local edits belong upstream, not here.
+    print(("CREATE " if old is None else "OVERWRITE ") + ".claude/team.json"
+          + (f" (本地副本是缓存，权威在 {remote})" if old is not None else ""))
+    if not args.dry_run:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(payload, encoding="utf-8", newline="\n")
     return 0
 
 
 def doctor(root: Path) -> int:
     issues = []
-    for rel in ("AGENTS.md", ".codex/xgameharness.md", ".codex/harness.json", ".claude/team.json", "plan/stage.md"):
+    for rel in ("AGENTS.md", ".codex/xgameharness.md", ".codex/harness.json",
+                ".claude/settings.json", ".claude/team.json", "plan/stage.md"):
         if not (root / rel).is_file():
             issues.append("MISSING " + rel)
     state = load_json(root / ".codex/harness.json")
@@ -254,7 +330,8 @@ def doctor(root: Path) -> int:
             issues.append(f"INVALID {path.name}: {exc}")
     who = identity(root)
     if who is None:
-        issues.append("IDENTITY unresolved; configure .claude/team.json (automatic writes disabled)")
+        issues.append("IDENTITY unresolved; ask the roster owner to add this git account "
+                      "to .claude/team.json (automatic writes disabled)")
     if not list((root / ".claude/rules").glob("*.md")):
         issues.append("MISSING shared rules")
     print("\n".join(issues) if issues else f"Project contract OK; identity={who}")
@@ -264,14 +341,17 @@ def doctor(root: Path) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["init", "sync", "sync-rules", "doctor"])
+    parser.add_argument("command", choices=["init", "sync", "sync-rules", "roster", "doctor"])
     parser.add_argument("--project", default=".")
     parser.add_argument("--unreal-root", help="Exact enabled unreal-pack root; never pick a cached version by mtime")
     parser.add_argument("--blender-root", help="Exact enabled blender-pack root; opt-in modeling roles")
-    parser.add_argument("--identity", help="Create a missing team registry using git user.name, without email")
+    parser.add_argument("--from", dest="source", help="Roster repository URL or path; recorded for later roster runs")
+    parser.add_argument("--ref", default="HEAD", help="Roster ref to fetch (default HEAD)")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
-    return doctor(project_root(args.project)) if args.command == "doctor" else sync(args)
+    if args.command == "doctor":
+        return doctor(project_root(args.project))
+    return roster(args) if args.command == "roster" else sync(args)
 
 
 if __name__ == "__main__":

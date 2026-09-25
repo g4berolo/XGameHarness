@@ -44,7 +44,7 @@ codex plugin marketplace list
 |---|---|
 | 任务流程 | `$how-to-do`、`$start`、26 个其他技能（两个插件合计 28 个，含 vendored archify） |
 | Unreal | `$unreal-workflow`；项目级 `unreal-pack--<role>` |
-| 初始化／升级 | `scripts/harness.py init` / `sync`；支持 `--dry-run` 和定制保护 |
+| 初始化／升级 | `scripts/harness.py init` / `sync` / `roster` / `doctor`；支持 `--dry-run` 和定制保护 |
 | 记忆／交接 | `$session-checkpoint`；共享 team 目录 + 按任务隔离的本地机械快照 |
 | hook | 共享清单、运行时 dispatch；Codex 原生 JSON payload 与 Windows 命令 |
 | 校验 | `python scripts/validate.py` + `python -m unittest discover -s tests -v` |
@@ -149,9 +149,12 @@ team/session-state/{identity}/   # active.md 会话状态（session-start 恢复
 team/session-logs/{identity}/    # 月度轮转 session log（session-stop 写）
 team/memo/{recipient}/           # 跨开发者 memo（/start surface）
 docs/architecture/               # ADR
-.claude/team.json                # 身份注册（resolve-identity 读）。由 /project-init 问询生成；
-                                 #   harness 只提供 project-template/.claude/team.json.template
-                                 #   仓库公开时建议 git_emails 留空数组，只靠 git_users 匹配
+.claude/team.json                # 身份注册（resolve-identity 读）。1.3.0 起由服务器／管理员
+                                 #   下发，本地不自注册：管理员提交进仓，或
+                                 #   `harness.py roster --from <docs-repo>` 取回（本地副本是缓存）。
+                                 #   缺失时 init/sync 退 3 并打印 NEEDS-ROSTER。
+                                 #   git_users 与 git_emails 都要填 —— 只填前者换机器必断；
+                                 #   仓库公开又不愿公开邮箱，就把此文件加进 .gitignore
 .claude/rules/*.md               # path-scoped rules 项目实例（注入 hook 只读这里）
 .claude/harness-config.json      # 可选：{"excludedAgents": ["unreal-pack:ue-replication-specialist"]}
                                  #   抑制 suggest-subagent 提示；填带前缀的 agent 全名

@@ -40,14 +40,21 @@ CLI 命令以 `codex plugin --help` 为准，旧版客户端可能需升级。
 也可从当前加载的 core 插件根目录手工执行（Python 3.11+）：
 
 ```text
-python <core-root>/scripts/harness.py init --project <game-project> --identity <identity-key> --dry-run
-python <core-root>/scripts/harness.py init --project <game-project> --identity <identity-key>
+python <core-root>/scripts/harness.py init --project <game-project> --dry-run
+python <core-root>/scripts/harness.py init --project <game-project>
+python <core-root>/scripts/harness.py roster --project <game-project> --from <docs-repo-url>
 python <core-root>/scripts/harness.py doctor --project <game-project>
 ```
 
-`<...>` 是需要替换的实际路径／身份，带空格路径加引号。UE 另传
-`--unreal-root <当前启用的unreal-pack根目录>`。非 UE 不传。已存在身份表则保留。
-新身份仅写 Git 用户名、不写邮箱；未映射身份时 hooks 不向 unknown 共享目录写入。
+`<...>` 是需要替换的实际路径，带空格路径加引号。UE 另传
+`--unreal-root <当前启用的unreal-pack根目录>`。非 UE 不传。
+
+身份表**不由脚本生成**（1.3.0 起没有 `--identity`）：名册归服务器／管理员，本地不自注册 ——
+拿当前机器的 `git user.name` 替用户登记，换台机器就解析成 `unknown`。缺 `.claude/team.json`
+时 `init/sync` 照常写完其余文件并以 **exit 3** 打印 `NEEDS-ROSTER` 指引；单仓项目由管理员
+提交进本仓，拆了文档仓的用上面的 `roster`（远端记在 `.codex/harness.json` 的 `roster.remote`，
+之后可省略 `--from`；本地副本是缓存，与远端不同即被覆盖）。未映射身份时 hooks 不向
+unknown 共享目录写入。
 
 初始化／同步会：
 
@@ -55,11 +62,13 @@ python <core-root>/scripts/harness.py doctor --project <game-project>
 - 安装 `.codex/xgameharness.md` 和项目级 `.codex/agents/*.toml`：core 8 个，UE 可选 5 个。
   默认继承宿主模型／沙箱，Claude 的 tools、memory、maxTurns 不冒充 Codex 配置。
 - 同步共享 `.claude/rules/`，只更新仍带匹配 managed-by 的规则。
-- 补缺 `plan/stage.md`、共享 Technology Stack 文件 `CLAUDE.md` 和忽略项；已有阶段、team 配置和 Claude settings 不覆盖。
+- 补缺 `plan/stage.md`、共享 Technology Stack 文件 `CLAUDE.md`、按已装 pack 的
+  `.claude/settings.json` 和忽略项；已有阶段、team 配置和 Claude settings 不覆盖。
 - 记录 `.codex/harness.json` 中来源、版本和文件哈希，用于定制保护和来源失效检查。
 
 保留 `.claude/team.json`、`.claude/rules/` 等名称是为了兼容现有 Studio／Claude 消费方，
-不是要求安装 Claude。Codex 的 project contract 不依赖 `.claude/settings.json`。
+不是要求安装 Claude。Codex **运行时**不读 `.claude/settings.json`，但脚本在缺失时会写
+——同一个仓库常常两个运行时都要用，只写 Codex 侧会让它在 Claude 里是未接入状态。
 `doctor` 只验证项目文件契约，不能证明宿主已加载插件、信任 hook 或运行引擎。
 
 旧项目若有手工 `.codex/hooks/` 镜像，先比对内容，再移除重复注册；脚本不自动删用户 hook。

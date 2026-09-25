@@ -1,6 +1,6 @@
 ---
 name: project-init
-description: "新项目接入 XGameHarness：问询生成团队身份注册表 team.json、复制项目模板（settings.json / harness-config.json / CLAUDE.md / .gitignore）、填充项目名、同步 path-scoped rules、初始化目录约定。在新项目根目录（空目录或已有代码）运行一次即可。"
+description: "新项目接入 XGameHarness：取得团队身份注册表 team.json（服务器／管理员下发，本地不自注册）、复制项目模板（settings.json / harness-config.json / CLAUDE.md / .gitignore）、填充项目名、同步 path-scoped rules、初始化目录约定。在新项目根目录（空目录或已有代码）运行一次即可。"
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion, Skill
 ---
 
@@ -27,12 +27,17 @@ python <core-root>/scripts/harness.py doctor --project <project-root>
 
 UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存 mtime 选择版本。
 需要 Blender 的项目另传 `--blender-root <blender-pack-root>`，按需安装建模和独立资产评审角色。
-首次接入且缺身份表时，确定用户身份 key 后加 `--identity <key>`，只用 Git 用户名，不默认收录邮箱。
+缺 `.claude/team.json` 时脚本**照常写完其余文件**并以 **exit 3** 打印 `NEEDS-ROSTER` 指引：
+名册归服务器／管理员，本地不自注册。按指引取得后重跑 `doctor`；有文档仓时用
+`python <core-root>/scripts/harness.py roster --project <project-root> --from <docs-repo-url>`
+（之后可省略 `--from`，远端记在 `.codex/harness.json` 的 `roster.remote`）。
 脚本保留已有配置及定制文件，输出 PRESERVE 项由本次任务范围决定是否手工合并。
-`init/sync` 安装项目级 agents 和 AGENTS.md 入口；`sync-rules` 仅更新共享规则及同步记录。
+`init/sync` 安装项目级 agents 和 AGENTS.md 入口，并在缺失时按已装 pack 写
+`.claude/settings.json`（已存在不覆盖）；`sync-rules` 仅更新共享规则及同步记录。
 技能／hook 版本需要从 Codex 插件界面更新；命令支持时使用 `codex plugin marketplace upgrade`
 和 `codex plugin add <plugin>@XGameHarness`，检查实际 CLI help。变更 hooks 后用 `/hooks` 审阅信任。
-完成后结束本分支，不执行以下 Claude 缓存、settings.json、重启 Claude 等专属步骤。
+完成后结束本分支，不执行以下 Claude 插件缓存更新、重启 Claude 等专属步骤。
+（`.claude/settings.json` 不在此列：脚本已经写好，Claude 侧要装 harness 就必须有它。）
 
 # /project-init — 新项目接入 XGameHarness
 
@@ -55,70 +60,79 @@ UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存
 - **是否 UE 项目**：决定 `enabledPlugins` 是否保留 `unreal-pack@XGameHarness`，
   以及同步哪些 rules
 
-团队身份单独走第 2 步 —— 那一步要问的东西多，且是**唯一**会把真人信息落盘的环节。
+团队身份单独走第 2 步 —— 它是**唯一**会把真人信息落盘的环节，而且这份文件不由你生成。
 
-### 2. 团队初始化（生成 `.claude/team.json`）
+### 2. 团队名册（`.claude/team.json` —— 拿到，不是生成）
 
-harness 仓库里**没有**可用的 `team.json`，只有
-`${CLAUDE_PLUGIN_ROOT}/project-template/.claude/team.json.template`。它是模板，
-**不要原样复制** —— 本步骤按问询结果在项目本地现场生成真实文件。
+**名册归服务器／管理员所有，本地不自注册。** 身份注册表决定 `resolve-identity.sh`
+能否把 git 账号映射成 identity key；映射不上则全流程退化为 `unknown`（session-state /
+session-logs / memo 全部写进 `team/*/unknown/`，多人协作时互相踩）。
 
-身份注册表决定 `resolve-identity.sh` 能否把 git 账号映射成 identity key；映射不上
-则全流程退化为 `unknown`（session-state / session-logs / memo 全部写进
-`team/*/unknown/`，多人协作时会互相踩）。
+历史上这一步是「按当前机器的 git 配置现场生成一条」，那正是缺陷的形状：`user.name`
+换台机器就变（同一个人 `g4berolo` / `17717649805`），生成出来的名册看着成功，换机器
+立刻解析成 `unknown`。**所以不要再用 git 配置替用户注册。**
 
-**2.1 先读，不要问**
+**2.1 文件已存在（接了工作室服务器的项目，git pull 就有）**
 
-```bash
-git config user.name
-git config user.email
-```
+读 `git config user.name` / `user.email`，与名册里的 `git_users` / `git_emails` 对一遍：
 
-读不到（新机器没配过）就提示用户先跑 `git config --global user.name/user.email`，
-本步骤挂起等待 —— 拿不到 git 身份，生成出来的 team.json 必然匹配不上。
+- 对得上 → 报出 identity key，进第 3 步
+- **对不上 → 不要改这个文件**。告诉用户：把这台机器的 `user.name` 和 `user.email`
+  给管理员，加进名册后 `git pull`（或跑 `harness.py roster`）。这是**唯一**正确出路；
+  本地补一行会在下次下发时被覆盖，而且别人的机器仍然是坏的
 
-**2.2 问当前用户这几项（AskUserQuestion，一次问完）**
+**2.2 文件不存在**
+
+问用户：这个项目**接不接工作室服务器**（AskUserQuestion）。
+
+- **接** → 名册由管理员维护：单仓项目让管理员把 `.claude/team.json` 提交进本仓；
+  拆了文档仓的项目跑
+  `python <core-root>/scripts/harness.py roster --project . --from <docs-repo-url>`。
+  取到之前**不要**编造一份占位，否则第一条历史就写在错的 identity 下
+- **不接** → 只有这一支允许手写，按 2.3 做
+
+**2.3 不接服务器时手写（唯一允许手写的分支）**
+
+骨架用 `${CLAUDE_PLUGIN_ROOT}/project-template/.claude/team.json.template`（它是模板，
+不要原样复制）。替换全部 `<...>` 占位，删掉 `_template` / `_privacy` 说明字段
+（`_comment` 可留）。要问的四项：
 
 | 要问的 | 说明 | 建议默认值 |
 |---|---|---|
-| identity key | 会成为目录名 `team/session-state/<key>/`。**只能用小写字母 / 数字 / 下划线**，定了之后改名等于搬历史目录，先定好 | 从 `user.name` 推一个（转小写、非法字符换 `_`），让用户确认或改 |
+| identity key | 会成为目录名 `team/session-state/<key>/`。**只能用小写字母 / 数字 / 下划线 / 短横**，改名等于搬历史目录，先定好 | 从 `user.name` 推一个（转小写、非法字符换 `_`），让用户确认或改 |
 | display_name | 给人看的名字，可用中文 | `git config user.name` 的原值 |
 | role | `admin` / `developer` / `artist`。admin 可改 team 配置、可编辑他人 session-state（`validate-git.sh` 据此决定是否告警） | 单人项目 `admin`；多人项目发起人 `admin` |
-| 是否公开仓库 | 决定 `git_emails` 要不要写真值，见 2.4 | 问，不要猜 |
+| 邮箱怎么办 | 见下 | 问，不要猜 |
 
-**2.3 再问是否登记其他成员**
+`git_users` 与 `git_emails` **两个字段都要填**：只填 `git_users`，换机器或改 git 配置
+必断；邮箱是跨机器唯一稳定的那个键。
 
-有就对每人重复 2.2 的四项（他们的 `user.name` / `user.email` 需要用户提供，你读不到）。
-没有就只写一条 —— 后续加人直接编辑 `.claude/team.json` 即可，不必重跑本 skill。
-
-**2.4 邮箱与公开仓库**
-
-生成的 `team.json` 会进项目的版本库。**若项目仓库是公开的（或将来可能公开）**，
-真实邮箱就是公开的，而且写进历史后删不掉。明确告诉用户这一点，给三个选项：
+这份文件会进版本库。**若仓库是公开的（或将来可能公开）**，真实邮箱就是公开的，写进
+历史后删不掉。明确告诉用户，给两个选项，**不要替他决定**（尤其涉及别人的邮箱时）：
 
 1. 照写 —— 全体成员都同意公开自己的邮箱时才选
-2. `git_emails: []` —— 只靠 `git_users` 匹配。绝大多数情况够用，是公开仓库的推荐值
-3. 把 `.claude/team.json` 加进项目 `.gitignore` —— 每人各自维护一份本地副本，
-   邮箱完全不入库；代价是新成员要手动建
+2. 把 `.claude/team.json` 加进项目 `.gitignore`，每人各维护一份本地副本 —— 邮箱完全
+   不入库，代价是新成员要手动建
 
-**不要替用户做这个决定**，尤其涉及别人的邮箱时。
+（旧版这里还有「`git_emails: []`，只靠 `git_users` 匹配」的第三个选项，**已废弃** ——
+它就是本节开头那个缺陷的来源。）
 
-**2.5 写文件**
+有其他成员就每人重复上表（他们的 `user.name` / `user.email` 需要用户提供，你读不到）；
+只有一人也没关系，后续加人直接编辑文件，不必重跑本 skill。
 
-以模板为骨架，替换全部 `<...>` 占位，**并删掉 `_template` / `_privacy` 两个说明字段**
-（`_comment` 可留，对后来维护的人有用）。写入前把完整内容展示给用户确认。
-写完自检：文件是合法 JSON，且不含任何 `<` `>` 残留。
+写入前把完整内容展示给用户确认。写完自检三条：合法 JSON、不含任何 `<` `>` 残留、
+**每个 identity 的 `git_emails` 非空**（除非用户选了方案 2）。
 
 ### 3. 复制其余模板（源：`${CLAUDE_PLUGIN_ROOT}/project-template/`）
 
 | 模板文件 | 目标 | 处理 |
 |---|---|---|
-| `.claude/settings.json` | 同路径 | 原样复制；非 UE 项目删掉 `"unreal-pack@XGameHarness"` 行 |
+| `.claude/settings.json` | 同路径 | 原样复制；非 UE 项目删掉 `"unreal-pack@XGameHarness"` 行。**Codex 分支已跑过 `harness.py` 的项目此文件已存在且 `enabledPlugins` 已按已装 pack 写好，核对即可，不要覆盖**（团队可能已改 permissions） |
 | `.claude/harness-config.json` | 同路径 | 默认 `excludedAgents: []`；单人游戏可填 `["unreal-pack:ue-replication-specialist"]`，非 UE 项目无需填（hook 已按 enabledPlugins 自动跳过 unreal-pack agents）。**`syncedHarnessCommit` 必须替换成真实短 SHA**（取 `~/.claude/plugins/installed_plugins.json` 里本插件的 `gitCommitSha` 前 7 位），别留 `<harness short SHA>` 占位；同时删掉 `_syncedHarnessCommit` 说明字段 |
-| `.gitignore` | 项目根 | 已有则合并两行（`.claude/state/`、`.claude/settings.local.json`），不覆盖。第 2.4 步若选了方案 3，再补一行 `.claude/team.json` |
+| `.gitignore` | 项目根 | 已有则合并两行（`.claude/state/`、`.claude/settings.local.json`），不覆盖。第 2.3 步若选了方案 2，再补一行 `.claude/team.json` |
 | `CLAUDE.md` | 项目根 | 替换 `<ProjectName>` 占位；按项目类型填 Technology Stack 骨架 |
 
-`.claude/team.json.template` **不复制** —— 第 2 步已经生成了真实文件。
+`.claude/team.json.template` **不复制** —— 第 2 步已经取得（或按 2.3 手写了）真实文件。
 
 **已存在的文件一律先展示 diff 征求确认，不静默覆盖**（目标项目可能已有配置）。
 
@@ -131,7 +145,7 @@ rules 实例化到 `.claude/rules/`，并按其报告提醒用户哪些 `paths:`
 ### 5. 目录约定骨架（可选，问用户）
 
 harness 项目契约目录按需 lazy 创建即可，但若用户愿意现在建好（`{identity}` 用
-第 2 步定下的 identity key，多人则每人各一份，`.gitkeep` 放最底层目录）：
+第 2 步解析出的 identity key，多人则每人各一份，`.gitkeep` 放最底层目录）：
 
 ```
 design/gdd/

@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -36,8 +37,18 @@ class CodexIntegration(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, proc.stderr)
         return proc
 
+    def write_roster(self, key="tester", root: Path | None = None):
+        """The roster is owned upstream; every runtime now receives it, never invents it."""
+        path = (root or self.project) / ".claude/team.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"version": 1, "identities": {key: {
+            "git_users": ["Harness Tester"], "git_emails": ["tester@example.invalid"],
+            "role": "developer"}}}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return path
+
     def init(self):
-        self.cli("init", "--identity", "tester", "--unreal-root", str(ROOT / "plugins/unreal-pack"))
+        self.write_roster()
+        self.cli("init", "--unreal-root", str(ROOT / "plugins/unreal-pack"))
 
     def hook(self, action, data=None):
         payload = {"cwd": str(self.project), "session_id": "thread-a", "model": "test"}
@@ -47,7 +58,8 @@ class CodexIntegration(unittest.TestCase):
                               env=env, capture_output=True, encoding="utf-8")
 
     def test_init_dry_run_and_idempotent_upgrade(self):
-        self.cli("init", "--identity", "tester", "--dry-run")
+        self.write_roster()
+        self.cli("init", "--dry-run")
         self.assertFalse((self.project / "AGENTS.md").exists())
         (self.project / "AGENTS.md").write_text("# Existing project\nKeep this.\n", encoding="utf-8")
         self.init()
@@ -147,9 +159,100 @@ class CodexIntegration(unittest.TestCase):
         self.assertIn("identity=tester", output)
         self.assertIn(str(self.project.resolve()), output)
 
-    def test_invalid_identity_no_partial_writes(self):
-        self.assertNotEqual(self.cli("init", "--identity", "../escape", ok=False).returncode, 0)
+    def test_identity_flag_removed_no_partial_writes(self):
+        # Local self-registration is gone: a rejected flag must not half-configure a project.
+        result = self.cli("init", "--identity", "tester", ok=False)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--identity", result.stderr)
         self.assertFalse((self.project / ".codex").exists())
+        self.assertFalse((self.project / ".claude").exists())
+
+    def test_init_without_roster_reports_needs_roster(self):
+        result = self.cli("init", ok=False)
+        self.assertEqual(result.returncode, 3)
+        self.assertIn("NEEDS-ROSTER", result.stderr)
+        self.assertFalse((self.project / ".claude/team.json").exists())
+        # Everything else is still written; a half-configured project is worse.
+        for rel in ("AGENTS.md", ".claude/settings.json", "plan/stage.md", ".codex/harness.json"):
+            self.assertTrue((self.project / rel).is_file(), rel)
+        self.assertEqual(len(list((self.project / ".codex/agents").glob("*.toml"))), 8)
+
+    def test_settings_enables_only_installed_packs(self):
+        self.write_roster()
+        self.cli("init")
+        data = json.loads((self.project / ".claude/settings.json").read_text(encoding="utf-8"))
+        self.assertEqual(list(data["enabledPlugins"]), ["game-studio-core@XGameHarness"])
+        self.assertIn("XGameHarness", data["extraKnownMarketplaces"])
+        self.assertIn("Bash(git status*)", data["permissions"]["allow"])
+
+    def test_settings_covers_unreal_and_is_never_overwritten(self):
+        self.init()
+        path = self.project / ".claude/settings.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(set(data["enabledPlugins"]),
+                         {"game-studio-core@XGameHarness", "unreal-pack@XGameHarness"})
+        data["permissions"]["allow"].append("Bash(team custom*)")
+        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        out = self.cli("sync").stdout
+        self.assertNotIn("PRESERVE", out)
+        self.assertNotIn("settings.json", out)
+        self.assertIn("Bash(team custom*)",
+                      json.loads(path.read_text(encoding="utf-8"))["permissions"]["allow"])
+
+    def test_doctor_detects_missing_settings(self):
+        self.init()
+        (self.project / ".claude/settings.json").unlink()
+        result = self.cli("doctor", ok=False)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("MISSING .claude/settings.json", result.stdout)
+
+    def test_sources_keyed_by_pack_name_not_directory(self):
+        # The installed cache directory is a version string, not the pack name.
+        with tempfile.TemporaryDirectory(prefix="xgh cache ") as cache_root:
+            cache = Path(cache_root) / "9.9.9"
+            shutil.copytree(ROOT / "plugins/unreal-pack", cache)
+            self.write_roster()
+            self.cli("init", "--unreal-root", str(cache))
+            state = json.loads((self.project / ".codex/harness.json").read_text(encoding="utf-8"))
+            self.assertEqual(set(state["sources"]), {"game-studio-core", "unreal-pack"})
+            self.assertEqual(state["sources"]["unreal-pack"], str(cache))
+            self.assertIn("unreal-pack@XGameHarness", json.loads(
+                (self.project / ".claude/settings.json").read_text(encoding="utf-8"))["enabledPlugins"])
+            # A later sync without --unreal-root must still find the recorded source.
+            self.cli("sync")
+            self.assertEqual(len(list((self.project / ".codex/agents").glob("*.toml"))), 13)
+            self.cli("doctor")
+
+    def test_roster_fetch_overwrites_cache_and_rejects_invalid_json(self):
+        with tempfile.TemporaryDirectory(prefix="xgh docs ") as docs_dir:
+            docs = Path(docs_dir)
+
+            def docs_git(*args):
+                subprocess.run(["git", "-C", str(docs), *args], check=True, capture_output=True)
+
+            subprocess.run(["git", "init", "-q", str(docs)], check=True, capture_output=True)
+            docs_git("config", "user.name", "Roster Owner")
+            docs_git("config", "user.email", "owner@example.invalid")
+            upstream = self.write_roster(root=docs)
+            docs_git("add", "-A")
+            docs_git("commit", "-qm", "roster")
+            self.assertIn("CREATE .claude/team.json", self.cli("roster", "--from", str(docs)).stdout)
+            state = json.loads((self.project / ".codex/harness.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["roster"]["remote"], str(docs))
+            local = self.project / ".claude/team.json"
+            self.assertIn("Roster already current", self.cli("roster").stdout)
+            # Authority is upstream: a local edit is a stale cache, not a customization.
+            local.write_text('{"version":1,"identities":{"tester":{"git_users":[],'
+                             '"git_emails":[],"role":"lead"}}}\n', encoding="utf-8")
+            self.assertIn("OVERWRITE", self.cli("roster").stdout)
+            self.assertIn("Harness Tester", local.read_text(encoding="utf-8"))
+            # Broken upstream JSON must not destroy a working local copy.
+            upstream.write_text("{bad", encoding="utf-8")
+            docs_git("commit", "-qam", "break")
+            failed = self.cli("roster", ok=False)
+            self.assertEqual(failed.returncode, 1)
+            self.assertIn("not valid JSON", failed.stderr)
+            self.assertIn("Harness Tester", local.read_text(encoding="utf-8"))
 
     def test_registered_windows_commands(self):
         if os.name != "nt":
@@ -168,7 +271,8 @@ class CodexIntegration(unittest.TestCase):
                         self.assertEqual(json.loads(result.stdout)["hookSpecificOutput"]["hookEventName"], event)
 
     def test_suggestion_only_installed_roles_and_exclusions(self):
-        self.cli("init", "--identity", "tester")
+        self.write_roster()
+        self.cli("init")
         self.assertEqual(self.hook("suggest", {"prompt": "Gameplay Ability System"}).stdout, "")
         self.assertIn("systems-designer", self.hook("suggest", {"prompt": "数值公式"}).stdout)
         (self.project / ".claude/harness-config.json").write_text(

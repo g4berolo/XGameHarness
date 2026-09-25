@@ -28,12 +28,15 @@ python <core-root>/scripts/harness.py doctor --project <project-root>
 UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存 mtime 选择版本。
 需要 Blender 的项目另传 `--blender-root <blender-pack-root>`，安装建模与资产评审角色；
 后续 sync 会保留已登记的 pack 来源。只传实际启用的插件根，不假定所有项目都需要它。
-首次接入且缺身份表时，确定用户身份 key 后加 `--identity <key>`，只用 Git 用户名，不默认收录邮箱。
+缺 `.claude/team.json` 时脚本照常写完其余文件并以 **exit 3** 打印 `NEEDS-ROSTER`：名册归
+服务器／管理员，本地不自注册。**不要**为了让 exit code 变 0 而现场编一份 —— 按指引取得，
+有文档仓时用 `harness.py roster --project <project-root> --from <docs-repo-url>`。
 脚本保留已有配置及定制文件，输出 PRESERVE 项由本次任务范围决定是否手工合并。
-`init/sync` 安装项目级 agents 和 AGENTS.md 入口；`sync-rules` 仅更新共享规则及同步记录。
+`init/sync` 安装项目级 agents 和 AGENTS.md 入口，并在缺失时按已装 pack 写
+`.claude/settings.json`（已存在不覆盖）；`sync-rules` 仅更新共享规则及同步记录。
 技能／hook 版本需要从 Codex 插件界面更新；命令支持时使用 `codex plugin marketplace upgrade`
 和 `codex plugin add <plugin>@XGameHarness`，检查实际 CLI help。变更 hooks 后用 `/hooks` 审阅信任。
-完成后结束本分支，不执行以下 Claude 缓存、settings.json、重启 Claude 等专属步骤。
+完成后结束本分支，不执行以下 Claude 插件缓存更新、重启 Claude 等专属步骤。
 
 # /harness-upgrade — 老项目追上当前 harness
 
@@ -50,12 +53,16 @@ UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存
 
 ## 0. 判断这是不是一个已接入的项目
 
-Glob `.claude/settings.json`。不存在 → 这不是升级场景：
+Glob 三个标记，**任一存在**就是已接入：`.codex/harness.json`、`.claude/settings.json`、
+`.claude/team.json`。三个都没有才是「还没接入」：
 
-> 本项目还没接入 XGameHarness（找不到 `.claude/settings.json`）。
-> 要接入请跑 `/project-init`，不是本 skill。
+> 本项目还没接入 XGameHarness（`.codex/harness.json`、`.claude/settings.json`、
+> `.claude/team.json` 都没有）。要接入请跑 `/project-init`，不是本 skill。
 
-存在则继续。
+**别只看 `.claude/settings.json`。** 1.3.0 之前 Codex 起手的项目 `harness.py` 从不写
+这个文件 —— 于是「Claude 侧没装上」这批最需要本 skill 的项目，恰恰会被判成「没接入」
+打发去重跑 `/project-init`。有 `.codex/harness.json` 而没 `.claude/settings.json`
+就是这个情形：继续往下走，第 3a 步补齐它。
 
 ---
 
@@ -177,6 +184,17 @@ cat ~/.claude/plugins/installed_plugins.json
 >
 > 全部补上？
 
+Codex 起手的老项目还常缺这两项，都属纯新增：
+
+- **`.claude/settings.json`** —— 这是 Claude 判断启用哪些插件的唯一来源，缺了
+  Claude 侧 harness 整个不加载（skills / agents / hooks 一个都没有，而 `.claude/rules/`
+  和 `.claude/team.json` 照样在，所以看起来像装好了）。补法：重跑一次
+  `harness.py sync`（1.3.0 起会按已装 pack 写好），或照
+  `${CLAUDE_PLUGIN_ROOT}/project-template/.claude/settings.json` 复制、非 UE 项目删掉
+  `unreal-pack@XGameHarness` 行。**补完必须重启 Claude Code 才生效**，并在报告里
+  写明「重启后确认 `/start` 真的出现」—— 文件存在不等于宿主加载了
+- **`.gitignore` 缺 `.claude/settings.local.json`** —— 本机私有配置会被提交
+
 `plan/stage.md` 要特别说明：拷 `${CLAUDE_PLUGIN_ROOT}/docs/templates/stage.md`，
 `current_stage` 按项目**实际**阶段填（不要一律写 `Concept` —— 老项目可能已经在
 Production 了，问用户），History 首行填今天日期。并提醒模板只给了 sub-phase 的
@@ -195,6 +213,35 @@ Production 了，问用户），History 首行填今天日期。并提醒模板�
    基线调整
 
 `.gitignore` 是唯一可以放心自动合并的：它是行集合，追加缺失行不会破坏已有内容。
+
+### 3c. 名册核对（查的是「解析得出来吗」，不是「文件在不在」）
+
+`.claude/team.json` 存在 ≠ 身份能解析。它记的是 git 账号，而 git 账号**换台机器就变**
+（同一个人可能是 `g4berolo` 和 `17717649805`）。文件在、内容也合法、却解析成 `unknown`
+是最常见的形态，而 3a/3b 那两档的「文件是否存在」判据永远发现不了。
+
+```bash
+git config user.name
+git config user.email
+```
+
+拿这两个值去比名册里每个 identity 的 `git_users` / `git_emails`（先比 name，再比 email；
+跑得动脚本时直接看 `harness.py doctor` 输出的 `identity=`）。
+
+- 解析得出 → 报出 identity key，OK
+- **解析不出 → 报缺陷，给出路，绝不编辑 `.claude/team.json`**：
+
+> 身份解析失败：本机 git 账号是 `<user.name>` / `<user.email>`，名册里没有。
+> 现在 session-state / session-logs / memo 全会写进 `team/*/unknown/`。
+> 名册归服务器／管理员，本地不自注册 —— 把这两个值给管理员加进名册，
+> 然后 `git pull`（或跑 `harness.py roster`）。
+
+**为什么这一步不许你顺手补一行**：本地补上，你这台机器好了，下次下发照样被覆盖，
+别人的机器仍然是坏的，而且「看起来修好了」会让真正的修复无限期推迟。
+
+另外核对一条**内容**要求：每个 identity 的 `git_emails` 非空（除非该项目把
+`.claude/team.json` 放进了 `.gitignore`）。只有 `git_users` 的名册是「下次换机器必断」，
+照样报进待办，由名册所有者去补。
 
 ---
 
@@ -237,6 +284,9 @@ C 档处理完（含用户选择「保持现状」的项）后，把 `.claude/ha
 补上：<清单>
 保持现状：<清单，附用户的理由>
 仍缺失：<清单，附后果>
+
+### 身份解析
+identity=<key> / 未解析（本机 git 账号 <name>/<email> 不在名册，待名册所有者登记）
 
 ### 水位
 <旧 sha> → <新 sha>

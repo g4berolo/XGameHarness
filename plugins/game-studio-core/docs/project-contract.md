@@ -14,13 +14,15 @@
 | `.codex/xgameharness.md` | 运行时与记忆规则，定制后保留 |
 | `.codex/agents/<pack>--<role>.toml` | 从共享角色生成；core 8 个，UE 按需 5 个 |
 | `.codex/harness.json` | 来源、版本和生成文件哈希；不代表引擎验证通过 |
-| `.claude/team.json` | 共享身份；未知时不自动写记忆 |
+| `.claude/team.json` | 共享身份；**由服务器／管理员下发，脚本不生成**，缺失时 `init/sync` 退 3 |
+| `.claude/settings.json` | Codex 运行时不读，但 `init/sync` 在缺失时按已装 pack 写入（已存在不覆盖）；不写它 Claude 侧整个 harness 不加载 |
 | `.claude/rules/*.md` | 共享规则；删除 managed-by 固定项目定制 |
 | `plan/stage.md` | 与 Claude 相同的阶段事实源 |
 | `CLAUDE.md` | 缺失时补共享 Technology Stack 模板；已有项目内容保留 |
 | `.gitignore` 中 `.codex/state/` | 本地 hook 日志与摘要快照不提交 |
 
-Codex 不要求 `.claude/settings.json`，不需要把 Bash hook 复制进项目。
+Codex 运行时自己不读 `.claude/settings.json`，也不需要把 Bash hook 复制进项目；但那个
+文件仍是项目必需项，由 `harness.py` 写 —— 否则同一个仓库在 Claude 里是没接入状态。
 团队目录与 GDD/ADR 路径保持下表不变。任务摘要使用
 `team/session-state/{identity}/sessions/{session-key}.md`；active.md 用于人工交接。
 
@@ -66,8 +68,8 @@ A 档是插件缓存，B / C 档是项目仓库里的真实文件。**C 档没�
 
 | # | 路径 | 来源 | 缺了会怎样 | 引入版本 |
 |---|---|---|---|---|
-| 1 | `.claude/team.json` | 由 `/project-init` 第 2 步**问询生成**（模板是 `project-template/.claude/team.json.template`，不可直接复制） | `resolve-identity.sh` 映射不上 git 账号，全流程退化成 `unknown`，多人协作互相踩目录 | 初始 |
-| 2 | `.claude/settings.json` | `project-template/.claude/settings.json` | 插件市场订阅和 `enabledPlugins` 缺失，harness 整个不加载 | 初始 |
+| 1 | `.claude/team.json` | **由服务器／管理员下发，本地不生成、不问询**：单仓项目由管理员提交进本仓，拆了文档仓的用 `harness.py roster --from <docs-repo>` 取回（本地副本是缓存，会被覆盖）。不接服务器的项目才按 `project-template/.claude/team.json.template` 手写，`git_users` 与 `git_emails` 两个字段都要填 | `resolve-identity.sh` 映射不上 git 账号，全流程退化成 `unknown`，多人协作互相踩目录；`harness.py init/sync` 以 **exit 3** 打印 `NEEDS-ROSTER`（其余文件照常写完） | 初始；下发化 **1.3.0** |
+| 2 | `.claude/settings.json` | `harness.py init/sync` 缺失时按已装 pack 写入（模板 `project-template/.claude/settings.json`，已存在不覆盖）；Claude 分支 `/project-init` 核对即可 | 插件市场订阅和 `enabledPlugins` 缺失，harness 在 Claude 侧整个不加载 —— 而 `.claude/rules/` 与 `.claude/team.json` 照样在，看起来像已接入 | 初始；脚本写入 **1.3.0** |
 | 3 | `.claude/harness-config.json` | `project-template/.claude/harness-config.json` | `suggest-subagent` 钩子无法读 `excludedAgents`；`syncedHarnessCommit` 水位丢失 | 初始 |
 | 4 | `.claude/rules/*.md` | `/sync-rules` | path-scoped 规则不注入 | 初始 |
 | 5 | `CLAUDE.md` | `project-template/CLAUDE.md` | 项目上下文、协作协议、语言规则缺失 | 初始 |

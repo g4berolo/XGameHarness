@@ -12,7 +12,8 @@ TEAM_CONFIG="${CLAUDE_PROJECT_DIR:-.}/.claude/team.json"
 resolve_identity() {
     if [ ! -f "$TEAM_CONFIG" ]; then
         echo "WARNING: $TEAM_CONFIG not found. Using fallback identity 'unknown'." >&2
-        echo "WARNING: run /project-init to generate it (the harness ships only a template)." >&2
+        echo "WARNING: the roster is delivered by the server/admin, not generated here." >&2
+        echo "WARNING: pull it, or run 'harness.py roster --from <docs-repo>'." >&2
         echo "unknown"
         return 1
     fi
@@ -52,7 +53,8 @@ resolve_identity() {
 
     if [ -z "$identity" ]; then
         echo "WARNING: Git user '$git_user' ($git_email) not found in $TEAM_CONFIG" >&2
-        echo "WARNING: Using fallback identity 'unknown'. Add your account to $TEAM_CONFIG." >&2
+        echo "WARNING: Using fallback identity 'unknown'. Ask the roster owner to add this" >&2
+        echo "WARNING: git user.name and user.email, then pull; do not self-register locally." >&2
         echo "unknown"
         return 2
     fi
