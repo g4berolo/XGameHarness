@@ -1,0 +1,7 @@
+{
+  "name": "blender-pack",
+  "version": "1.0.0",
+  "description": "Local Blender modeling, reference-driven revisions, multiview review and game-asset export. Shared skills, two specialist agents and a stdlib MCP/CLI bridge.",
+  "author": {"name": "G4ber"},
+  "mcpServers": "./.mcp.json"
+}

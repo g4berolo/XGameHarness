@@ -107,7 +107,8 @@
 | 我想… | 用这个 | 说明 |
 |---|---|---|
 | 定美术风格 / 色板 / 各类美术标准 | 拿 `${CLAUDE_PLUGIN_ROOT}/docs/templates/art-bible.md` 手写，或 spawn `game-studio-core:creative-director` 定基调 | 风格定调是项目通用的，模板保留 |
-| 生图 / 图生 3D / 资产管线 | **本 harness 暂无** | 原 `/codex-bridge`、`/generate-model`、`modeler` agent 已于 2026-08-17 移除：它们绑死了一套具体的资产产出目录（`art/01_Illustration/` 等），而不同项目的产出路径差异太大。待重构后回归；在那之前美术生产走项目自己的工具 |
+| Blender 建模 / 参考图重建 / 游戏资产导出 | `blender-pack` 的 `blender-workflow` | 后台 Python + 实时 MCP，共用建模和独立评审角色；资产目录由项目选择，不绑固定编号目录。先安装 pack 和 Blender |
+| 生图 / 图生 3D | 使用项目已有工具，再由 `blender-workflow` 清理、检查、导出 | pack 不自带收费生成服务；区分自行建模、已有素材、图生 3D 并记录来源许可 |
 
 ### 测试 / 运营
 

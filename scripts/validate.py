@@ -12,6 +12,7 @@ def validate():
     count = 0
     market = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
     assert market["name"] == "XGameHarness"
+    names = {entry["name"] for entry in market["plugins"]}
     for entry in market["plugins"]:
         assert entry["policy"]["installation"] == "AVAILABLE"
         assert entry["policy"]["authentication"] == "ON_INSTALL"
@@ -31,6 +32,16 @@ def validate():
             if skill.parent.name != "archify":
                 assert "只有 Claude Code 会设这个变量" not in text, skill
             count += 1
+    # harness.py generates every new project's settings.json from this template, so a typo
+    # in a plugin name would silently leave the Claude side of the harness unloaded.
+    settings = json.loads((ROOT / "plugins/game-studio-core/project-template/.claude"
+                           / "settings.json").read_text(encoding="utf-8"))
+    assert settings["extraKnownMarketplaces"]["XGameHarness"]["source"]["repo"] == "g4berolo/XGameHarness"
+    assert settings["enabledPlugins"], "template must enable at least game-studio-core"
+    for key in settings["enabledPlugins"]:
+        pack, _, marketplace = key.partition("@")
+        assert marketplace == "XGameHarness", key
+        assert pack in names, key
     hooks = json.loads((ROOT / "plugins/game-studio-core/hooks/hooks.json").read_text(encoding="utf-8"))
     for groups in hooks["hooks"].values():
         for group in groups:

@@ -62,6 +62,12 @@ UE = "unreal-pack"
 
 # (pack, agent, short label, design-doc hint, [keywords]). Order = priority.
 AGENT_RULES = [
+    ("blender-pack", "blender-artist", "Blender 建模 / 参考图重建", "art/", [
+        "blender", "建模", "bpy", "参考图重建",
+    ]),
+    ("blender-pack", "asset-reviewer", "3D 资产 / 多视角验收", "art/", [
+        "资产验收", "模型验收", "多视角评审", "asset review",
+    ]),
     (CORE, "producer", "sprint 规划 / 里程碑 / 估时 / 范围审查 / 复盘", "plan/", [
         "sprint", "里程碑", "milestone", "估时", "estimate", "工期", "排期",
         "范围审查", "scope creep", "风险登记", "risk register", "复盘",

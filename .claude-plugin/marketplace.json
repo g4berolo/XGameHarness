@@ -14,6 +14,11 @@
       "name": "unreal-pack",
       "source": "./plugins/unreal-pack",
       "description": "Unreal Engine specialist layer: unreal-specialist + ue-blueprint/gas/umg/replication agents, UE path-scoped rule templates. Enable only on UE projects."
+    },
+    {
+      "name": "blender-pack",
+      "source": "./plugins/blender-pack",
+      "description": "Local Blender modeling, reference-driven revisions, independent asset review, live MCP and batch CLI, GLB/FBX roundtrip validation."
     }
   ]
 }

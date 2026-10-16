@@ -22,12 +22,13 @@ python <core-root>/scripts/harness.py doctor --project <project-root>
 ```
 
 UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存 mtime 选择版本。
-首次接入且缺身份表时，确定用户身份 key 后加 `--identity <key>`，只用 Git 用户名，不默认收录邮箱。
+`sync-rules` 不检查身份表（它只碰 `.claude/rules/`）；名册归服务器／管理员下发，本地不自注册。
 脚本保留已有配置及定制文件，输出 PRESERVE 项由本次任务范围决定是否手工合并。
-`init/sync` 安装项目级 agents 和 AGENTS.md 入口；`sync-rules` 仅更新共享规则及同步记录。
+`init/sync` 安装项目级 agents 和 AGENTS.md 入口，并在缺失时按已装 pack 写
+`.claude/settings.json`；`sync-rules` 仅更新共享规则及同步记录。
 技能／hook 版本需要从 Codex 插件界面更新；命令支持时使用 `codex plugin marketplace upgrade`
 和 `codex plugin add <plugin>@XGameHarness`，检查实际 CLI help。变更 hooks 后用 `/hooks` 审阅信任。
-完成后结束本分支，不执行以下 Claude 缓存、settings.json、重启 Claude 等专属步骤。
+完成后结束本分支，不执行以下 Claude 插件缓存更新、重启 Claude 等专属步骤。
 
 # /sync-rules — pack rules 同步到项目
 

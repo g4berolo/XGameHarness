@@ -44,7 +44,7 @@ codex plugin marketplace list
 |---|---|
 | 任务流程 | `$how-to-do`、`$start`、26 个其他技能（两个插件合计 28 个，含 vendored archify） |
 | Unreal | `$unreal-workflow`；项目级 `unreal-pack--<role>` |
-| 初始化／升级 | `scripts/harness.py init` / `sync`；支持 `--dry-run` 和定制保护 |
+| 初始化／升级 | `scripts/harness.py init` / `sync` / `roster` / `doctor`；支持 `--dry-run` 和定制保护 |
 | 记忆／交接 | `$session-checkpoint`；共享 team 目录 + 按任务隔离的本地机械快照 |
 | hook | 共享清单、运行时 dispatch；Codex 原生 JSON payload 与 Windows 命令 |
 | 校验 | `python scripts/validate.py` + `python -m unittest discover -s tests -v` |
@@ -57,10 +57,15 @@ codex plugin marketplace list
 
 ## 插件
 
+新增 **`blender-pack`**：本机 Blender 后台/实时建模、参考图驱动迭代、独立资产评审、
+GLB/FBX 导出回读。见 [安装与使用](plugins/blender-pack/README.md)。三个 pack 共用双引擎市场；
+Blender pack 不依赖 UE，两个 pack 可组合做真正的引擎导入验收。
+
 | 插件 | 内容 | 适用 |
 |---|---|---|
 | `game-studio-core` | 26 个自研流程 skills（/how-to-do、/start、/brainstorm、/explore-design、/design-system、/sprint-plan、/gate-check、/project-init、/harness-upgrade、/sync-rules、/handbook…）+ 1 个 vendored 第三方 skill（`archify` 画架构/流程/时序/数据流/状态机图，见下）+ 8 个设计 agents（producer、creative-director、technical-director、narrative-director、*-designer）+ 8 个 hooks（session-state 恢复 / 身份解析 / R2 语言注入 / rules 注入 / git 校验；另有 `resolve-identity.sh` 为共享库非 hook）+ 通用 rules 源 + 流程 docs、模板、操作手册、项目接入模板 | 所有游戏项目 |
 | `unreal-pack` | 1 个 unreal-workflow skill + 5 个 UE 专家 agents（unreal-specialist、ue-blueprint/gas/umg/replication-specialist）+ UE path-scoped rules 源（gameplay/ai/ui/test） | 仅 UE 项目 |
+| `blender-pack` | 1 个 blender-workflow skill + blender-artist / asset-reviewer 两个角色 + 本地 MCP/CLI 执行器、五视图、网格检查、导出回读 | 需要 3D 资产的项目；需本机 Blender |
 
 > **调用 agent 必须带插件前缀**：`subagent_type` 取 `game-studio-core:producer` /
 > `unreal-pack:ue-gas-specialist` 这种全名，裸名会直接报 `Agent type not found`。
@@ -144,9 +149,12 @@ team/session-state/{identity}/   # active.md 会话状态（session-start 恢复
 team/session-logs/{identity}/    # 月度轮转 session log（session-stop 写）
 team/memo/{recipient}/           # 跨开发者 memo（/start surface）
 docs/architecture/               # ADR
-.claude/team.json                # 身份注册（resolve-identity 读）。由 /project-init 问询生成；
-                                 #   harness 只提供 project-template/.claude/team.json.template
-                                 #   仓库公开时建议 git_emails 留空数组，只靠 git_users 匹配
+.claude/team.json                # 身份注册（resolve-identity 读）。1.3.0 起由服务器／管理员
+                                 #   下发，本地不自注册：管理员提交进仓，或
+                                 #   `harness.py roster --from <docs-repo>` 取回（本地副本是缓存）。
+                                 #   缺失时 init/sync 退 3 并打印 NEEDS-ROSTER。
+                                 #   git_users 与 git_emails 都要填 —— 只填前者换机器必断；
+                                 #   仓库公开又不愿公开邮箱，就把此文件加进 .gitignore
 .claude/rules/*.md               # path-scoped rules 项目实例（注入 hook 只读这里）
 .claude/harness-config.json      # 可选：{"excludedAgents": ["unreal-pack:ue-replication-specialist"]}
                                  #   抑制 suggest-subagent 提示；填带前缀的 agent 全名
