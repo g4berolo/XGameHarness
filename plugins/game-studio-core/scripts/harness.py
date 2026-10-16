@@ -182,6 +182,13 @@ def sync(args) -> int:
             tomllib.loads(content)  # validate before writing
             writer.write(f".codex/agents/{manifest['name']}--{source.stem}.toml", content, managed=True)
     if args.command != "sync-rules":
+        # XGS consumes this declaration; never overwrite existing project settings.
+        settings_path = safe_path(root, ".claude/settings.json")
+        if not settings_path.exists():
+            writer.write(".claude/settings.json", json.dumps({"enabledPlugins": {
+                load_json(pack / ".codex-plugin/plugin.json")["name"] + "@XGameHarness": True
+                for pack in sources
+            }}, ensure_ascii=False, indent=2) + "\n")
         team = root / ".claude/team.json"
         if not team.exists() and args.identity:
             if not re.fullmatch(r"[a-z][a-z0-9_-]*", args.identity):

@@ -14,13 +14,17 @@
 | `.codex/xgameharness.md` | 运行时与记忆规则，定制后保留 |
 | `.codex/agents/<pack>--<role>.toml` | 从共享角色生成；core 8 个，UE 按需 5 个 |
 | `.codex/harness.json` | 来源、版本和生成文件哈希；不代表引擎验证通过 |
+| `.claude/settings.json` | XGS 插件启用声明；init/sync 缺失时创建，已有文件完整保留 |
 | `.claude/team.json` | 共享身份；未知时不自动写记忆 |
 | `.claude/rules/*.md` | 共享规则；删除 managed-by 固定项目定制 |
 | `plan/stage.md` | 与 Claude 相同的阶段事实源 |
 | `CLAUDE.md` | 缺失时补共享 Technology Stack 模板；已有项目内容保留 |
 | `.gitignore` 中 `.codex/state/` | 本地 hook 日志与摘要快照不提交 |
 
-Codex 不要求 `.claude/settings.json`，不需要把 Bash hook 复制进项目。
+Codex 本身不依赖 `.claude/settings.json`，但 XGS 从中读取插件启用声明。
+`harness.py init/sync` 仅在文件缺失时生成 `enabledPlugins`：默认启用 core，
+传入 UE pack 时同时启用 unreal-pack；已有文件完整保留，缺少的声明按任务授权手工合并。
+不复制 Claude permissions、市场安装配置或 Bash hook。
 团队目录与 GDD/ADR 路径保持下表不变。任务摘要使用
 `team/session-state/{identity}/sessions/{session-key}.md`；active.md 用于人工交接。
 

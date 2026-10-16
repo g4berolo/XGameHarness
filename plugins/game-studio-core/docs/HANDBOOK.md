@@ -265,6 +265,7 @@ harness 的内容按「怎么到达项目」分三档，**三档各有各的更�
 
 | 症状 | 处理 |
 |---|---|
+| XGS 提示没有启用插件，配置却存在或重启无效 | 先核对用户指定目录、XGS 日志 `[open]` 实际目录及 `~/.xgh/projects.json` 项目关联，再检查该目录的 `.claude/settings.json`。不能把当前 Codex 工作区当成 XGS 目录，也不能只凭会话加载了技能判定 XGS 正常。详见 [排查记录](xgs-project-path-troubleshooting.md)。 |
 | 插件没更新到最新 | `/plugin marketplace update XGameHarness`；私有仓库后台拉取失败见 § 3 第 6 条 |
 | skill/agent 找不到 | 重启 session；确认 settings.json `enabledPlugins` 键为 `xxx@XGameHarness` |
 | rules 没注入 | rules 在项目 `.claude/rules/` 吗（不是插件里）？`paths:` glob 与被编辑文件匹配吗？看 `.claude/state/inject-rules.log` |

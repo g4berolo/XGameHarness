@@ -67,6 +67,30 @@ class CodexIntegration(unittest.TestCase):
         self.assertNotIn("[日期]", (self.project / "plan/stage.md").read_text(encoding="utf-8"))
         self.cli("doctor")
 
+    def test_xgs_settings_init_and_missing_upgrade(self):
+        settings = self.project / ".claude/settings.json"
+        self.cli("init", "--dry-run")
+        self.assertFalse(settings.exists())
+        self.cli("init")
+        self.assertEqual(json.loads(settings.read_text(encoding="utf-8")), {
+            "enabledPlugins": {"game-studio-core@XGameHarness": True}})
+        settings.unlink()
+        self.cli("sync-rules")
+        self.assertFalse(settings.exists())
+        self.cli("sync", "--unreal-root", str(ROOT / "plugins/unreal-pack"))
+        self.assertEqual(json.loads(settings.read_text(encoding="utf-8")), {
+            "enabledPlugins": {"game-studio-core@XGameHarness": True,
+                               "unreal-pack@XGameHarness": True}})
+
+    def test_existing_xgs_settings_preserved(self):
+        settings = self.project / ".claude/settings.json"
+        settings.parent.mkdir()
+        original = b'{"enabledPlugins":{"game-studio-core@XGameHarness":false},"permissions":{"deny":["Bash"]}}'
+        settings.write_bytes(original)
+        for command in ("init", "sync"):
+            self.cli(command, "--unreal-root", str(ROOT / "plugins/unreal-pack"))
+            self.assertEqual(settings.read_bytes(), original)
+
     def test_doctor_detects_missing_generated_agent(self):
         self.init()
         (self.project / ".codex/agents/game-studio-core--producer.toml").unlink()

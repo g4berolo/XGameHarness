@@ -28,10 +28,13 @@ python <core-root>/scripts/harness.py doctor --project <project-root>
 UE 项目传当前启用的 `--unreal-root <unreal-pack-root>`；不要按缓存 mtime 选择版本。
 首次接入且缺身份表时，确定用户身份 key 后加 `--identity <key>`，只用 Git 用户名，不默认收录邮箱。
 脚本保留已有配置及定制文件，输出 PRESERVE 项由本次任务范围决定是否手工合并。
-`init/sync` 安装项目级 agents 和 AGENTS.md 入口；`sync-rules` 仅更新共享规则及同步记录。
+`init/sync` 安装项目级 agents 和 AGENTS.md 入口，并仅在缺失时创建 `.claude/settings.json`
+供 XGS 读取：仅声明 core，以及传入的 UE pack 的 `enabledPlugins`。已有文件完整保留；
+缺少的插件声明按任务授权手工合并，保留其它配置及显式禁用项。
+`sync-rules` 仅更新共享规则及同步记录，不创建插件配置。
 技能／hook 版本需要从 Codex 插件界面更新；命令支持时使用 `codex plugin marketplace upgrade`
 和 `codex plugin add <plugin>@XGameHarness`，检查实际 CLI help。变更 hooks 后用 `/hooks` 审阅信任。
-完成后结束本分支，不执行以下 Claude 缓存、settings.json、重启 Claude 等专属步骤。
+完成后结束本分支，不执行以下 Claude 缓存、完整 settings 模板复制、重启 Claude 等专属步骤。
 
 # /project-init — 新项目接入 XGameHarness
 
