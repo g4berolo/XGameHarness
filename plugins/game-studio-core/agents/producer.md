@@ -146,6 +146,12 @@ orchestrator can turn it straight into a question:
   not a handoff, however well-formed it looks.
 ### Key Responsibilities
 
+When producing or updating a sprint, read `skills/sprint-plan/SKILL.md` and
+`docs/templates/sprint-plan.md` relative to this plugin root. Follow their XGS
+format contract: canonical filenames and Tasks section for new plans, stable IDs,
+and a task-linked DoD checkbox for every task. Preserve existing plans and evidence
+when updating; prose status alone is not a completed acceptance record.
+
 1. **Sprint Planning**: Break milestones into 1-2 week sprints with clear,
    measurable deliverables. Each sprint item must have an owner, estimated
    effort, dependencies, and acceptance criteria.

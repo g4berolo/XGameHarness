@@ -13,6 +13,24 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Agent
 
 When this skill is invoked:
 
+## XGS 看板格式契约
+
+- 新计划使用 `plan/sprints/sprint-[N].md`，保留 `## Sprint Goal`、`## Capacity`、
+  `## Tasks`、`## Definition of Done`。优先级是 Tasks 内的三级标题，不能把
+  `## Must Have` 当成 Tasks 的替代。正文可以中文，结构键沿用模板。
+- 任务表保留 `ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria | Status`。
+  ID 必须唯一且稳定（例如 `S2-001`）；拆分后保留父子关系，不重编号已执行的任务。
+- 每项任务在 DoD 中至少有一条以完整 ID 开头的复选框，例如
+  `- [ ] S2-001 验收条件与证据`。`[ ]` 未验收、`[~]` 部分完成、`[x]` 全部验收通过。
+  整轮“所有任务完成”的复选框不能替代逐任务记录。Status 是说明，须与 DoD 一致；
+  技术通过但视觉待评审只可记部分完成，不替用户批准，不把源码测试当引擎实测。
+- 更新旧计划时先读原文件并保留文件名、ID、证据和未完成项。若需要规范化结构，
+  原位调整标题/列名并保留引用；不能新建一份同内容的 sprint，不能凭叙述自动补 `[x]`。
+  旧格式被 XGS 兼容读取不代表它是新计划的推荐格式。
+- 写入后重新读取，核对文件名、Tasks 表、唯一 ID、每项 DoD 关联、状态与证据是否一致；
+  有 XGS 源码时可用 `readSprints(projectDir)` 核对实际读取数量和 warnings。
+  未运行看板解析时说明只做了格式检查，不宣称客户端已验证。
+
 0. **List existing sprints** — Glob `plan/sprints/*` to see what is already
    planned. (This replaces a frontmatter `context:` block that never executed —
    `context:` is not a SKILL.md field.)
@@ -73,6 +91,7 @@ For `new`:
 - [List any external dependencies]
 
 ## Definition of Done for this Sprint
+- [ ] S[N]-001 [该任务的验收条件与证据；为每个真实任务生成对应项]
 - [ ] All Must Have tasks completed
 - [ ] All tasks pass acceptance criteria
 - [ ] No S1 or S2 bugs in delivered features
@@ -80,8 +99,8 @@ For `new`:
 - [ ] Code reviewed and merged
 ```
 
-6. **Write it to `plan/sprints/sprint-[N].md`** — ask first: "May I write this sprint
-   plan to `plan/sprints/sprint-[N].md`?" Do not leave the plan only in the reply.
+6. **Write it to `plan/sprints/sprint-[N].md`** within the user's requested scope.
+   Do not leave an explicitly requested plan only in the reply. Then perform the format checks above.
 
 For `update`:
 
