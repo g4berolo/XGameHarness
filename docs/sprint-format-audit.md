@@ -28,3 +28,8 @@ Must Have 下。XGS 原先只发现 sprint-N.md，只读取 Tasks 段，因此�
 sprint-plan技能、正式模板、fallback、producer、通用流程、项目模板、estimate/scope-check/milestone-review入口同步；双宿主Core清单版本一致为1.3.3。未编辑vendored archify、真实项目或共享记忆。XGS仅同步跨仓模板测试，原有未提交的搜索/跳底修改保留。
 
 验证：unittest共33项，30通过、3个真实Blender测试因未配置BLENDER_BIN跳过；validate.py通过。实际XGS readSprints读取临时模板得到5项（4 AI、1 HUMAN），逐任务DoD全部关联、零warning；跨仓回归额外验证AI勾选完成时人工项仍未完成。现有XGS按标题保留标签，未增加专用筛选或自动执行能力。源码/格式验证不等于安装、hook触发或游戏实测。未提交推送发布。
+
+
+### 1.3.3 推送与出包回执（2026-11-03）
+
+用户授权推送并出包。发行提交e0d229f已推送origin/main；按该提交git archive生成整个插件市场ZIP，包含Core 1.3.3及其余pack的原版本，不包含未跟踪work/、真实项目或.git目录。解包后validate.py通过，两个Core清单均为1.3.3，新规则文件完整。ZIP大小2435598字节，SHA256为471700ad28187a330e3b95a177f17f9560f49027e9aaac66b13198a6d666672d。插件常规分发仍走仓库市场更新，ZIP为本次源码分发包；未替用户升级具体游戏项目，未做新设备真实插件安装。XGS既有搜索/跳底改动与跨仓模板测试修改仍保留，未混入此ZIP。
