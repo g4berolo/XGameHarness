@@ -216,3 +216,8 @@ subagent 仍按 R4 显式触发协议——提示用户推荐 spawn 模板，不
 | 2026-06-03 | R4 名册 7→15（移植 producer / creative-director / technical-director / unreal-specialist + 4 ue-* specialist）+ 补 "subagent 不能 spawn subagent" 平台事实 | P38 用户从上游模板补项目管理 / 分析 / UE 专家 agent；移植中发现模板的 unreal-specialist Task-orchestration 在 Claude Code 跑不通，固化平台限制说明 |
 | 2026-07-14 | 加 R5 skill-first 路由 + /how-to-do 主推入口 | harness 抽取为 XGameHarness marketplace 后 skill 数达 22，"装了但被遗忘"风险同 R4 教训；参照 superpowers mandatory-workflow 模式前移触发点 |
 | 2026-08-13 | R4 名册加插件前缀（`game-studio-core:` / `unreal-pack:`）+ 删除未移植的 `illustrator` + 15→14 + 澄清 agent 不在项目 `.claude/agents/` | harness 全量审查：实测裸名 `subagent_type` 直接报 `Agent type not found`，而全仓 0 处带前缀 —— R4 推荐的所有 spawn 模板均不可用；`illustrator` 已于 2026-07-04 随 LiblibAI 停用删除但名册未同步 |
+
+
+## AI执行与人工任务分离
+
+起草、拆解、估算、执行或汇报任务时，遵守本插件 `docs/task-execution.md`（相对插件根目录）。每个可执行任务标题标[AI]或[HUMAN]，人工操作/审核与AI制作使用独立ID、验收及状态；Sprint末尾集中列人工项，但前置人工依赖仍按需先执行。AI完成不等于人工批准或Sprint完成，分别统计进度。不得升级时静默重写既有项目计划。

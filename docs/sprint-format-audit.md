@@ -19,3 +19,12 @@ Must Have 下。XGS 原先只发现 sprint-N.md，只读取 Tasks 段，因此�
 确认四个示例任务均关联 DoD，源码构建和组件渲染通过。skill-creator 的 quick_validate.py
 因运行环境缺 PyYAML 未执行成功，仓库打包验证及人工 frontmatter 检查已完成。
 插件安装、hook 实际触发及游戏实测不属于这些验证结论；未提交、推送或发布。
+
+
+## 2026-11-03：Core 1.3.3 任务执行类型分离
+
+按用户决定，新增共享docs/task-execution.md：任务标题[AI]/[HUMAN]，制作、人工操作、人工审核使用独立ID与DoD；人工项集中在Tasks末尾Human Actions & Review，前置人工依赖仍须及时完成。AI通过不替人批准，不阻塞已完成AI子任务的独立状态，也不把AI全完成当作Sprint完成。迁移保留父子ID及证据，不随插件升级自动重写项目。
+
+sprint-plan技能、正式模板、fallback、producer、通用流程、项目模板、estimate/scope-check/milestone-review入口同步；双宿主Core清单版本一致为1.3.3。未编辑vendored archify、真实项目或共享记忆。XGS仅同步跨仓模板测试，原有未提交的搜索/跳底修改保留。
+
+验证：unittest共33项，30通过、3个真实Blender测试因未配置BLENDER_BIN跳过；validate.py通过。实际XGS readSprints读取临时模板得到5项（4 AI、1 HUMAN），逐任务DoD全部关联、零warning；跨仓回归额外验证AI勾选完成时人工项仍未完成。现有XGS按标题保留标签，未增加专用筛选或自动执行能力。源码/格式验证不等于安装、hook触发或游戏实测。未提交推送发布。

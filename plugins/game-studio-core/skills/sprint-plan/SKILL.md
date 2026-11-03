@@ -13,6 +13,10 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Agent
 
 When this skill is invoked:
 
+## 执行类型与任务拆分（必须）
+
+先读本插件 `docs/task-execution.md`，新建、更新、状态汇报均遵守：[AI]/[HUMAN]标题标签、独立任务与DoD、Tasks末尾的Human Actions & Review、分开汇报进度。不得把人工审核写进AI制作任务的验收条件。
+
 ## XGS 看板格式契约
 
 - 新计划使用 `plan/sprints/sprint-[N].md`，保留 `## Sprint Goal`、`## Capacity`、
@@ -23,7 +27,7 @@ When this skill is invoked:
 - 每项任务在 DoD 中至少有一条以完整 ID 开头的复选框，例如
   `- [ ] S2-001 验收条件与证据`。`[ ]` 未验收、`[~]` 部分完成、`[x]` 全部验收通过。
   整轮“所有任务完成”的复选框不能替代逐任务记录。Status 是说明，须与 DoD 一致；
-  技术通过但视觉待评审只可记部分完成，不替用户批准，不把源码测试当引擎实测。
+  AI技术任务与人工视觉审核必须拆开，各自按证据标记；遗留混合任务未拆分且尚未全部验收时只能部分完成。不替用户批准，不把源码测试当引擎实测。
 - 更新旧计划时先读原文件并保留文件名、ID、证据和未完成项。若需要规范化结构，
   原位调整标题/列名并保留引用；不能新建一份同内容的 sprint，不能凭叙述自动补 `[x]`。
   旧格式被 XGS 兼容读取不代表它是新计划的推荐格式。
@@ -68,16 +72,21 @@ For `new`:
 ## Tasks
 
 ### Must Have (Critical Path)
-| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
-|----|------|-------------|-----------|-------------|-------------------|
+| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria | Status |
+|----|------|-------------|-----------|-------------|-------------------|--------|
 
 ### Should Have
-| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
-|----|------|-------------|-----------|-------------|-------------------|
+| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria | Status |
+|----|------|-------------|-----------|-------------|-------------------|--------|
 
 ### Nice to Have
-| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
-|----|------|-------------|-----------|-------------|-------------------|
+| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria | Status |
+|----|------|-------------|-----------|-------------|-------------------|--------|
+
+### Human Actions & Review
+| ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria | Status |
+|----|------|-------------|-----------|-------------|-------------------|--------|
+| S[N]-H01 | [HUMAN] [独立人工操作或审核；注明必要/可选] | 待指定 | 待估 | [AI任务ID] | [真人执行证据/结论] | Not Started |
 
 ## Carryover from Previous Sprint
 | Task | Reason | New Estimate |
@@ -90,8 +99,12 @@ For `new`:
 ## Dependencies on External Factors
 - [List any external dependencies]
 
-## Definition of Done for this Sprint
+## Definition of Done
+### AI Execution
 - [ ] S[N]-001 [该任务的验收条件与证据；为每个真实任务生成对应项]
+### Human Actions & Review
+- [ ] S[N]-H01 [对应人工任务的操作/批准证据]
+
 - [ ] All Must Have tasks completed
 - [ ] All tasks pass acceptance criteria
 - [ ] No S1 or S2 bugs in delivered features
@@ -119,7 +132,10 @@ For `status`:
 ```markdown
 # Sprint [N] Status -- [Date]
 
-## Progress: [X/Y tasks complete] ([Z%])
+## Progress
+- AI: [完成/总数；无任务则不适用]
+- Human: [完成/总数；待人工ID与负责人]
+- Overall: [必要人工项未完成时不得报告Sprint全部完成]
 
 ### Completed
 | Task | Completed By | Notes |

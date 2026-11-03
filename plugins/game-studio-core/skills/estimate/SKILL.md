@@ -166,3 +166,8 @@ cross-cutting concerns across many systems.
   individually.
 - Do not pad estimates silently. If risk exists, call it out explicitly in
   the risk factors section so the team can decide how to handle it.
+
+
+## AI执行与人工任务分离
+
+起草、拆解、估算、执行或汇报任务时，遵守本插件 `docs/task-execution.md`（相对插件根目录）。每个可执行任务标题标[AI]或[HUMAN]，人工操作/审核与AI制作使用独立ID、验收及状态；Sprint末尾集中列人工项，但前置人工依赖仍按需先执行。AI完成不等于人工批准或Sprint完成，分别统计进度。不得升级时静默重写既有项目计划。
