@@ -1,0 +1,4 @@
+interface:
+  display_name: "整理并提交评审"
+  short_description: "按 GDD 读本规范整理候选、提交 XGS 评审并汇总分版本意见"
+  default_prompt: "使用 $proposal-review 将当前讨论整理成易读候选，核对分类后提交到 XGS 评审台。"
