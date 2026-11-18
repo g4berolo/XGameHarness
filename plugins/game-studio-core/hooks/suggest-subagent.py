@@ -2,15 +2,8 @@
 """
 UserPromptSubmit hook: suggest a relevant specialist subagent by keyword.
 
-Claude Code does NOT auto-spawn subagents — the developer must explicitly name
-the agent type (see docs/agent-process-rules.md § R4). This hook scans each
-submitted prompt for task patterns that map to a specialist subagent and, on a
-match, injects a gentle reminder (hookSpecificOutput.additionalContext) telling
-the MAIN agent to OFFER that subagent to the user. It never auto-spawns.
-
-Why a hook: the user reported repeatedly forgetting to invoke subagents. A
-prompt-time reminder fires at the generation point, so the main agent surfaces
-the option instead of silently self-handling.
+Surface relevant installed specialists to the orchestrator. The main agent decides
+whether an independent task or review warrants delegation under R4.
 
 Notes:
 - Agent identifiers MUST carry their plugin prefix ("game-studio-core:producer").
@@ -224,9 +217,7 @@ def build_context(hits) -> str:
     lines = [
         "=== 💡 子 agent 提示（hook 自动检测；可忽略）===",
         "",
-        "本条消息匹配到下列专家 subagent。Claude Code **不会自动 spawn** —— 主 agent 应"
-        "**主动提示用户**可用以下 subagent 并给出 spawn 模板，由用户决定是否启用。"
-        "**不要自动 spawn**；subagent 也不能再 spawn 别的 subagent（叶子节点）。",
+        "按 R4 判断是否有适合独立执行或复核的子任务，有则直接委派给对应专家。",
         "",
         "agent 名必须带插件前缀，否则 Agent tool 直接报 `Agent type not found`。",
         "",

@@ -11,7 +11,7 @@
 - 共享文本中的 Read/Glob/Grep/Bash/AskUserQuestion 表示能力，映射到宿主现有工具。
   Claude 的 `allowed-tools`、`memory: user`、`skills` agent 元数据不作为 Codex 配置。
 - `.codex/agents/<pack>--<role>.toml` 是项目级专家；不硬编码模型，不放宽沙箱。
-  自定义类型不可用时读取角色指令，用现有通用子 agent（已有委派授权时）或主 agent 执行。
+  将独立子任务和复核按需委派给可用专家，主代理整合并核验结果。自定义类型不可用时按宿主权限使用通用子代理或由主代理执行。
 - 同目录并行时明确文件归属；禁止多个 agent 同时编辑 `.uasset`、`.umap`、同一场景或同一记忆文件。
 - 普通修复直接实现并验证。范围、玩法方向等真正未定的问题才需要用户作决策。
 

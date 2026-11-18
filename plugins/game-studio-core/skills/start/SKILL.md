@@ -160,26 +160,9 @@ Recommend directly:
 
 ### 5. Hand Off
 
-Present the recommended command(s) and let the user decide. Do NOT
-auto-execute any skill. The user invokes the next step themselves or
-asks you to run it.
+If the user is exploring options, present the available next steps. Once the user has chosen a task, use its matching skill directly.
 
-**Subagent hint**（当推荐的工作适合 subagent 加速时主动提示）:
-
-如果用户选 B (设计文档) / C (编码) / D (分析) 且任务匹配下列模式，必须在 hand-off 文本中显式列出推荐的 subagent prompt：
-
-agent 名必须带插件前缀（`game-studio-core:`），传裸名 Agent tool 会直接报
-`Agent type not found`：
-
-| 任务模式 | 推荐 subagent | prompt 模板示例 |
-|---|---|---|
-| 跑数值算例 / 公式 audit | `game-studio-core:systems-designer` | `spawn game-studio-core:systems-designer subagent: ...` |
-| 商人 sink / 掉落 / 经济曲线 | `game-studio-core:economy-designer` | `spawn game-studio-core:economy-designer subagent: ...` |
-| 核心循环 / 系统顶层框架 | `game-studio-core:game-designer` | `spawn game-studio-core:game-designer subagent: ...` |
-| 关卡 layout / encounter | `game-studio-core:level-designer` | `spawn game-studio-core:level-designer subagent: ...` |
-| 角色 / 对话 / 叙事架构 | `game-studio-core:narrative-director` | `spawn game-studio-core:narrative-director subagent: ...` |
-
-**关键**: subagent 不自动触发，用户必须显式命名 — 详见 [agent-process-rules.md R4](../../docs/agent-process-rules.md#r4-subagent-invocation-pattern)。如果用户没意识到这点，主 agent 会接管任务并自处理（默认行为），错失 subagent 优势。
+**专家协作**：确定设计、编码或分析任务后，按 [R4 专家分工](../../docs/agent-process-rules.md#r4-subagent-invocation-pattern) 选择适合的已安装专家。将独立子任务或复核直接交给专家，主代理核验结果。简单任务直接完成。
 
 ---
 

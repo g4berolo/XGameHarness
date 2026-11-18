@@ -169,7 +169,7 @@
 | session-start | session 开始 | 项目横幅 + 身份识别（team.json × git user）+ active.md 恢复提示 + **全量注入项目 rules** + 注入 Agent Process Rules（整篇，现为 R1-R5）+ R5 摘要块。memo 不在此 hook，需跑 `/start` 才 surface |
 | detect-gaps | session 开始 | 文档缺口快扫，提示跑 /project-stage-detect |
 | inject-language-reminder | 每条 prompt | R2 中文输出词类规则注入 |
-| suggest-subagent | 每条 prompt | 关键词命中时提示可用 subagent（读项目 `.claude/harness-config.json` 的 excludedAgents 屏蔽不适用者；**只提示不自动 spawn**） |
+| suggest-subagent | 每条 prompt | 关键词命中时提示可用 subagent（读项目 `.claude/harness-config.json` 的 excludedAgents 屏蔽不适用者；主代理按 R4 判断并委派） |
 | inject-rules | 每次 Edit/Write | 按 `.claude/rules/*.md` 的 `paths:` glob 命中即注入对应规则（session 内防重复） |
 | validate-git | 每条 Bash 命令前 | commit 前校验暂存 JSON（非法则**阻断**）；跨身份 session-state、无 owner 的 TODO 仅**告警**；push 到 main/master/develop 提醒 |
 | pre-compact | context 压缩前 | **读** `team/session-state/{identity}/active.md` + 记忆文件并注入压缩前上下文；唯一写操作是往 `team/session-logs/{identity}/compaction-log.txt` 追加一行。active.md 需自行维护 |

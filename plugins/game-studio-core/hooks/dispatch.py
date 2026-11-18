@@ -206,7 +206,7 @@ def codex(action: str, data: dict) -> int:
                 continue
             if any(suggestions._keyword_hit(key, prompt) for key in hints.get(role, ())):
                 found.append(path.stem)
-        context(event, "可用专家：" + ", ".join(found) + "。仅在当前任务授权委派时调用。" if found else "")
+        context(event, "可用专家：" + ", ".join(found) + "。按项目规则将独立子任务或复核委派给匹配专家，简单任务由主代理完成。" if found else "")
     elif action == "rules":
         context(event, rules_context(root, data))
     elif action == "git":

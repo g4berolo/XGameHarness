@@ -125,7 +125,7 @@ echo "=== ⚡ Skill-First 路由（R5 摘要 — 强制流程）==="
 echo "接到任何任务，动手前先扫一遍已装 skills（速查表 = XGameHarness HANDBOOK § 1）："
 echo "  1. 有匹配 skill → 直接调用（Skill tool），不要徒手复刻它的流程"
 echo "  2. 目标模糊 / 不知从何下手 / 多步工作流 → 调 /how-to-do（主推入口，任何时候可用）"
-echo "  3. 无匹配才自行处理；subagent 仍按 R4 显式触发（提示用户，不自动 spawn）"
+echo "  3. 无匹配才自行处理；独立子任务与复核按 R4 委派"
 echo "=== END Skill-First 路由 ==="
 
 echo "==================================="

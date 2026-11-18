@@ -102,7 +102,7 @@
 
 ## R4 Subagent invocation pattern
 
-**Rule**: harness 提供 13 个 subagent（`game-studio-core` 8 个 + `unreal-pack` 5 个，随插件分发；不在项目 `.claude/agents/` 里）。Claude Code 平台默认**不自动 spawn subagent**：要实际启用，开发者必须在 prompt 中显式命名 agent type 或显式说 "use a subagent"。主 agent 不会基于任务内容自主推断。
+任务匹配时主动使用已安装的技能。遇到可独立验证的子问题，或需要独立复核时，委派给适合且可用的子代理。简单任务由主代理直接完成；主代理负责整合结果并验证。遵循用户本轮的限制和宿主实际提供的权限。
 
 **关键平台事实 — agent 名必须带插件前缀**：插件提供的 subagent，其 agent type 是 `<插件名>:<agent名>`（如 `game-studio-core:producer`）。传裸名会被直接拒绝：
 
@@ -113,8 +113,6 @@ Agent type 'producer' not found. Available agents: ..., game-studio-core:produce
 这是硬失败不是降级——写 spawn 模板时务必带全前缀。
 
 **关键平台事实 — subagent 不能 spawn subagent**：Claude Code 在 subagent 上下文中静默过滤 `Task`/`Agent` 原语，即便 agent frontmatter 声明了 `Task` 工具也无效（见 [issue #61993](https://github.com/anthropics/claude-code/issues/61993) / [#19077](https://github.com/anthropics/claude-code/issues/19077)）。因此 `producer` / `creative-director` / `technical-director` / `unreal-specialist` 等"协调/编排型" agent 的 "Delegation Map" / "Sub-Specialist Routing" 段**不是真的 spawn**，而是产出一份"建议主 agent 该调用哪个 agent"的文本，由主 agent（orchestrator 这一层）再去 spawn。嵌套委派改用 Skill 串联或主对话依次 chain。
-
-**Why**: 平台层 Agent tool description 明文 "Do not spawn agents unless the user asks"；项目层 CLAUDE.md "User-driven collaboration" 协议同向加固。agent description 字段的 "Use this agent for X" 是给主 agent **选择哪个 agent** 的参考（当用户决定 spawn 时），不是触发条件。
 
 **Available subagents**（下表 Agent 列即 Agent tool 的 `subagent_type` 取值，可直接复制）:
 
@@ -163,9 +161,9 @@ spawn game-studio-core:economy-designer subagent: audit design/gdd/economy.md
 
 **How to apply**:
 
-1. 任务计划阶段，**主 agent 必须在选项呈现时提示 "此任务适合 subagent，推荐 prompt: ..."** — 不能假设用户知道触发机制
-2. 当用户在 sprint plan / task spec 看到 "agent 兜底" / "用 X agent" 字样时，那只是 **意图标注**，要实际启动需在 session 内显式命名
-3. 显式命名后主 agent **不再自处理**，转用 Agent tool 启动 subagent；subagent 完成后主 agent 汇总结果给用户审批
+1. 给子代理说明独立任务、相关资料、可修改范围和预期产物。
+2. 项目配置排除的角色不参与委派；宿主不提供可用角色时，主代理继续执行可完成的部分。
+3. 由主代理核验结果，涉及人工评审或发布时依照原有流程。
 4. session-log 应记录 subagent invocation 痕迹（如 "spawn game-studio-core:systems-designer @ combat-formulas audit"）
 5. 报 `Agent type not found` 时先查前缀：`game-studio-core:` 还是 `unreal-pack:`；
    非 UE 项目未启用 `unreal-pack`，其 5 个 ue-* agent 本就不存在，不要绕过去硬试
@@ -189,7 +187,7 @@ XGameHarness 插件 `docs/HANDBOOK.md` § 1 + system prompt 中的 skill 列表�
    的判定痕迹（防静默跳过）
 
 **与 R4 的边界**：skill 是流程指令（主 agent 自己执行），命中即可直接调用；
-subagent 仍按 R4 显式触发协议——提示用户推荐 spawn 模板，不自动 spawn。
+独立子任务与复核按 R4 委派，主代理对交付负责。
 
 **Why**: RichLethe P31 review 曾发现 7 个 subagent 零调用；skill 同样存在
 "装了但被遗忘"问题——主 agent 默认倾向徒手做而不查工具箱。触发点前移到
