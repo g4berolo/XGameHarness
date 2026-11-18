@@ -1,0 +1,11 @@
+{
+  "version": "1.3.7",
+  "source": "e1acdc5e90242beb499717f8fea996845eb493a0",
+  "size": 2441381,
+  "sha256": "3adc94ba2fbc68cf85451c0dadb4b13cc2a6548496aff9df137cf0506c1846b6",
+  "archiveValidated": true,
+  "testsPassed": 30,
+  "blenderTestsSkipped": 3,
+  "previousVersionUpgradeTested": "1.3.6",
+  "productionProjectChanges": false
+}
