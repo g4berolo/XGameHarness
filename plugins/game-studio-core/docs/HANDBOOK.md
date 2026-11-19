@@ -46,6 +46,7 @@
 |---|---|---|
 | **想改某个系统但还没想清楚怎么改** | `/explore-design` | **不产出任何文件**的探索：读现有 GDD + 上下游 + 代码 → 摆 2-4 条路线和取舍 → 收束成一个决定再转 `/design-system`。结论只活在对话里，聊完必须收 |
 | **写一个系统的策划案** | `/design-system` | **2f 先用大白话跟你确认「这系统打算做成什么样」再动笔**（索引里那一行系统描述不等于被批准的设计前提 —— 不确认就可能写完几百行才发现前提就不对）。然后定档，档位记在文档头的 `Rigor` 字段（**不是** systems-index 里那个表优先级的 `Tier`）：**Lite**（默认，意图/改动/非目标/验收）或 **Full**（8 段，仅高风险）。升级判据 = 动 2 个以上系统接口 / 改核心循环 / 涉经济 / 影响存档 / 涉联机 / 全新系统（已登记进索引≠已设计）。两档都必须带 `设计前提` / `已定决策摘要` / `本篇用到的新词` 三节 —— 前两节让约束**留在文件里**而不是随简报消失，第三节防止 agent 造完词再用这套词问你拿主意。增量落盘 `design/gdd/` |
+| 给项目成员发便条、跟进回复和归档 | `/team-memo` | XGS 接收发送回执，完成后归档入项目仓库 |
 | 整理讨论、提交候选与汇总多人意见 | `/proposal-review` | 按 GDD 读本规则整理，用 XGS 原生工具直接提交评审；评论按版本追溯，正式采纳由负责人操作 |
 | 评审策划案 | `/design-review` | 按档位查完整性（Lite 查 4 项、Full 查 8 段，**不拿 8 段量 Lite**）+ 一致性 + 可实现性 + 实现细节是否混入，交给程序前必跑 |
 | 顶层玩法框架拿不准 | spawn `game-studio-core:game-designer` | 核心循环 / 系统拆解层面的设计问题 |
@@ -155,7 +156,7 @@
 | **新项目接入这套 harness** | `/project-init` | 问询生成 `.claude/team.json`（harness 只带模板，不带可用文件）+ 复制其余模板 + 建 `plan/stage.md` + 同步 rules + 收尾清单（见 § 3） |
 | **已接入的项目追上 harness 新版本** | `/harness-upgrade` | 三档一起查：① 插件本体是否过期（**不保证自动更新**，给出更新命令）② 按 `docs/project-contract.md` 查缺项目侧必需文件（如后来新增的 `plan/stage.md`）③ 转调 `/sync-rules` 同步规则。完成后写回 `syncedHarnessCommit` 水位 |
 | 把 pack 的 rules 同步进项目 | `/sync-rules` | managed-by 标记文件跟随插件更新；定制过的不覆盖（见 § 4）。**只动 `.claude/rules/`**，其他项目文件归 `/harness-upgrade` 管 |
-| **看项目现在什么状态 / 今天干啥** | `/start` | 项目状态 dashboard：阶段 / 未提交改动 / 待办 memo surface（memo 只有跑它才会出）+ 按任务分流 |
+| **看项目现在什么状态 / 今天干啥** | `/start` | 项目状态 dashboard：阶段 / 未提交改动 / 待办 memo surface（XGS 收件箱也可查收）+ 按任务分流 |
 | 查这本手册 | `/handbook <关键词>` | agent 检索本文件作答 |
 | 改 harness 本身 | 直接改 `D:\work\GameStudio\XGameHarness` | commit + push 后所有项目下个 session 生效；先 `claude plugin validate .` |
 | 加新插件到 marketplace | 见 § 5 | |

@@ -64,7 +64,7 @@ skill**，而是组织成建议流程(pipeline)：
      snapshot，引用前验证对应文件真实状态）
    - `plan/stage.md`（frontmatter 的 `current_stage` + 矩阵里未完成的 Critical 行）
      / `plan/sprints/` 最新 sprint 的未完成项
-   - `team/memo/{identity}/open/` 未处理 memo
+   - XGS 在线收件箱（用 team-memo 查询）和旧文件 `team/memo/{identity}/open/` 未处理 memo
 2. 归纳 2-4 个候选方向（每个附：来源依据 + 对应 skill/agent + 预估量级），
    AskUserQuestion 让用户挑
 3. 选定后转模式 A 第 2-3 步

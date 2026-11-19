@@ -46,7 +46,7 @@ Check:
 - **Planning artifacts?** Check for files in `plan/sprints/` or `plan/milestones/`.
 - **Session state?** Resolve identity from `git config user.name` via `.claude/team.json`
   and check `team/session-state/{identity}/active.md`.
-- **Memo inbox?** Glob `team/memo/{identity}/open/*.md` (exclude `.gitkeep`) to detect
+- **Memo inbox?** In XGS, use the read-only list action of `xgs_memo` for active incoming items. If unavailable, label the online inbox unavailable, not empty. Also glob `team/memo/{identity}/open/*.md` (exclude `.gitkeep`) to detect
   unprocessed cross-developer pings. For each, read frontmatter `from` + first `# ...`
   heading for dashboard preview. Protocol detail: `${CLAUDE_PLUGIN_ROOT}/docs/team-memo-protocol.md`.
 
@@ -77,13 +77,13 @@ If session state file exists, add:
   (建议先读取此文件恢复上下文)
 ```
 
-If `team/memo/{identity}/open/` has N > 0 unprocessed memo (excluding `.gitkeep`), add:
+If the live inbox and legacy open files contain unprocessed incoming items, add:
 ```
 📬 待处理 memo (N 条):
-  - {from} → {first heading line}  ({memo path})
+  - {from} → {first heading line}  ({live memo ID or legacy path})
   - ...
 ```
-Recipient may handle now (`git mv` open → closed when done) or defer.
+Handle live items through team-memo; legacy file items keep their existing close workflow.
 
 If the project is fully configured and has no critical gaps, show a clean
 status with no "待完成" section.

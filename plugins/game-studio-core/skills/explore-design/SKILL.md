@@ -49,7 +49,7 @@ harness 里其余 skill 都以「产出一份文档」为终点。但游戏设�
 - `plan/stage.md` —— frontmatter 的 `current_stage` + 当前阶段未完成的 Critical 行
 - `design/gdd/systems-index.md` —— 状态为 In Design / 有 Open Questions 的系统
 - 各 GDD 的 `## Open Questions` 段 —— 这里天然堆着「还没想清楚的事」
-- `team/memo/{identity}/open/` —— 未处理的 memo
+- XGS 在线收件箱（用 team-memo 查询）和旧文件 `team/memo/{identity}/open/` —— 未处理的 memo
 
 ---
 
