@@ -74,7 +74,7 @@ When the user asks you to make a decision or resolve a conflict:
    - Cascade the decision to affected departments
    - Set up validation criteria: "We'll know this was right if..."
 
-4. **Writing files**
+6. **Writing files**
 
    The orchestrator's task defines your write scope. **If the task is to produce or
    fill a file, writing it is in scope — do not ask for permission you have no way

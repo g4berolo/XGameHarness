@@ -101,7 +101,10 @@ class RunnerContract(unittest.TestCase):
             second = subprocess.run(cli[:-2], capture_output=True, encoding="utf-8")
             self.assertEqual(second.returncode, 0, second.stderr)
             self.assertIn("project customization", role.read_text(encoding="utf-8"))
-            self.assertIn("blender-pack", common.read_json(Path(folder) / ".codex/harness.json")["sources"])
+            # The source survives a sync without --blender-root, and stays machine-local.
+            self.assertIn("blender-pack", common.read_json(Path(folder) / ".codex/state/sources.json"))
+            self.assertNotIn("sources", common.read_json(Path(folder) / ".codex/harness.json"))
+            self.assertIn("blender-pack", common.read_json(Path(folder) / ".codex/harness.json")["versions"])
 
 
 @unittest.skipUnless(os.environ.get("BLENDER_BIN"), "Set BLENDER_BIN to run real Blender integration")

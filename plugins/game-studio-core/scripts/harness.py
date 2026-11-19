@@ -76,6 +76,19 @@ def load_json(path: Path, default=None):
     return json.loads(read(path)) if path.is_file() else ({} if default is None else default)
 
 
+# Machine-local plugin roots. .codex/harness.json is committed and shared by the team,
+# so absolute install paths (which embed the OS user name) must not live there: every
+# teammate's sync rewrote them and every other machine saw a STALE source.
+SOURCES = ".codex/state/sources.json"
+
+
+def load_sources(root: Path, state: dict) -> dict:
+    """Local roots win; a pre-1.3.9 harness.json "sources" map is read once for migration."""
+    local = load_json(safe_path(root, SOURCES))
+    legacy = state.get("sources", {})
+    return {**(legacy if isinstance(legacy, dict) else {}), **(local if isinstance(local, dict) else {})}
+
+
 def identity(root: Path) -> str | None:
     team = load_json(root / ".claude/team.json")
     user, email = git(root, "config", "user.name"), git(root, "config", "user.email")
@@ -174,12 +187,18 @@ def sync(args) -> int:
     state_path = safe_path(root, ".codex/harness.json")
     state = load_json(state_path)
     roots = [CORE]
-    ue = args.unreal_root or state.get("sources", {}).get("unreal-pack")
-    if ue:
-        roots.append(Path(ue).resolve())
-    blender = args.blender_root or state.get("sources", {}).get("blender-pack")
-    if blender:
-        roots.append(Path(blender).resolve())
+    known = load_sources(root, state)
+    for pack, flag, given in (("unreal-pack", "--unreal-root", args.unreal_root),
+                              ("blender-pack", "--blender-root", args.blender_root)):
+        chosen = given or known.get(pack)
+        if chosen and (given or (Path(chosen) / ".codex-plugin/plugin.json").is_file()):
+            roots.append(Path(chosen).resolve())
+        elif pack in state.get("versions", {}):
+            # Recorded for this project, but this machine has no usable root for it (fresh
+            # clone, or a path from another machine). Dropping it silently would remove the
+            # pack from versions; guessing a cache directory is what --*-root exists to avoid.
+            raise ValueError(f"{pack} is enabled for this project but its plugin root on this "
+                             f"machine is unknown; pass {flag} <enabled {pack} root>")
     # Key everything by the manifest name: the installed cache directory is a version
     # string, so a directory name silently loses the pack on the next sync.
     packs: list[tuple[Path, dict]] = []
@@ -246,11 +265,17 @@ def sync(args) -> int:
                 ignore.write_text((body + "\n" if body else "") + "\n".join(additions) + "\n",
                                   encoding="utf-8")
         state["schemaVersion"] = 1
-        state["sources"] = {m["name"]: str(p) for p, m in packs}
+        state.pop("sources", None)
         state["versions"] = {m["name"]: m["version"] for _, m in packs}
+        if not args.dry_run:
+            local = safe_path(root, SOURCES)
+            local.parent.mkdir(parents=True, exist_ok=True)
+            local.write_text(json.dumps({m["name"]: str(p) for p, m in packs}, ensure_ascii=False,
+                                        indent=2) + "\n", encoding="utf-8", newline="\n")
     if not args.dry_run:
         state_path.parent.mkdir(parents=True, exist_ok=True)
-        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                              newline="\n")
     print("\n".join(writer.actions) or "Already up to date")
     if writer.conflicts:
         print("Customized files preserved; review differences before merging.")
@@ -291,7 +316,8 @@ def roster(args) -> int:
     if args.source and not args.dry_run:
         state.setdefault("roster", {})["remote"] = args.source
         state_path.parent.mkdir(parents=True, exist_ok=True)
-        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8",
+                              newline="\n")
     target = safe_path(root, ".claude/team.json")
     old = read(target) if target.is_file() else None
     payload = content if content.endswith("\n") else content + "\n"
@@ -319,9 +345,13 @@ def doctor(root: Path) -> int:
     for relative in state.get("managedFiles", {}):
         if not safe_path(root, relative).is_file():
             issues.append("MISSING managed file " + relative)
-    for pack, source in state.get("sources", {}).items():
+    if "sources" in state:
+        issues.append("LEGACY .codex/harness.json records machine-local plugin paths; "
+                      "rerun sync to move them to " + SOURCES)
+    local = load_json(safe_path(root, SOURCES))
+    for pack, source in (local if isinstance(local, dict) else {}).items():
         if not (Path(source) / ".codex-plugin/plugin.json").is_file():
-            issues.append("STALE source " + pack + ": rerun init from the installed plugin")
+            issues.append("STALE source " + pack + ": rerun sync from the installed plugin")
     for path in sorted((root / ".codex/agents").glob("*.toml")):
         try:
             data = tomllib.loads(read(path))

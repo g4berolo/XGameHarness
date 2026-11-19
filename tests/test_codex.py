@@ -239,15 +239,72 @@ class CodexIntegration(unittest.TestCase):
             shutil.copytree(ROOT / "plugins/unreal-pack", cache)
             self.write_roster()
             self.cli("init", "--unreal-root", str(cache))
-            state = json.loads((self.project / ".codex/harness.json").read_text(encoding="utf-8"))
-            self.assertEqual(set(state["sources"]), {"game-studio-core", "unreal-pack"})
-            self.assertEqual(Path(state["sources"]["unreal-pack"]).resolve(), cache.resolve())
+            # Install paths are machine-local: kept out of the committed harness.json.
+            shared = (self.project / ".codex/harness.json").read_bytes()
+            self.assertNotIn("sources", json.loads(shared))
+            self.assertNotIn(b"\r\n", shared)
+            local = json.loads((self.project / ".codex/state/sources.json").read_text(encoding="utf-8"))
+            self.assertEqual(set(local), {"game-studio-core", "unreal-pack"})
+            self.assertEqual(Path(local["unreal-pack"]).resolve(), cache.resolve())
+            self.assertIn(".codex/state/", (self.project / ".gitignore").read_text(encoding="utf-8").splitlines())
             self.assertIn("unreal-pack@XGameHarness", json.loads(
                 (self.project / ".claude/settings.json").read_text(encoding="utf-8"))["enabledPlugins"])
             # A later sync without --unreal-root must still find the recorded source.
             self.cli("sync")
             self.assertEqual(len(list((self.project / ".codex/agents").glob("*.toml"))), 13)
             self.cli("doctor")
+
+    def test_legacy_shared_sources_migrate_to_local_state(self):
+        self.init()
+        state_path = self.project / ".codex/harness.json"
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        state["sources"] = {"game-studio-core": str(CORE), "unreal-pack": str(ROOT / "plugins/unreal-pack")}
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+        (self.project / ".codex/state/sources.json").unlink()
+        self.assertIn("LEGACY", self.cli("doctor", ok=False).stdout)
+        self.cli("sync")  # valid legacy path on this machine: reused, then moved out
+        self.assertNotIn("sources", json.loads(state_path.read_text(encoding="utf-8")))
+        self.assertIn("unreal-pack", json.loads(
+            (self.project / ".codex/state/sources.json").read_text(encoding="utf-8")))
+        self.cli("doctor")
+
+    def test_fresh_clone_requires_explicit_pack_root(self):
+        self.init()
+        # Another machine: harness.json is committed, the local state is not.
+        (self.project / ".codex/state/sources.json").unlink()
+        failed = self.cli("sync", ok=False)
+        self.assertEqual(failed.returncode, 1)
+        self.assertIn("--unreal-root", failed.stderr)
+        self.assertIn("unreal-pack", json.loads(
+            (self.project / ".codex/harness.json").read_text(encoding="utf-8"))["versions"])
+        self.cli("sync", "--unreal-root", str(ROOT / "plugins/unreal-pack"))
+
+    def test_claude_identity_resolver_exact_match(self):
+        bash = shutil.which("bash")
+        if not bash:
+            self.skipTest("bash not available")
+        lib = (CORE / "hooks/resolve-identity.sh").as_posix()
+        (self.project / ".claude").mkdir(exist_ok=True)
+        (self.project / ".claude/team.json").write_text(json.dumps({"version": 1, "identities": {
+            "alice": {"git_users": ["Alice Dev", "超级大星"], "git_emails": ["alice@example.invalid"],
+                      "role": "developer"},
+            "bob": {"role": "developer", "display_name": "Bobby"},
+            "Boss": {"git_users": ["boss"]}}}, ensure_ascii=False), encoding="utf-8")
+
+        def resolve(user, email="nobody@example.invalid"):
+            self.git("config", "user.name", user)
+            self.git("config", "user.email", email)
+            env = dict(os.environ, CLAUDE_PROJECT_DIR=self.project.as_posix())
+            return subprocess.run([bash, "-c", f'source "{lib}"; resolve_identity'], env=env,
+                                  capture_output=True, encoding="utf-8").stdout.strip()
+
+        self.assertEqual(resolve("Alice Dev"), "alice")
+        self.assertEqual(resolve("超级大星"), "alice")
+        self.assertEqual(resolve("someone", "alice@example.invalid"), "alice")
+        # Keys, roles and display names are not accounts; the old grep path matched them.
+        for value in ("alice", "developer", "Bobby"):
+            self.assertEqual(resolve(value), "unknown", value)
+        self.assertEqual(resolve("boss"), "unknown")  # same key rule as harness.py
 
     def test_roster_fetch_overwrites_cache_and_rejects_invalid_json(self):
         with tempfile.TemporaryDirectory(prefix="xgh docs ") as docs_dir:
@@ -325,6 +382,12 @@ class CodexIntegration(unittest.TestCase):
                                 capture_output=True, encoding="utf-8")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)["hookSpecificOutput"]["hookEventName"], "UserPromptSubmit")
+        # A "model" field in a Claude payload must not reroute it to the Codex handlers.
+        payload = json.dumps({"hook_event_name": "UserPromptSubmit", "prompt": "hi", "model": "claude-x"})
+        claude = subprocess.run([sys.executable, str(HOOK), "language"], input=payload, env=env,
+                                capture_output=True, encoding="utf-8")
+        self.assertEqual(claude.returncode, 0, claude.stderr)
+        self.assertIn("R2", json.loads(claude.stdout)["hookSpecificOutput"]["additionalContext"])
 
     def test_non_object_payload(self):
         result = subprocess.run([sys.executable, str(HOOK), "start"], input='[]',

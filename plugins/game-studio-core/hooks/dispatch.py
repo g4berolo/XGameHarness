@@ -229,7 +229,12 @@ def main() -> int:
     data = json.loads(raw) if raw.strip() else {}
     if not isinstance(data, dict):
         raise ValueError("hook payload must be a JSON object")
-    is_codex = bool(os.environ.get("PLUGIN_ROOT") or os.environ.get("CODEX_THREAD_ID") or data.get("model"))
+    # Decide by host environment only. Codex exports PLUGIN_ROOT to plugin hooks (the
+    # Windows commandWindows entry cannot even locate this file without it); Claude Code
+    # exports neither. A payload field such as "model" is not a host marker: Claude
+    # payloads may carry one too, and matching on it silently downgraded Claude sessions
+    # to the Codex one-line reminders.
+    is_codex = bool(os.environ.get("PLUGIN_ROOT") or os.environ.get("CODEX_THREAD_ID"))
     if is_codex:
         return codex(action, data)
     if action == "checkpoint":

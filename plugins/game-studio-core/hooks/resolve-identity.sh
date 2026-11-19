@@ -9,6 +9,20 @@
 # silently degrades every caller to identity 'unknown'.
 TEAM_CONFIG="${CLAUDE_PROJECT_DIR:-.}/.claude/team.json"
 
+# Print a usable Python interpreter name. Same probe as run-python.sh: skip the
+# Microsoft Store alias by path, then require that the interpreter actually runs.
+_harness_python() {
+    local cmd resolved
+    for cmd in python3 python py; do
+        resolved=$(command -v "$cmd" 2>/dev/null) || continue
+        case "$resolved" in */WindowsApps/*) continue ;; esac
+        "$cmd" -c "" >/dev/null 2>&1 || continue
+        echo "$cmd"
+        return 0
+    done
+    return 1
+}
+
 resolve_identity() {
     if [ ! -f "$TEAM_CONFIG" ]; then
         echo "WARNING: $TEAM_CONFIG not found. Using fallback identity 'unknown'." >&2
@@ -18,37 +32,53 @@ resolve_identity() {
         return 1
     fi
 
-    local git_user git_email identity
+    local git_user git_email identity="" py
 
-    git_user=$(git config user.name 2>/dev/null)
-    git_email=$(git config user.email 2>/dev/null)
+    # Read the project's git config, not whatever repo the hook's CWD happens to be in.
+    git_user=$(git -C "$(_harness_project_root)" config user.name 2>/dev/null)
+    git_email=$(git -C "$(_harness_project_root)" config user.email 2>/dev/null)
 
+    # Exact matching only, same rule as scripts/harness.py identity(): git_users first,
+    # then git_emails. The former jq-less path grepped for the value near a JSON key and
+    # took the nearest key — it matched identity *keys*, roles and display names, so a
+    # git user called "developer" resolved to an unrelated teammate. Never guess here:
+    # a wrong identity writes into someone else's session-state.
     if command -v jq >/dev/null 2>&1; then
-        # Primary: match by git username
-        identity=$(jq -r --arg u "$git_user" '
-            .identities | to_entries[] |
-            select(.value.git_users[]? == $u) |
-            .key' "$TEAM_CONFIG" 2>/dev/null | head -1)
-
-        # Fallback: match by email
-        if [ -z "$identity" ]; then
+        if [ -n "$git_user" ]; then
+            identity=$(jq -r --arg u "$git_user" '
+                .identities | to_entries[] |
+                select(.value.git_users[]? == $u) |
+                .key' "$TEAM_CONFIG" 2>/dev/null | head -1)
+        fi
+        if [ -z "$identity" ] && [ -n "$git_email" ]; then
             identity=$(jq -r --arg e "$git_email" '
                 .identities | to_entries[] |
                 select(.value.git_emails[]? == $e) |
                 .key' "$TEAM_CONFIG" 2>/dev/null | head -1)
         fi
+    elif py=$(_harness_python); then
+        identity=$("$py" -X utf8 - "$TEAM_CONFIG" "$git_user" "$git_email" 2>/dev/null <<'PY'
+import json, sys
+path, user, email = sys.argv[1:4]
+with open(path, encoding="utf-8-sig") as handle:
+    members = json.load(handle).get("identities") or {}
+for field, value in (("git_users", user), ("git_emails", email)):
+    if not value:
+        continue
+    for key, entry in members.items():
+        if isinstance(entry, dict) and value in (entry.get(field) or []):
+            print(key)
+            sys.exit(0)
+PY
+)
     else
-        # Lightweight grep fallback (works for simple flat schema)
-        if [ -n "$git_user" ]; then
-            identity=$(grep -B10 "\"$git_user\"" "$TEAM_CONFIG" 2>/dev/null |
-                       grep -oE '"[a-z_][a-z0-9_]*"\s*:\s*\{' | tail -1 |
-                       sed 's/"//g;s/\s*:\s*{//')
-        fi
-        if [ -z "$identity" ] && [ -n "$git_email" ]; then
-            identity=$(grep -B10 "\"$git_email\"" "$TEAM_CONFIG" 2>/dev/null |
-                       grep -oE '"[a-z_][a-z0-9_]*"\s*:\s*\{' | tail -1 |
-                       sed 's/"//g;s/\s*:\s*{//')
-        fi
+        echo "WARNING: neither jq nor Python is available; cannot read $TEAM_CONFIG." >&2
+    fi
+
+    # Same key shape harness.py accepts. The key becomes a path component under team/.
+    if [ -n "$identity" ] && ! [[ "$identity" =~ ^[a-z][a-z0-9_-]*$ ]]; then
+        echo "WARNING: roster key '$identity' is not a valid identity key ([a-z][a-z0-9_-]*)." >&2
+        identity=""
     fi
 
     if [ -z "$identity" ]; then
