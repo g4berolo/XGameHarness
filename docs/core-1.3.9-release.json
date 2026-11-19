@@ -1,0 +1,14 @@
+{
+  "version": "1.3.9",
+  "source": "cd73b38",
+  "size": 2446430,
+  "sha256": "eb4ed6eebeb33bffc30791071af4ca925b2df4e4f61a61dd569eeddb079f6dea",
+  "archiveValidated": true,
+  "testsPassed": 33,
+  "blenderTestsSkipped": 3,
+  "newRegressionTestsFailOnPreviousCode": 5,
+  "previousVersionUpgradeTested": "1.3.8",
+  "upgradeTestProject": "NineHundred: legacy harness.json sources migrated to .codex/state/sources.json, doctor OK, identity=zhouxinyu",
+  "claudeHookVerified": "dispatch.py with Claude env and a model field in payload routes to legacy handlers (simulated; live session uses marketplace clone at cd73b38)",
+  "productionProjectChanges": true
+}
