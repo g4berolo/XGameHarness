@@ -1,6 +1,6 @@
 {
   "name": "unreal-pack",
-  "version": "1.2.0+codex.20260920044226",
+  "version": "1.2.1",
   "description": "Unreal Engine specialist agents and UE rule templates. Enable alongside game-studio-core on UE projects only. Keep version in step with .claude-plugin/plugin.json.",
   "author": {
     "name": "G4ber"

@@ -140,6 +140,21 @@ class CodexIntegration(unittest.TestCase):
         self.assertIn("custom.md", output["additionalContext"])
         self.assertIn("design-docs.md", output["additionalContext"])
 
+    def test_ue_cpp_rule_matches_project_and_plugin_modules(self):
+        self.init()
+        for file, applies in (
+            ("Source/Game/Public/Player.h", True),
+            ("client/Source/Game/Private/Terrain.cpp", True),
+            ("Plugins/Map/Source/Map/Private/Map.cpp", True),
+            ("client/Source/Game/Game.Build.cs", False),
+            ("Tools/Converter.cpp", False),
+        ):
+            with self.subTest(file=file):
+                result = self.hook("rules", {"hook_event_name": "PreToolUse", "tool_name": "apply_patch",
+                    "tool_input": {"input": "*** Update File: " + file}})
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual("ue-cpp-readability.md" in result.stdout, applies)
+
     def test_checkpoint_uncommitted_and_session_isolation(self):
         self.init()
         active = self.project / "team/session-state/tester/active.md"

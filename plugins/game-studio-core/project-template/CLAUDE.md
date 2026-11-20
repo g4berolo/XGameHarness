@@ -34,7 +34,9 @@ harness 项目契约（hooks / skills 依赖的目录约定）：`design/gdd/`�
 
 ## Coding Standards
 
-<!-- @.claude/docs/coding-standards.md -->
+编辑源码前，按文件路径读取 `.claude/rules/` 中匹配的规则。UE C++ 的排版约定位于
+`.claude/rules/ue-cpp-readability.md`（随 unreal-pack 同步）。项目另有编码规范或
+`.clang-format` 时，优先采用适用于当前文件的项目约定。
 
 ## Collaboration Protocol
 

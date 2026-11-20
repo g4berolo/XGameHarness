@@ -8,6 +8,9 @@ description: "Unreal Engine 专家入口：C++、Blueprint、GAS、UMG、复制�
 插件根目录为本 SKILL.md 向上两级。先读取项目引擎版本和实际代码，再按任务读取
 本插件 `agents/` 内对应角色说明及 `rules/` 内适用规则，不一次读全。
 
+编写或评审 UE C++ 前，读取项目里的 `.claude/rules/ue-cpp-readability.md`。
+尚未同步该文件时使用[插件内的 C++ 排版规则](../../rules/ue-cpp-readability.md)，并遵循项目已有的格式配置。
+
 | 任务 | 角色文件 |
 |---|---|
 | UE 架构、引擎边界、打包 | `agents/unreal-specialist.md` |

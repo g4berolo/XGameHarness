@@ -25,11 +25,16 @@ frontmatter 的 `paths:`）— UE5 + Blueprint 项目。
 ```cpp
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
-    const FStatsRow* Stats = StatsTable->FindRow<FStatsRow>(StatRowName, TEXT("Tick"));
-    if (!Stats) return;
-    const float Speed = Stats->MovementSpeed * DeltaSeconds;
-    AddMovementInput(GetActorForwardVector(), Speed);
+	Super::Tick(DeltaSeconds);
+
+	const FStatsRow* Stats = StatsTable->FindRow<FStatsRow>(StatRowName, TEXT("Tick"));
+	if (!Stats)
+	{
+		return;
+	}
+
+	const float Speed = Stats->MovementSpeed * DeltaSeconds;
+	AddMovementInput(GetActorForwardVector(), Speed);
 }
 ```
 
