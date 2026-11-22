@@ -8,6 +8,7 @@
 ## 任务与专家
 
 - 按任务实际需要选 skill，不因关键词命中就强制进入整套立项或审批流程。
+- 新增项目任务时使用 `sprint-plan`。开发者未指明去向时，先询问直接加入正式 Sprint，还是先提交到任务评审台；已选定的按其选择执行。
 - 共享文本中的 Read/Glob/Grep/Bash/AskUserQuestion 表示能力，映射到宿主现有工具。
   Claude 的 `allowed-tools`、`memory: user`、`skills` agent 元数据不作为 Codex 配置。
 - `.codex/agents/<pack>--<role>.toml` 是项目级专家；不硬编码模型，不放宽沙箱。

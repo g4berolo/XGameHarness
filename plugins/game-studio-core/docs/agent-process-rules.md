@@ -218,4 +218,8 @@ XGameHarness 插件 `docs/HANDBOOK.md` § 1 + system prompt 中的 skill 列表�
 
 ## AI执行与人工任务分离
 
+新增项目任务时先按 `docs/task-execution.md` 确认去向。开发者未指明时，询问直接加入正式 Sprint，还是先提交任务评审台。
+
+在 XGS 工作室查询、审查或分配已迁入的 Sprint 任务时，按同一文件的“在 XGS 核对当前看板”读取实时数据。
+
 起草、拆解、估算、执行或汇报任务时，遵守本插件 `docs/task-execution.md`（相对插件根目录）。每个可执行任务标题标[AI]或[HUMAN]，人工操作/审核与AI制作使用独立ID、验收及状态；Sprint末尾集中列人工项，但前置人工依赖仍按需先执行。AI完成不等于人工批准或Sprint完成，分别统计进度。不得升级时静默重写既有项目计划。

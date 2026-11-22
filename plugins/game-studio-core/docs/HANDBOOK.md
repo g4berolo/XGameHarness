@@ -34,7 +34,7 @@
 | 从零想一个游戏点子 | `/brainstorm` | 引导式创意工作坊 → 产出 `design/gdd/game-concept.md`；深挖愿景可再 spawn `game-studio-core:creative-director` subagent |
 | 把游戏概念拆成系统清单 | `/map-systems` | 概念 → 系统依赖图 + 设计优先级 → `design/gdd/systems-index.md` |
 | 看项目现在到什么阶段、缺什么 | `/project-stage-detect` | 全仓库扫描 → 阶段判定 + 缺口清单 + 下一步建议 |
-| 排 sprint | `/sprint-plan` | 拉取 milestone/backlog/velocity → sprint 计划；复杂排期 spawn `game-studio-core:producer` |
+| 排 sprint | `/sprint-plan` | 工作室项目读取实时看板，独立项目读取计划文件；复杂排期交给 `game-studio-core:producer` |
 | 估工作量 | `/estimate` | 复杂度 + 依赖 + 历史速度 → 带置信度的估算 |
 | 查范围蔓延(scope creep) | `/scope-check` | 现行范围 vs 原计划 diff，量化膨胀并给砍单建议 |
 | 里程碑复盘 / go-no-go | `/milestone-review` | 完成度 + 质量 + 风险 → go/no-go 建议 |
@@ -203,7 +203,7 @@
    **不接服务器的项目没有这一步**，一个仓就够，那是正常用法不是简化版。
 
 **项目目录契约**（hooks/skills 依赖的约定，按需 lazy 创建，缺失静默降级）：
-`design/gdd/`（策划案）｜`plan/`（sprint/milestone）｜`plan/stage.md`（**阶段 SoT**，
+`design/gdd/`（策划案）｜`plan/`（里程碑、文件型 Sprint 与旧计划来源；已迁任务以 XGS 主看板为准）｜`plan/stage.md`（**阶段 SoT**，
 frontmatter `current_stage` + sub-phase 矩阵；/project-init 必建）｜
 `team/session-state|session-logs|memo/{identity}/`｜`docs/architecture/`（ADR）｜
 `.claude/rules|team.json|harness-config.json`

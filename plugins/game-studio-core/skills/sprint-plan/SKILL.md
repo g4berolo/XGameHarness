@@ -1,7 +1,7 @@
 ---
 name: sprint-plan
-description: "Generates a new sprint plan or updates an existing one based on the current milestone, completed work, and available capacity. Pulls context from production documents and design backlogs."
-allowed-tools: Read, Glob, Grep, Write, Edit, Agent
+description: "起草或更新 Sprint、添加项目任务、查询 Sprint 状态。新增任务时确认直接写入正式 Sprint 或提交任务评审，按开发者的选择执行。"
+allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, mcp__xgs_review__xgs_project_board
 ---
 
 参数：[new|update|status]
@@ -15,9 +15,13 @@ When this skill is invoked:
 
 ## 执行类型与任务拆分（必须）
 
-先读本插件 `docs/task-execution.md`，新建、更新、状态汇报均遵守：[AI]/[HUMAN]标题标签、独立任务与DoD、Tasks末尾的Human Actions & Review、分开汇报进度。不得把人工审核写进AI制作任务的验收条件。
+先读[任务执行规则](../../docs/task-execution.md)。新增任务按“新增任务由开发者选择去向”处理，选择评审的条目转交 `proposal-review`。任务按 AI／人工执行分开，分别记录交付、证据和进度。
 
-## XGS 看板格式契约
+## 工作室实时看板
+
+通过 `xgs_project_board` 读取目标 Sprint、服务器修订和任务。按任务执行规则分页，核对任务编号、经办人、审批人和证据。已迁或直接建在主看板的 Sprint，创建、改派与验收都发生在看板。需要分配时定位任务卡及项目成员，在主看板分配，经服务器回读后报告结果。工具只读、客户端离线或缺少权限时，说明哪些改动仍待操作。只知道旧文档里的编号时先查迁入映射。
+
+## 文件型 Sprint 的格式契约
 
 - 新计划使用 `plan/sprints/sprint-[N].md`，保留 `## Sprint Goal`、`## Capacity`、
   `## Tasks`、`## Definition of Done`。优先级是 Tasks 内的三级标题，不能把
@@ -34,6 +38,14 @@ When this skill is invoked:
 - 写入后重新读取，核对文件名、Tasks 表、唯一 ID、每项 DoD 关联、状态与证据是否一致；
   有 XGS 源码时可用 `readSprints(projectDir)` 核对实际读取数量和 warnings。
   未运行看板解析时说明只做了格式检查，不宣称客户端已验证。
+
+## 发布仍按文件管理的正式任务
+
+给既有 Sprint 添加正式任务时，只修改指定计划的任务行和对应 DoD。核实现有 ID、任务状态和其他开发者改动，避免重复登记。仅要求本地登记或项目未接文档服务器时，核对正式文件后报告路径及新增 ID。
+
+文档服务器管理的文件型 Sprint 在「发布改动」面板核对差异，由开发者确认发布。请核对服务器回执后报告正式任务 ID。
+
+## 文件型计划编排
 
 0. **List existing sprints** — Glob `plan/sprints/*` to see what is already
    planned. (This replaces a frontmatter `context:` block that never executed —
@@ -119,8 +131,8 @@ For `update`:
 
 5. **Edit the existing sprint in place** — never regenerate it, that would discard
    completed status and carryover:
-   1. Read the newest file in `plan/sprints/`.
-   2. Show the current task table and ask which rows to add / remove / re-estimate.
+   1. Read the target sprint in `plan/sprints/`. Use the project's active sprint if no sprint was named and it is unambiguous.
+   2. Match the requested changes to existing tasks and IDs. Ask only if the target sprint or scope remains unclear.
    3. Apply the changes with `Edit` (targeted row edits, not a rewrite).
    4. Move every removed-but-unfinished task into the Carryover table with a reason.
    5. Re-check the capacity total against the remaining days and flag any overflow.
