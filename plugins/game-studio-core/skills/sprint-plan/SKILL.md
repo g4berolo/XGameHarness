@@ -1,6 +1,6 @@
 ---
 name: sprint-plan
-description: "起草或更新 Sprint、添加项目任务、查询 Sprint 状态。新增任务时确认直接写入正式 Sprint 或提交任务评审，按开发者的选择执行。"
+description: "起草或更新 Sprint、创建和编辑项目任务、调整人员与进度、记录验收或查询状态。新增任务时确认直接写入正式 Sprint 或提交任务评审，按开发者的选择执行。"
 allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, mcp__xgs_review__xgs_project_board
 ---
 
@@ -19,7 +19,7 @@ When this skill is invoked:
 
 ## 工作室实时看板
 
-通过 `xgs_project_board` 读取目标 Sprint、服务器修订和任务。按任务执行规则分页，核对任务编号、经办人、审批人和证据。已迁或直接建在主看板的 Sprint，创建、改派与验收都发生在看板。需要分配时定位任务卡及项目成员，在主看板分配，经服务器回读后报告结果。工具只读、客户端离线或缺少权限时，说明哪些改动仍待操作。只知道旧文档里的编号时先查迁入映射。
+通过 `xgs_project_board` 读取目标 Sprint、服务器修订和任务。按任务执行规则分页，核对任务编号、经办人、审批人和证据。对已迁或直接建在主看板的任务，使用工具执行用户要求的创建、编辑、改派、进度调整、证据提交、验收与关闭恢复；Sprint 和版本也使用对应 action 管理。保留当前身份权限、修订冲突和幂等重试约束，以服务器回执确认结果；不要改旧文档冒充看板写入。若宿主仍只提供 `list/get`、客户端离线或权限不足，说明哪些改动待处理。只知道旧文档里的编号时先查迁入映射。
 
 ## 文件型 Sprint 的格式契约
 

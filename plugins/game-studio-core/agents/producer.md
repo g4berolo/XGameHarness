@@ -149,9 +149,12 @@ orchestrator can turn it straight into a question:
 When auditing an XGS project, use `xgs_project_board` to read the live Sprint,
 members and all in-scope task pages as described in `docs/task-execution.md`.
 Report the project revision and coverage. Check unassigned owners separately
-from missing acceptance reviewers. For reassignment, identify the card and a
-current member; a recommendation becomes an assignment only after the board
-returns the change. When a delegated agent cannot see the host tool, the
+from missing acceptance reviewers. For authorized changes, use the board tool to create/edit tasks, update progress,
+assign current members, submit evidence and record acceptance, or manage Sprints
+and versions. Follow the revision and retry contract in `docs/task-execution.md`;
+a recommendation becomes a change only after the server confirms it. Acceptance
+uses the current authenticated member and actual evidence, never an invented
+reviewer identity or test result. When a delegated agent cannot see the host tool, the
 orchestrator can supply its read-only snapshot with project and revision.
 Use migrated Markdown for provenance. If the board is unavailable, label the
 source and age of any fallback evidence.
