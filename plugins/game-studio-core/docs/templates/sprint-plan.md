@@ -21,7 +21,11 @@
 | QA | | | | |
 | **Total** | | | | |
 
-<!-- 起草前阅读本插件 docs/task-execution.md。Task标题使用[AI]/[HUMAN]；人工审核不混入AI制作验收。 -->
+<!-- 本模板仅用于文件型 Sprint。起草前阅读本插件 docs/task-execution.md。
+ID 独立成列，不重复进 Task 标题；Task 使用 [AI]/[HUMAN]，人工审核不混入 AI 制作验收。
+保留已有 S[N]-H01、-P 等历史 ID 和引用，不盲目重编号。
+XGS 实时看板使用纯 title、kind、category、sprintId，sprintCode 由服务器生成；不照抄本表标题标签。
+XGS 排期用 plannedStart/plannedEnd，未知日期不推造。 -->
 ## Tasks
 
 ### Must Have (Critical Path)

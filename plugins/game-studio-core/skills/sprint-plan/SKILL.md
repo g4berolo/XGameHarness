@@ -24,13 +24,15 @@ When this skill is invoked:
 
 通过 `xgs_project_board` 读取目标 Sprint、服务器修订和任务。按任务执行规则分页，核对任务编号、经办人、审批人和证据。对已迁或直接建在主看板的任务，使用工具执行用户要求的创建、编辑、改派、进度调整、证据提交、验收与关闭恢复；Sprint 和版本也使用对应 action 管理。保留当前身份权限、修订冲突和幂等重试约束，以服务器回执确认结果；不要改旧文档冒充看板写入。若宿主仍只提供 `list/get`、客户端离线或权限不足，说明哪些改动待处理。只知道旧文档里的编号时先查迁入映射。
 
+创建或编辑看板任务时按[编号、标题与分类](../../docs/task-execution.md#编号标题与分类)提交纯任务名 `title`，分别设置 `kind`（AI/HUMAN）、`category`（feature/polish）和目标 `sprintId`。显示编号 `sprintCode` 由服务器分配，只在回执中读取；例如 `S3-001-P` 不进入标题，也不由 agent 计算。计划起止日期使用 `plannedStart` / `plannedEnd`；未知日期保持未知，不推造。类别与必要性分别判断，不能把可选任务自动当优化。
+
 ## 文件型 Sprint 的格式契约
 
 - 新计划使用 `plan/sprints/sprint-[N].md`，保留 `## Sprint Goal`、`## Capacity`、
   `## Tasks`、`## Definition of Done`。优先级是 Tasks 内的三级标题，不能把
   `## Must Have` 当成 Tasks 的替代。正文可以中文，结构键沿用模板。
 - 任务表保留 `ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria | Status`。
-  ID 必须唯一且稳定（例如 `S2-001`）；拆分后保留父子关系，不重编号已执行的任务。
+  ID 必须唯一且稳定（例如 `S2-001`），只写在 ID 列，不重复写进 Task 标题；拆分后保留父子关系，不重编号已执行的任务。保留 `S[N]-H01`、`-P` 等历史编号及引用，不把实时看板的自动编号规则批量套用到旧文件。
 - 每项任务在 DoD 中至少有一条以完整 ID 开头的复选框，例如
   `- [ ] S2-001 验收条件与证据`。`[ ]` 未验收、`[~]` 部分完成、`[x]` 全部验收通过。
   整轮“所有任务完成”的复选框不能替代逐任务记录。Status 是说明，须与 DoD 一致；
