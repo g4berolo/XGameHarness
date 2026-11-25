@@ -1,0 +1,42 @@
+test_build_preserve_input_and_export_roundtrip (test_blender.RealBlender.test_build_preserve_input_and_export_roundtrip) ... skipped 'Set BLENDER_BIN to run real Blender integration'
+test_failure_and_timeout_leave_receipts (test_blender.RealBlender.test_failure_and_timeout_leave_receipts) ... skipped 'Set BLENDER_BIN to run real Blender integration'
+test_live_ownership_exec_save_and_batch_lock (test_blender.RealBlender.test_live_ownership_exec_save_and_batch_lock) ... skipped 'Set BLENDER_BIN to run real Blender integration'
+test_codex_blender_roles_preserve_customizations (test_blender.RunnerContract.test_codex_blender_roles_preserve_customizations) ... ok
+test_image_path_confined_and_validated (test_blender.RunnerContract.test_image_path_confined_and_validated) ... ok
+test_lock_rejects_other_process_then_recovers (test_blender.RunnerContract.test_lock_rejects_other_process_then_recovers) ... ok
+test_mcp_stdio_discovery_errors_and_no_notification_reply (test_blender.RunnerContract.test_mcp_stdio_discovery_errors_and_no_notification_reply) ... ok
+test_project_enable_preserves_settings_and_rejects_duplicates (test_blender.RunnerContract.test_project_enable_preserves_settings_and_rejects_duplicates) ... ok
+test_user_roles_preserve_customization (test_blender.RunnerContract.test_user_roles_preserve_customization) ... ok
+test_workspace_escape_and_symlink (test_blender.RunnerContract.test_workspace_escape_and_symlink) ... ok
+test_checkpoint_uncommitted_and_session_isolation (test_codex.CodexIntegration.test_checkpoint_uncommitted_and_session_isolation) ... ok
+test_claude_identity_resolver_exact_match (test_codex.CodexIntegration.test_claude_identity_resolver_exact_match) ... skipped 'bash not available'
+test_claude_python_dispatch_preserved (test_codex.CodexIntegration.test_claude_python_dispatch_preserved) ... ok
+test_customized_rules_agents_and_block_preserved (test_codex.CodexIntegration.test_customized_rules_agents_and_block_preserved) ... ok
+test_doctor_detects_missing_generated_agent (test_codex.CodexIntegration.test_doctor_detects_missing_generated_agent) ... ok
+test_doctor_detects_missing_settings (test_codex.CodexIntegration.test_doctor_detects_missing_settings) ... ok
+test_existing_xgs_settings_preserved (test_codex.CodexIntegration.test_existing_xgs_settings_preserved) ... ok
+test_fresh_clone_requires_explicit_pack_root (test_codex.CodexIntegration.test_fresh_clone_requires_explicit_pack_root) ... ok
+test_git_other_workdir_and_echo_not_a_commit (test_codex.CodexIntegration.test_git_other_workdir_and_echo_not_a_commit) ... ok
+test_identity_flag_removed_no_partial_writes (test_codex.CodexIntegration.test_identity_flag_removed_no_partial_writes) ... ok
+test_init_dry_run_and_idempotent_upgrade (test_codex.CodexIntegration.test_init_dry_run_and_idempotent_upgrade) ... ok
+test_init_without_roster_reports_needs_roster (test_codex.CodexIntegration.test_init_without_roster_reports_needs_roster) ... ok
+test_legacy_shared_sources_migrate_to_local_state (test_codex.CodexIntegration.test_legacy_shared_sources_migrate_to_local_state) ... ok
+test_malformed_payload_visible_failure (test_codex.CodexIntegration.test_malformed_payload_visible_failure) ... ok
+test_non_object_payload (test_codex.CodexIntegration.test_non_object_payload) ... ok
+test_patch_rules_multiple_files_and_move (test_codex.CodexIntegration.test_patch_rules_multiple_files_and_move) ... ok
+test_registered_windows_commands (test_codex.CodexIntegration.test_registered_windows_commands) ... ok
+test_roster_fetch_overwrites_cache_and_rejects_invalid_json (test_codex.CodexIntegration.test_roster_fetch_overwrites_cache_and_rejects_invalid_json) ... ok
+test_settings_covers_unreal_and_is_never_overwritten (test_codex.CodexIntegration.test_settings_covers_unreal_and_is_never_overwritten) ... ok
+test_settings_enables_only_installed_packs (test_codex.CodexIntegration.test_settings_enables_only_installed_packs) ... ok
+test_sources_keyed_by_pack_name_not_directory (test_codex.CodexIntegration.test_sources_keyed_by_pack_name_not_directory) ... ok
+test_staged_json_not_worktree_and_delete (test_codex.CodexIntegration.test_staged_json_not_worktree_and_delete) ... ok
+test_start_from_subdirectory (test_codex.CodexIntegration.test_start_from_subdirectory) ... ok
+test_suggestion_only_installed_roles_and_exclusions (test_codex.CodexIntegration.test_suggestion_only_installed_roles_and_exclusions) ... ok
+test_ue_cpp_rule_matches_project_and_plugin_modules (test_codex.CodexIntegration.test_ue_cpp_rule_matches_project_and_plugin_modules) ... ok
+test_unknown_identity_does_not_write_shared_memory (test_codex.CodexIntegration.test_unknown_identity_does_not_write_shared_memory) ... ok
+test_xgs_settings_init_and_missing_upgrade (test_codex.CodexIntegration.test_xgs_settings_init_and_missing_upgrade) ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 12.659s
+
+OK (skipped=4)

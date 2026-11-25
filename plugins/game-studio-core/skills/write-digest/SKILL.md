@@ -1,8 +1,11 @@
 ---
 name: write-digest
-description: "Write the 读本 (reader's edition) for an existing design document or memo — a complete plain-language account of the same system, for someone on the project who does not work on this area. For a GDD it goes into a companion file under design/digest/."
-allowed-tools: Read, Glob, Grep, Edit, Write
+description: "Write the 读本 (reader's edition) for an existing design document or memo — a complete plain-language account of the same system, for someone on the project who does not work on this area. Keep the reader beside its source in the chosen candidate or formal workflow."
+allowed-tools: Read, Glob, Grep, Edit, Write, mcp__xgs_review__xgs_project_board, mcp__xgs_review__xgs_review
 ---
+
+起草或交付设计文档时，先按[设计交付与任务关联](../../docs/design-delivery.md)确认“评审草案 / 直接正式”的去向，沿用已明确的选择，并把实际原文、读本和候选版本关联回原任务。后续示例路径服从该选择；草案不写入正式 GDD/读本或正式系统索引。
+
 
 参数：[path-to-doc] (e.g., design/gdd/social-contract.md)
 
@@ -15,7 +18,9 @@ allowed-tools: Read, Glob, Grep, Edit, Write
 
 给一份**已经存在**的设计文档或便条补上读本。
 
-**GDD 的读本是另一个文件**：`design/digest/<跟 GDD 同名>.md`（2026-09-14 改的 ——
+候选原文的读本留在同一草稿目录的 `digest/`，不能因单独补读本就转正。交付后按共享规则更新原任务当前修订的关联资料。
+
+**正式 GDD 的读本是另一个文件**：`design/digest/<跟 GDD 同名>.md`（2026-09-14 改的 ——
 做开发的 agent 读 GDD 时会把读本一起读进上下文，实测占一篇的 37%）。
 便条的读本照旧写在便条里面。
 
@@ -68,10 +73,10 @@ Lite 那版 123 行，两版他都说啰嗦。原话：
 
 ### 1. 认清楚要改哪一篇，以及读本要写到哪个文件
 
-参数是仓库根目录起算的路径，指的是**那篇 GDD**（`design/gdd/x.md`）。
+参数是仓库根目录起算的实际原文路径 `sourcePath`，可以是 proposals 下的草案或 design/gdd 下的正式文档。
 读不到就说读不到，**不要去猜一个相近的文件名** —— 写进错的文件里，没有任何地方会报错。
 
-**读本写到 `design/digest/<跟 GDD 同名>.md`**，不写进 GDD 里（2026-09-14 改的）。
+**读本写到已选择的 `readerPath`（草案留在 proposals 对应目录，正式稿才写 design/digest）**，不写进 GDD 里（2026-09-14 改的）。
 理由、文件模样、那三行头部块，在 `rules/design-docs.md` 的「读本住在哪儿」那一节。
 
 便条（`team/memo/...`）**照旧写在便条文件里面** —— 便条本身就短，
@@ -108,7 +113,7 @@ Lite 那版 123 行，两版他都说啰嗦。原话：
 
 ### 3. 已经有读本的话，先问
 
-两个地方都要看：`design/digest/<同名>.md`，以及 GDD 正文里有没有还留着的 `## 读本`
+两个地方都要看：本次 `readerPath`，以及 `sourcePath` 正文里有没有还留着的 `## 读本`
 （2026-09-14 之前写的都在那儿）。
 
 有的话**不许直接覆盖**。摆出现在那一份，问是要重写还是要补哪一块。
@@ -170,13 +175,13 @@ GDD 里没有的取舍，读本不许补一条出来 —— 补出来的那条�
 
 ﻿### 6. 写到哪儿
 
-**GDD 的读本 → `design/digest/<跟 GDD 同名>.md`，整个文件就是读本。**
+**GDD 的读本 → 本次 `readerPath`，整个文件就是读本；草案不会因补读本自动转正。**
 开头三行头部块，照 `docs/templates/game-design-document.md` 末尾那个模样：
 
 ```markdown
 # <跟 GDD 一样的标题> — 读本
 
-> **文档**：design/gdd/<文件名>.md
+> **文档**：[原文](<以 /design/ 开头的实际项目根路径，或相对 readerPath 计算的 ../gdd/文件名.md>)
 > **写于文档的最后更新**：<原样照抄那篇 GDD 头部的 Last Updated>
 > **最后更新**：<今天>
 ```
@@ -195,7 +200,7 @@ GDD 里没有的取舍，读本不许补一条出来 —— 补出来的那条�
 
 ### 7. 交回去的时候说四件事
 
-- **写到哪个文件了**（`design/digest/x.md`），以及 GDD 里那节旧读本删没删
+- **写到哪个文件了**（实际 `readerPath`），以及 GDD 里那节旧读本删没删
 - 写了几节、多少字
 - **读的时候发现的问题**（规则自相矛盾、缺了边界情况）—— 只报，不改
 - 有没有哪一块你**没把握讲对**，具体是哪一块

@@ -1,8 +1,11 @@
 ---
 name: map-systems
 description: "Decompose a game concept into individual systems, map dependencies, prioritize design order, and create the systems index."
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Skill
+allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, Skill, mcp__xgs_review__xgs_project_board, mcp__xgs_review__xgs_review
 ---
+
+起草或交付设计文档时，先按[设计交付与任务关联](../../docs/design-delivery.md)确认“评审草案 / 直接正式”的去向，沿用已明确的选择，并把实际原文、读本和候选版本关联回原任务。后续示例路径服从该选择；草案不写入正式 GDD/读本或正式系统索引。
+
 
 参数：[optional: 'next' to pick highest-priority undesigned system, or a system name to hand off to /design-system]
 

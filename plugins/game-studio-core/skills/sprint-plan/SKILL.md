@@ -1,8 +1,11 @@
 ---
 name: sprint-plan
 description: "起草或更新 Sprint、创建和编辑项目任务、调整人员与进度、记录验收或查询状态。新增任务时确认直接写入正式 Sprint 或提交任务评审，按开发者的选择执行。"
-allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, mcp__xgs_review__xgs_project_board
+allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, mcp__xgs_review__xgs_project_board, mcp__xgs_review__xgs_review
 ---
+
+起草或交付设计文档时，先按[设计交付与任务关联](../../docs/design-delivery.md)确认“评审草案 / 直接正式”的去向，沿用已明确的选择，并把实际原文、读本和候选版本关联回原任务。后续示例路径服从该选择；草案不写入正式 GDD/读本或正式系统索引。
+
 
 参数：[new|update|status]
 

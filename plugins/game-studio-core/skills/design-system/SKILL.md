@@ -1,8 +1,11 @@
 ---
 name: design-system
 description: "Guided GDD authoring for a single game system. Grades the change first (Lite by default, Full only for high-risk changes), then walks through the required sections collaboratively, cross-references dependencies, and writes incrementally to file."
-allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Skill
+allowed-tools: Read, Glob, Grep, Write, Edit, Agent, AskUserQuestion, Skill, mcp__xgs_review__xgs_project_board, mcp__xgs_review__xgs_review
 ---
+
+起草或交付设计文档时，先按[设计交付与任务关联](../../docs/design-delivery.md)确认“评审草案 / 直接正式”的去向，沿用已明确的选择，并把实际原文、读本和候选版本关联回原任务。后续示例路径服从该选择；草案不写入正式 GDD/读本或正式系统索引。
+
 
 参数：<system-name> (e.g., 'combat-system', 'inventory', 'dialogue')
 
@@ -69,7 +72,7 @@ For each dependency GDD that exists, extract and hold in context:
 ### 2c: Optional Reads
 
 - **Game pillars**: Read `design/gdd/game-pillars.md` if it exists
-- **Existing GDD**: Read `design/gdd/[system-name].md` if it exists (resume, don't
+- **Existing draft**: Read the selected `sourcePath` if it exists (resume, don't
   restart from scratch)
 - **Related GDDs**: Glob `design/gdd/*.md` and read any that are thematically related
   (e.g., if designing "status-effects", also read "combat-system" even if it's not
@@ -254,12 +257,12 @@ Keep both blocks in the finished document. They are not scaffolding.
 
 ### 读本的骨架（**另一个文件**）
 
-`design/digest/<跟 GDD 同名>.md`。两档都要，**跟 GDD 骨架同时建**：
+使用已选择的 `readerPath`（正式模式在 design/digest/，草案在对应 proposals 目录的 digest/）。两档都要，**跟 GDD 骨架同时建**：
 
 ```markdown
 # [System Name] — 读本
 
-> **文档**：design/gdd/[文件名].md
+> **文档**：[原文](<以 /design/ 开头的实际项目根路径，或相对 readerPath 计算的 ../gdd/文件名.md>)
 > **写于文档的最后更新**：[原样照抄那篇 GDD 的 Last Updated]
 > **最后更新**：[today's date]
 
@@ -393,12 +396,14 @@ Keep both blocks in the finished document. They are not scaffolding.
 [To be designed]
 ```
 
-Ask: "May I create the skeleton file at `design/gdd/[system-name].md`?"
+Use the destination already chosen under [design delivery](../../docs/design-delivery.md). Create the source and reader skeletons there; do not ask again merely to repeat the same authorization. If the destination is still undecided, ask the author before writing.
 
 After writing, update `team/session-state/{identity}/active.md` with:
 - Task: Designing [system-name] GDD
 - Current section: Starting (skeleton created)
-- File: design/gdd/[system-name].md
+- File: sourcePath（实际原文路径）
+- Reader: readerPath（实际读本路径）
+- Destination: designMode（candidate / formal）；Task: 关联任务编号或未关联
 
 ---
 
@@ -562,7 +567,7 @@ Each section has unique design considerations and may benefit from specialist ag
 >
 > 要问的问题一个没少，只是答案写进读本里。
 >
-> ⚠ **读本是另一个文件**：`design/digest/<跟 GDD 同名>.md`（2026-09-14 改的）。
+> ⚠ **读本是另一个文件**：写入本次选择的 `readerPath`，不能将候选读本写进正式目录。
 > 这一节和 Section H 都写到那个文件里，**不写进 GDD**。
 
 **写什么**：读本的第 1 节，标题是 `### 1. 概括`。**三到五句**：
@@ -710,7 +715,7 @@ not just this system in isolation.
 
 到这儿契约那几节都写完了 —— 现在才有东西可以用白话讲完整。
 
-⚠ **写到 `design/digest/<跟 GDD 同名>.md`**，接在 Section A 那一节后面。
+⚠ **写到本次选择的 `readerPath`**，接在 Section A 那一节后面。
 **这一步之前 GDD 的 `Last Updated` 要已经是最终值** ——
 读本头部那行「写于文档的最后更新」照抄它，抄成一个待会儿还要改的值，
 客户端就会一直说这份读本旧了。
@@ -850,15 +855,17 @@ If yes, invoke the design-review skill on the completed file.
 
 ### 5c: Update Systems Index
 
-After the GDD is complete (and optionally reviewed):
+草案模式跳过正式索引更新，记录草稿路径与候选状态。直接正式模式只记录真实的 Designed / 待人工验收状态；AI design-review 的 APPROVED 是自检结果，不能自动把团队批准状态改成 Approved。先按设计交付规则回写原任务的文档链接与当前版本。
+
+The following index actions apply only to direct-formal mode, after the GDD is written (and optionally AI-reviewed):
 
 - Read the systems index
 - Update the target system's row:
-  - If design-review was run and verdict is APPROVED: Status → "Approved"
+  - If design-review was run and verdict is APPROVED: Status → "Designed" (AI review passed; human acceptance still pending)
   - If design-review was run and verdict is NEEDS REVISION: Status → "In Review"
   - If design-review was skipped: Status → "Designed" (pending review)
   - If the user chose "I'll review it myself first": Status → "Designed"
-  - Design Doc: link to `design/gdd/[system-name].md`
+  - Design Doc: link to the actual `sourcePath` (formal mode only)
 - Update the Progress Tracker counts
 
 Ask: "May I update the systems index at `design/gdd/systems-index.md`?"
@@ -867,8 +874,10 @@ Ask: "May I update the systems index at `design/gdd/systems-index.md`?"
 
 Update `team/session-state/{identity}/active.md` with:
 - Task: [system-name] GDD
-- Status: Complete (or In Review if design-review was run)
-- File: design/gdd/[system-name].md
+- Status: Draft written (candidate mode) or Designed / pending human acceptance (formal mode); this is not task done
+- File: sourcePath（实际原文路径）
+- Reader: readerPath（实际读本路径）
+- Destination: designMode（candidate / formal）；Task: 关联任务编号或未关联
 - Rigor: [Lite / Full]; Sections: [all Lite sections / all 8 Full sections] written
 - Next: [suggest next system from design order]
 
@@ -948,7 +957,7 @@ If the session is interrupted (compaction, crash, new session):
 
 1. Read `team/session-state/{identity}/active.md` — it records the current system,
    the chosen rigor level, and which sections are complete
-2. Read `design/gdd/[system-name].md` — the `Rigor` field in the header is
+2. Recover designMode, sourcePath, readerPath and the task ID from the current task and session state. If missing, locate the actual draft and confirm its destination; never silently resume a formal file instead of a proposal. Read `sourcePath` — the `Rigor` field in the header is
    authoritative (session state can be stale, see R1); sections with real content
    are done, sections with `[To be designed]` still need work
 3. Resume from the next incomplete section — no need to re-discuss completed ones,
@@ -966,10 +975,10 @@ This skill follows the collaborative design principle at every step:
 1. **Question -> Options -> Decision -> Draft -> Approval** for every section
 2. **AskUserQuestion** at every decision point (Explain -> Capture pattern):
    - Phase 2: "Ready to start, or need more context?" and "Lite or Full?" (2e)
-   - Phase 3: "May I create the skeleton?"
+   - Phase 3: Confirm the destination only if it is still unknown; reuse the author's explicit choice.
    - Phase 4 (each section): Design questions, approach options, draft approval
    - Phase 5: "Run design review? Update systems index? What's next?"
-3. **"May I write to [filepath]?"** before the skeleton and before each section write
+3. Reuse explicit writing authorization. Ask about unresolved design decisions or changes of destination; do not repeat permission questions for each already-authorized file or section.
 4. **Incremental writing**: Each section is written to file immediately after approval
 5. **Session state updates**: After every section write
 6. **Cross-referencing**: Every section checks existing GDDs for conflicts

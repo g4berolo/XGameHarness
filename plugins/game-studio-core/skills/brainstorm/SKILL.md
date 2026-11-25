@@ -1,8 +1,11 @@
 ---
 name: brainstorm
 description: "Guided game concept ideation — from zero idea to a structured game concept document. Uses professional studio ideation techniques, player psychology frameworks, and structured creative exploration."
-allowed-tools: Read, Glob, Grep, Write, WebSearch, AskUserQuestion
+allowed-tools: Read, Glob, Grep, Write, WebSearch, AskUserQuestion, mcp__xgs_review__xgs_project_board, mcp__xgs_review__xgs_review
 ---
+
+起草或交付设计文档时，先按[设计交付与任务关联](../../docs/design-delivery.md)确认“评审草案 / 直接正式”的去向，沿用已明确的选择，并把实际原文、读本和候选版本关联回原任务。后续示例路径服从该选择；草案不写入正式 GDD/读本或正式系统索引。
+
 
 参数：[genre or theme hint, or 'open' for fully open brainstorm]
 
